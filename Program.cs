@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -8,44 +8,40 @@ using System.Linq;
 namespace Solution
 {
     class Program
-    {
+    {    
         static void Main(string[] args)
         {
-            string buffer = "";
-            using (StreamReader sr = new StreamReader($"{Directory.GetCurrentDirectory()}\\JSON_sample_1.json"))
-            {
-                    buffer += sr.ReadToEnd();
-            }
-            List<Deal> DealArray = JsonConvert.DeserializeObject<List<Deal>>(buffer);
-            IList<string> selectedDeals =  GetNumbersOfDeals(DealArray);
+            var buffer = File.ReadAllText($"{Directory.GetCurrentDirectory()}\\JSON_sample_1.json");
+            var dealsArray = JsonConvert.DeserializeObject<List<Deal>>(buffer);
+            var selectedDeals = GetNumbersOfDeals(dealsArray);
             Console.Write($"Количество значений: {selectedDeals.Count}");
-            foreach (string item in selectedDeals)
+            foreach (var item in selectedDeals)
             {
                 Console.Write($", {item}");
             }
+            Console.WriteLine();
+            var sumByMonth = GetSumsByMonth(dealsArray);
+            foreach (var t in sumByMonth)
+            {
+                Console.WriteLine($"Номер месяца: {t.Month.Month}, общая сумма сделок: {t.Sum}");
+            }
 
-        }
-      static IList<string> GetNumbersOfDeals(IEnumerable<Deal> deals) // изменил сигнатуру с IList<int> на IList<string> т.к. Id представлены как string
-        {
-            var selectedDeals = from t in deals
-                                orderby t.Date
-                                where t.Sum > 100
-                                select t;
-
-            var sortedDeals = selectedDeals.OrderByDescending(u=>u.Sum).Take(3);
-            IList<string> result = new List<string>();
-            foreach (Deal deal in sortedDeals){
-                result.Add(deal.Id);
-            }  
-            return result;
+            IList<string> GetNumbersOfDeals(IEnumerable<Deal> deals)
+            { 
+                return deals.Where(t=> t.Sum>100)
+                            .OrderBy(t => t.Date)
+                            .Take(5)
+                            .OrderByDescending(t=>t.Sum)
+                            .Select(t => t.Id)
+                            .ToList();
+            }
+            
+            IList<SumByMonth> GetSumsByMonth(IEnumerable<Deal> deals)
+            {
+                return deals.GroupBy(t => t.Date.Month)
+                            .Select(cl => new SumByMonth{Month = cl.First().Date, Sum = cl.Sum(c => c.Sum)})
+                            .ToList();
+            }
         }
     }
-    class Deal
-    {
-        public int Sum {get;set;}
-        public string Id {get;set;}
-        public DateTime Date {get;set;}
-    }
-
-
 }
