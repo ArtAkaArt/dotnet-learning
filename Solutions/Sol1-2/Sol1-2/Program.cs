@@ -1,41 +1,70 @@
-﻿using DaData;
+﻿using Dadata;
+using System.Text.RegularExpressions;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
 
 namespace Solution
 {
     class Programm
     {
-        public static async Task Main(string[] args)
+        public static async Task Main()
         {
-
             Console.WriteLine("Введите ИНН");
-            string INN = Console.ReadLine();
-            string companyName = "";
-            if (INN != null) companyName = await GetCompanyName(INN);
-            Console.WriteLine(companyName);
-
-            async Task<string> GetCompanyName(string INN) // ИНН должен быть десятизначным числом
+            var INN = Console.ReadLine();
+            var companyName = new CompanyNameQueryResult();
+            
+            while (true)
+            {  
+                if (Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$")) companyName = await GetCompanyName(INN);// или вызвать GetCompanyNameAlt
+                Console.WriteLine(companyName.CompanyName != null ? $"Название компании - {companyName.CompanyName}" : $"Произошла ошибка. {companyName.Error}");
+                Console.WriteLine("Для продолжения поиска введите ИНН. Для заершения \"-\" без кавычек");
+                INN = Console.ReadLine();
+                if (INN == "-") break;
+            }
+            
+            Console.WriteLine("Завершение");
+        }
+        private static async Task<CompanyNameQueryResult> GetCompanyName(string INN)
+        {
+            try
             {
-                try
-                {
-                    if (INN?.Length != 10) throw new Exception("Размер ИНН компании должен быть 10 символов");
-                    if (!Int64.TryParse(INN, out long number)) throw new Exception("Введено не число");
-                    if (number < 0) throw new Exception("ИНН должен быть положительным числом");
+                var token = "***"; // вписать токен
+                var api = new SuggestClientAsync(token);
+                var response = await api.FindParty(INN);
+                var party = response.suggestions[0].data;
+                return new CompanyNameQueryResult { CompanyName = party.name.full, };
+            }
+            catch (Exception ex)
+            {
+                return new CompanyNameQueryResult { CompanyName = null, Error = ex.Message };
+            }
+        }
 
-                    var token = "045e1fcb358827b660f924397ff72edf1fa7bda1";
-                    var api = new Dadata.SuggestClientAsync(token);
-                    var response = await api.FindParty(INN);
-                    var party = response.suggestions[0].data;
+        private static async Task<CompanyNameQueryResult> GetCompanyNameAlt(string INN)
+        {
+            try
+            {
 
-                    return party.name.full;
-                }
-                catch (Exception ex)
+                using (var httpClient = new HttpClient())
                 {
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine("Произошла ошибка, повторите ввод ИНН или введите \"-\" без кавычек для отмены");
-                    var INN2 = Console.ReadLine();
-                    if (INN2 != "-" && INN2 != null) return await GetCompanyName(INN2);
-                    return "Выход";
+                    using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party"))
+                    {
+                        request.Headers.TryAddWithoutValidation("Accept", "application/json");
+                        request.Headers.TryAddWithoutValidation("Authorization", "Token ***");// вписать токен
+
+                        request.Content = new StringContent("{ \"query\": \"" + INN + "\" }");
+                        request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                        var response = await httpClient.SendAsync(request);
+                        var responseLine = await response.Content.ReadAsStringAsync(); // не придумал адекватного названия переменной
+                        var deserializedResponse = JsonConvert.DeserializeObject<Dadata.Model.SuggestResponse<Dadata.Model.Party>>(responseLine); //гспаде, подобрал все же
+
+                        return new CompanyNameQueryResult { CompanyName = deserializedResponse?.suggestions[0].data.name.full, };
+                    }
                 }
+            }catch (Exception ex)
+            {
+                return new CompanyNameQueryResult { CompanyName = null, Error = ex.Message };
             }
         }
     }
