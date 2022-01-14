@@ -5,23 +5,25 @@ using Newtonsoft.Json;
 
 namespace Solution
 {
+
     class Programm
     {
+        static HttpClient httpClient = new HttpClient();
         public static async Task Main()
         {
             Console.WriteLine("Введите ИНН");
             var INN = Console.ReadLine();
             var companyName = new CompanyNameQueryResult();
-            
+
             while (true)
-            {  
-                if (Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$")) companyName = await GetCompanyName(INN);// или вызвать GetCompanyNameAlt
+            {
+                if (Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$")) companyName = await GetCompanyNameAlt(INN);// или вызвать GetCompanyNameAlt
                 Console.WriteLine(companyName.CompanyName != null ? $"Название компании - {companyName.CompanyName}" : $"Произошла ошибка. {companyName.Error}");
                 Console.WriteLine("Для продолжения поиска введите ИНН. Для заершения \"-\" без кавычек");
                 INN = Console.ReadLine();
                 if (INN == "-") break;
             }
-            
+
             Console.WriteLine("Завершение");
         }
         private static async Task<CompanyNameQueryResult> GetCompanyName(string INN)
@@ -44,25 +46,22 @@ namespace Solution
         {
             try
             {
-
-                using (var httpClient = new HttpClient())
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party"))
                 {
-                    using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party"))
-                    {
-                        request.Headers.TryAddWithoutValidation("Accept", "application/json");
-                        request.Headers.TryAddWithoutValidation("Authorization", "Token ***");// вписать токен
+                    request.Headers.TryAddWithoutValidation("Accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Token ***");// вписать токен
 
-                        request.Content = new StringContent("{ \"query\": \"" + INN + "\" }");
-                        request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+                    request.Content = new StringContent("{ \"query\": \"" + INN + "\" }");
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
 
-                        var response = await httpClient.SendAsync(request);
-                        var responseLine = await response.Content.ReadAsStringAsync(); // не придумал адекватного названия переменной
-                        var deserializedResponse = JsonConvert.DeserializeObject<Dadata.Model.SuggestResponse<Dadata.Model.Party>>(responseLine); //гспаде, подобрал все же
+                    var response = await httpClient.SendAsync(request);
+                    var responseLine = await response.Content.ReadAsStringAsync(); // не придумал адекватного названия переменной
+                    var deserializedResponse = JsonConvert.DeserializeObject<Dadata.Model.SuggestResponse<Dadata.Model.Party>>(responseLine); //гспаде, подобрал все же
 
-                        return new CompanyNameQueryResult { CompanyName = deserializedResponse?.suggestions[0].data.name.full, };
-                    }
+                    return new CompanyNameQueryResult { CompanyName = deserializedResponse?.suggestions[0].data.name.full, };
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return new CompanyNameQueryResult { CompanyName = null, Error = ex.Message };
             }
