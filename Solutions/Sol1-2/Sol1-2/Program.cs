@@ -59,8 +59,7 @@ namespace Solution
                     var responseLine = await response.Content.ReadAsStringAsync(); // не придумал адекватного названия переменной
                     var deserializedResponse = JsonConvert.DeserializeObject<Rootobject>(responseLine);
 
-                    string companyName = null;
-                    if (deserializedResponse?.suggestions[0]?.data?.name?.full is not null) companyName = deserializedResponse.suggestions[0].data.name.full;
+                    var companyName = deserializedResponse?.suggestions[0]?.data?.name?.full;
                     if (companyName is null) return new CompanyNameQueryResult { CompanyName = companyName, Error = "Имя компанни не найдено"};
 
                     return new CompanyNameQueryResult { CompanyName = companyName, };
