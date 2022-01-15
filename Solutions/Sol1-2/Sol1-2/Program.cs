@@ -34,6 +34,7 @@ namespace Solution
                 var api = new SuggestClientAsync(token);
                 var response = await api.FindParty(INN);
                 var party = response.suggestions[0].data;
+
                 return new CompanyNameQueryResult { CompanyName = party.name.full, };
             }
             catch (Exception ex)
@@ -56,7 +57,9 @@ namespace Solution
 
                     var response = await httpClient.SendAsync(request);
                     var responseLine = await response.Content.ReadAsStringAsync(); // не придумал адекватного названия переменной
-                    var deserializedResponse = JsonConvert.DeserializeObject<Dadata.Model.SuggestResponse<Dadata.Model.Party>>(responseLine); //гспаде, подобрал все же
+                    var deserializedResponse = JsonConvert.DeserializeObject<Rootobject>(responseLine);
+
+                    if (deserializedResponse?.suggestions[0]?.data?.name?.full is null) return new CompanyNameQueryResult { CompanyName = null, Error = "Имя компании не найдено."};
 
                     return new CompanyNameQueryResult { CompanyName = deserializedResponse?.suggestions[0].data.name.full, };
                 }
