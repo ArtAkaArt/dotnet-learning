@@ -19,12 +19,19 @@ namespace WebApplication1.Controllers
             this.requster = requster;
             _logger = logger;
         }
-        [HttpGet(Name = "GetCompanyName")]
+        /// <summary>
+        /// Ввести ИНН компании для поиска имени
+        /// </summary>
+        /// <param name="INN"> ИНН сюда</param>
+        /// <returns></returns>
+        [HttpPost(Name = "GetCompanyName/{INN}")]
         
-        public IActionResult GetName([FromBody] string INN) // тут явно есть проблемы, но надо тестить
+        public string GetName([FromQuery] string INN)
         {
-            if (Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$")) return Ok(requster.GetCompanyName(INN));
-            return NotFound();
+            
+            var requster = new DadataApiRequester();
+            if (Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$")) return requster.GetCompanyName(INN).Result;
+            return "NotFound";
         }
     }
 }
