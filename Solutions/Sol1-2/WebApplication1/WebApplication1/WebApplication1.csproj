@@ -18,4 +18,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="DadataRequestLibrary">
+      <HintPath>DadataRequestLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

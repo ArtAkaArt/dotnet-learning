@@ -2,7 +2,6 @@
 namespace WebApplication1
 
 {
-
     public class DadataApiRequester
     {
         public string token { get; set; }
