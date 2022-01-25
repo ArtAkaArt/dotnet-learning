@@ -1,13 +1,13 @@
-﻿using Dadata;
+using Dadata;
 
 namespace DadataRequestLibrary
 {
-    public class DadataLib
+    public class DadataLibrary
     {
-        string token { get; set; }
-        public DadataLib(string token)
+        private readonly string token;
+        public DadataLibrary(string _token)
         {
-            this.token = token;
+            token = _token;
         }
         public async Task<CompanyNameQueryResult> GetCompanyName(string INN)
         {

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -10,18 +10,19 @@
 
   <ItemGroup>
     <PackageReference Include="Dadata" Version="21.12.0" />
-    <PackageReference Include="DaData.Client" Version="0.1.7" />
-    <PackageReference Include="DaData.Client.Async" Version="1.1.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="DaData.Client" Version="0.1.7">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="DaData.Client.Async" Version="1.1.2">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="DadataRequestLibrary">
-      <HintPath>DadataRequestLibrary.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\..\lbr\DadataRequestLibrary\DadataRequestLibrary.csproj" />
   </ItemGroup>
 
 </Project>
