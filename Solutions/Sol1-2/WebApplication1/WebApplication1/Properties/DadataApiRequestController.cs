@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
-using DadataRequestLibrary;
 
 namespace WebApplication1.Controllers
 {
@@ -9,14 +8,9 @@ namespace WebApplication1.Controllers
     public class DadataApiRequestController : ControllerBase
     {
         private readonly DadataLibrary requster;
-        private readonly ILogger<DadataApiRequestController> _logger;
-        private readonly TokenContainer _container;
-
-        public DadataApiRequestController(ILogger<DadataApiRequestController> logger, TokenContainer container)
+        public DadataApiRequestController(DadataLibrary lib)
         {
-            _logger = logger;
-            _container = container;
-            requster = new DadataLibrary(_container.GetToken()); // так и не понял как из опций передать значение конструктору в Program.cs
+            requster = lib; 
         }
         /// <summary>
         /// Ввести ИНН компании для поиска имени
@@ -31,8 +25,6 @@ namespace WebApplication1.Controllers
             var companyName = new CompanyNameQueryResult();
             if (Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$")) companyName = await requster.GetCompanyName(INN);
             if (companyName.CompanyName is not null)  return Ok($"ИНН {INN} принадлежит компании {companyName.CompanyName}.");
-            _logger.LogInformation("Ошибка получения имени компании "+companyName.Error);
-            /* не уверен что это будет так работать, но лучше пока ничего не придумал, добавить логгер в DadataLibrary так и не смог */
             return NotFound($"Произошла ошибка. Компания с ИНН = {INN} не найдена. {companyName.Error}");
         }
         

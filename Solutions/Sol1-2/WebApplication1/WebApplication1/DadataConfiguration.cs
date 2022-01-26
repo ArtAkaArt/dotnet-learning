@@ -1,8 +1,8 @@
 ﻿namespace WebApplication1
 {
-    public class PositionOptions
+    public class DadataConfiguration
     {
-        public const string Position = "Position";
+        public const string Configuration = "Configuration";
         public string Token { get; set; } = String.Empty;
     }
 }

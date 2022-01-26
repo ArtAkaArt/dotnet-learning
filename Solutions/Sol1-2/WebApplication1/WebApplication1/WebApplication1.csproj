@@ -10,9 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="Dadata" Version="21.12.0" />
-    <PackageReference Include="DaData.Client" Version="0.1.7">
-      <TreatAsUsed>true</TreatAsUsed>
-    </PackageReference>
     <PackageReference Include="DaData.Client.Async" Version="1.1.2">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
@@ -22,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\lbr\DadataRequestLibrary\DadataRequestLibrary.csproj" />
+    <ProjectReference Include="..\..\Sol1-2\Sol1-2.csproj" />
   </ItemGroup>
 
 </Project>

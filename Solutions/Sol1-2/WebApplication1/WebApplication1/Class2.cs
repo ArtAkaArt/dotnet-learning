@@ -1,6 +1,4 @@
-
-
-namespace DadataRequestLibrary
+namespace WebApplication1
 {
         public class CompanyNameQueryResult
         {
