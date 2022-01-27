@@ -9,9 +9,39 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="WebApp\appsettings.Development.json" />
+    <None Remove="WebApp\appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="WebApp\appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="WebApp\appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dadata" Version="21.12.0" />
     <PackageReference Include="DaData.Client.Async" Version="1.1.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="DadataRequestLibrary\DadataRequestLibrary.csproj" />
+    <ProjectReference Include="WebApp\WebApp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="WebApp\Properties\launchSettings.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

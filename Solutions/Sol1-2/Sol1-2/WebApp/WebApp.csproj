@@ -18,8 +18,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Sol1-2\Sol1-2.csproj" />
-  </ItemGroup>
-
 </Project>
