@@ -22,7 +22,7 @@ namespace WebApplication1
                 if (party == null)
                 {
                     var response = new CompanyNameQueryResult { CompanyName = null, Error = "Ошибка получений данных из ответа DadataApi" };
-                    logger.LogError($"Ошибка получения имени компании по ИНН {INN}. {response.Error}");
+                    logger.LogError($"Ошибка получения имени компании по ИН {INN}. {response.Error}");
                     return response;
                 }
                 return new CompanyNameQueryResult { CompanyName = party.name.full, };
