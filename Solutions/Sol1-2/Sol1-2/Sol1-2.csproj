@@ -29,12 +29,6 @@
   <ItemGroup>
     <PackageReference Include="Dadata" Version="21.12.0" />
     <PackageReference Include="DaData.Client.Async" Version="1.1.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="DadataRequestLibrary\DadataRequestLibrary.csproj" />
-    <ProjectReference Include="WebApp\WebApp.csproj" />
   </ItemGroup>
 
   <ItemGroup>
