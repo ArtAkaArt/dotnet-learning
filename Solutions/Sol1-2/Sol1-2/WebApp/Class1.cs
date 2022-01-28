@@ -7,9 +7,9 @@ namespace WebApplication1
         private readonly string token;
         private ILogger<DadataLibrary> logger;
 
-        public DadataLibrary(DadataConfiguration config, ILogger<DadataLibrary> logger)
+        public DadataLibrary(DadataConfiguration configs, ILogger<DadataLibrary> logger)
         {
-            token = config.Token;
+            token = configs.Token;
             this.logger = logger;
         }
         public async Task<CompanyNameQueryResult> GetCompanyName(string INN)
