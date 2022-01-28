@@ -1,10 +1,18 @@
 using System.Reflection;
 using Microsoft.Extensions.Options;
 using WebApplication1;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+
 builder.Services.AddSwaggerGen(options =>
 {
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -12,9 +20,11 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.Configure<DadataConfiguration>(
     builder.Configuration.GetSection(DadataConfiguration.Configuration));
+var dadataConfig = builder.Configuration.GetSection(DadataConfiguration.Configuration).Get<DadataConfiguration>();
 
-builder.Services.AddTransient<TokenContainer>();
+builder.Services.AddSingleton<DadataConfiguration>(x => dadataConfig);
 builder.Services.AddTransient<DadataLibrary>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
