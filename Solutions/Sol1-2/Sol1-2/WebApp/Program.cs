@@ -20,9 +20,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.Configure<DadataConfiguration>(
     builder.Configuration.GetSection(DadataConfiguration.Configuration));
-var dadataConfig = builder.Configuration.GetSection(DadataConfiguration.Configuration).Get<DadataConfiguration>();
+//var dadataConfig = builder.Configuration.GetSection(DadataConfiguration.Configuration).Get<DadataConfiguration>();
 
-builder.Services.AddSingleton<DadataConfiguration>(x => dadataConfig);
+builder.Services.AddSingleton<DadataConfiguration>();
 builder.Services.AddTransient<DadataLibrary>();
 
 var app = builder.Build();
