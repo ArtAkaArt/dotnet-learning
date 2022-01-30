@@ -18,7 +18,7 @@ namespace Solution
             while (true)
             {
                 if (Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$")) 
-                    companyName = await GetCompanyNameAlt(INN);// или вызвать GetCompanyNameAlt
+                    companyName = await GetCompanyName(INN);// или вызвать GetCompanyNameAlt
                 Console.WriteLine(companyName.CompanyName != null ? $"Название компании - {companyName.CompanyName}" : $"Произошла ошибка. {companyName.Error}");
                 Console.WriteLine("Для продолжения поиска введите ИНН. Для заершения \"-\" без кавычек");
                 INN = Console.ReadLine();

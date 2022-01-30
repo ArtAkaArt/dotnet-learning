@@ -22,7 +22,7 @@ builder.Services.Configure<DadataConfiguration>(
     builder.Configuration.GetSection(DadataConfiguration.Configuration));
 //var dadataConfig = builder.Configuration.GetSection(DadataConfiguration.Configuration).Get<DadataConfiguration>();
 
-builder.Services.AddSingleton<DadataConfiguration>();
+//builder.Services.AddSingleton<DadataConfiguration>();
 builder.Services.AddTransient<DadataLibrary>();
 
 var app = builder.Build();
