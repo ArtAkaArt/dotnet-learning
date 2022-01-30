@@ -1,17 +1,16 @@
 using Dadata;
-using Microsoft.Extensions.Options;
-
-namespace WebApplication1
+using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Options;
+namespace DadataRequestLibrary
 {
     public class DadataLibrary
     {
         private readonly string token;
         private ILogger<DadataLibrary> logger;
-
-        public DadataLibrary(IOptions<DadataConfiguration> configs, ILogger<DadataLibrary> logger)
+        public DadataLibrary(string token)//тут 1
         {
-            token = configs.Value.Token;
-            this.logger = logger;
+            this.token = token;//тут 2
         }
         public async Task<CompanyNameQueryResult> GetCompanyName(string INN)
         {
@@ -22,15 +21,15 @@ namespace WebApplication1
                 var party = apiResponse?.suggestions[0]?.data;
                 if (party == null || apiResponse?.suggestions.Count < 1)
                 {
-                    var response = new CompanyNameQueryResult { CompanyName = null, Error = "РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёР№ РґР°РЅРЅС‹С… РёР· РѕС‚РІРµС‚Р° DadataApi" };
-                    logger.LogError($"РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё РєРѕРјРїР°РЅРёРё РїРѕ РРќРќ {INN}. {response.Error}");
+                    var response = new CompanyNameQueryResult { CompanyName = null, Error = "Ошибка получений данных из ответа DadataApi" };
+                    //logger.LogError($"Ошибка получения имени компании по ИНН {INN}. {response.Error}");
                     return response;
                 }
                 return new CompanyNameQueryResult { CompanyName = party.name.full, };
             }
             catch (Exception ex)
             {
-                logger.LogError($"РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё РєРѕРјРїР°РЅРёРё РїРѕ РРќРќ {INN}. { ex.Message}");
+                //logger.LogError($"Ошибка получения имени компании по ИНН {INN}. { ex.Message}");
                 return new CompanyNameQueryResult { CompanyName = null, Error = ex.Message };
             }
         }

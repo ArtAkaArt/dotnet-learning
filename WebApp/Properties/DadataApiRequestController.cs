@@ -21,9 +21,10 @@ namespace WebApplication1.Controllers
         
         public async Task<ActionResult> GetName([FromQuery] string INN)
         {
-            var companyName = new CompanyNameQueryResult();
-            if (Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$")) 
-                companyName = await requster.GetCompanyName(INN);
+            if (!Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$"))
+                return BadRequest($"{INN} плохой");
+
+            var companyName = await requster.GetCompanyName(INN);
             if (companyName.CompanyName is not null)  
                 return Ok($"ИНН {INN} принадлежит компании {companyName.CompanyName}.");
             return NotFound($"Произошла ошибка. Компания с ИНН = {INN} не найдена. {companyName.Error}");
