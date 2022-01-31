@@ -1,5 +1,3 @@
-
-
 namespace DadataRequestLibrary
 {
         public class CompanyNameQueryResult

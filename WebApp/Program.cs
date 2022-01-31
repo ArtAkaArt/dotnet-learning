@@ -1,7 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.Options;
-using WebApplication1;
 using Serilog;
+using DadataRequestLibrary;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();

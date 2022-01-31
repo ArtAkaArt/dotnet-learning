@@ -1,4 +1,4 @@
-﻿namespace WebApplication1
+﻿namespace DadataRequestLibrary
 {
     public class DadataConfiguration
     {
