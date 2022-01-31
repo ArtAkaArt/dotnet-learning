@@ -22,15 +22,15 @@ namespace DadataRequestLibrary
                 var party = apiResponse?.suggestions[0]?.data;
                 if (party == null || apiResponse?.suggestions.Count < 1)
                 {
-                    var response = new CompanyNameQueryResult { CompanyName = null, Error = "Îøèáêà ïîëó÷åíèé äàííûõ èç îòâåòà DadataApi" };
-                    logger.LogError($"Îøèáêà ïîëó÷åíèÿ èìåíè êîìïàíèè ïî ÈÍÍ {INN}. {response.Error}");
+                    var response = new CompanyNameQueryResult { CompanyName = null, Error = "ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ð¹ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð¸Ð· Ð¾Ñ‚Ð²ÐµÑ‚Ð° DadataApi" };
+                    logger.LogError($"ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ñ Ð¸Ð¼ÐµÐ½Ð¸ ÐºÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ð¸ Ð¿Ð¾ Ð˜ÐÐ {INN}. {response.Error}");
                     return response;
                 }
                 return new CompanyNameQueryResult { CompanyName = party.name.full, };
             }
             catch (Exception ex)
             {
-                logger.LogError($"Îøèáêà ïîëó÷åíèÿ èìåíè êîìïàíèè ïî ÈÍÍ {INN}. { ex.Message}");
+                logger.LogError($"ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ñ Ð¸Ð¼ÐµÐ½Ð¸ ÐºÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ð¸ Ð¿Ð¾ Ð˜ÐÐ {INN}. { ex.Message}");
                 return new CompanyNameQueryResult { CompanyName = null, Error = ex.Message };
             }
         }
