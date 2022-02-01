@@ -8,10 +8,15 @@ namespace DadataRequestLibrary
     {
         private readonly string token;
         private ILogger<DadataLibrary> logger;
+
         public DadataLibrary(IOptions<DadataConfiguration> configs, ILogger<DadataLibrary> logger)
         {
             token = configs.Value.Token;
             this.logger = logger;
+        }
+        public DadataLibrary(DadataConfiguration configs)
+        {
+            token = configs.Token;
         }
         public async Task<CompanyNameQueryResult> GetCompanyName(string INN)
         {
@@ -23,14 +28,14 @@ namespace DadataRequestLibrary
                 if (party == null || apiResponse?.suggestions.Count < 1)
                 {
                     var response = new CompanyNameQueryResult { CompanyName = null, Error = "Ошибка получений данных из ответа DadataApi" };
-                    logger.LogError($"Ошибка получения имени компании по ИНН {INN}. {response.Error}");
+                    //logger.LogError($"Ошибка получения имени компании по ИНН {INN}. {response.Error}");
                     return response;
                 }
                 return new CompanyNameQueryResult { CompanyName = party.name.full, };
             }
             catch (Exception ex)
             {
-                logger.LogError($"Ошибка получения имени компании по ИНН {INN}. { ex.Message}");
+                //logger.LogError($"Ошибка получения имени компании по ИНН {INN}. { ex.Message}");
                 return new CompanyNameQueryResult { CompanyName = null, Error = ex.Message };
             }
         }
