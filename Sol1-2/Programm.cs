@@ -2,11 +2,11 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using DadataRequestLibrary;
-using Serilog;
+
 namespace Solution
 {
-
     class Programm
     {
         private static DadataConfiguration tokenContainer;
@@ -15,16 +15,18 @@ namespace Solution
         { 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false);
+                .AddJsonFile("settings.json", optional: false);
             IConfiguration config = builder.Build();
-
             tokenContainer = config.GetSection("Configuration").Get<DadataConfiguration>();
 
-            Log.Logger = new LoggerConfiguration() // логгер то есть, но как его передать
-                            .WriteTo.File($"{Directory.GetCurrentDirectory()}consoleapp.log")
-                            .CreateLogger();
+            using var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            });
+            var logger = loggerFactory.CreateLogger<DadataLibrary>();
 
-            var requester = new DadataLibrary(tokenContainer); // добавил еще 1 конструктор и отключил логирование в либе пока что
+            var requester = new DadataLibrary(tokenContainer.Token, logger); // добавил еще 1 конструктор
+            
             Console.WriteLine("Введите ИНН");
             var INN = Console.ReadLine();
             
