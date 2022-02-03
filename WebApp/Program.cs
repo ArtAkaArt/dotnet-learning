@@ -20,7 +20,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.Configure<DadataConfiguration>(
     builder.Configuration.GetSection(DadataConfiguration.Configuration));
 
-//var dadataConfig = builder.Configuration.GetSection(DadataConfiguration.Configuration).Get<DadataConfiguration>(); оставил для напоминания
+//var dadataConfig = builder.Configuration.GetSection(DadataConfiguration.Configuration).Get<DadataConfiguration>(); РѕСЃС‚Р°РІРёР» РґР»СЏ РЅР°РїРѕРјРёРЅР°РЅРёСЏ
 
 builder.Services.AddTransient<DadataLibrary>();
 
