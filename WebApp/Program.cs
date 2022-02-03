@@ -1,5 +1,4 @@
 using System.Reflection;
-using Microsoft.Extensions.Options;
 using Serilog;
 using DadataRequestLibrary;
 
@@ -20,9 +19,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.Configure<DadataConfiguration>(
     builder.Configuration.GetSection(DadataConfiguration.Configuration));
-//var dadataConfig = builder.Configuration.GetSection(DadataConfiguration.Configuration).Get<DadataConfiguration>();
 
-//builder.Services.AddSingleton<DadataConfiguration>();
+//var dadataConfig = builder.Configuration.GetSection(DadataConfiguration.Configuration).Get<DadataConfiguration>(); оставил для напоминания
+
 builder.Services.AddTransient<DadataLibrary>();
 
 var app = builder.Build();
@@ -36,17 +35,3 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
-
-public class TokenContainer
-{
-    private readonly DadataConfiguration _options;
-
-    public TokenContainer(IOptions<DadataConfiguration> options)
-    {
-        _options = options.Value;
-    }
-    public string GetToken()
-    {
-        return _options.Token;
-    }
-}

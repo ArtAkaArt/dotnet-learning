@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+﻿using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
@@ -16,24 +16,24 @@ namespace Solution
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("settings.json", optional: false);
-            IConfiguration config = builder.Build();
-            tokenContainer = config.GetSection("Configuration").Get<DadataConfiguration>();
+            var config = builder.Build();
+            var tokenContainer = Options.Create<DadataConfiguration>(config.GetSection("Configuration").Get<DadataConfiguration>());
 
             using var loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.AddConsole();
             });
             var logger = loggerFactory.CreateLogger<DadataLibrary>();
+           
+            var requester = new DadataLibrary(tokenContainer, logger);
 
-            var requester = new DadataLibrary(tokenContainer.Token, logger); // добавил еще 1 конструктор
-            
             Console.WriteLine("Введите ИНН");
             var INN = Console.ReadLine();
             
             while (true)
             {
                 var companyName = new CompanyNameQueryResult();
-                if (Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$"))
+                if (requester.CheckINN(INN))
                     companyName = await requester.GetCompanyName(INN);// или вызвать GetCompanyNameAlt
                 Console.WriteLine(companyName.CompanyName != null ? $"Название компании - {companyName.CompanyName}" : $"Произошла ошибка. {companyName.Error}");
                 Console.WriteLine("Для продолжения поиска введите ИНН. Для заершения \"-\" без кавычек");

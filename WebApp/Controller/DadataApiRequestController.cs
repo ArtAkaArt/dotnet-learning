@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.RegularExpressions;
 using DadataRequestLibrary;
 
 namespace WebApplication1.Controllers
@@ -22,8 +21,8 @@ namespace WebApplication1.Controllers
         
         public async Task<ActionResult> GetName([FromQuery] string INN)
         {
-            if (!Regex.IsMatch(INN, @"^\d{10}$|^\d{12}$"))
-                return BadRequest($"{INN} плохой");
+            if (!requster.CheckINN(INN))
+                return BadRequest($"{INN} должен быть десяти- или двенадцатизначным числом");
 
             var companyName = await requster.GetCompanyName(INN);
             if (companyName.CompanyName is not null)  
