@@ -1,5 +1,4 @@
-﻿
-namespace Solution
+﻿namespace DadataRequestLibrary
 {
 
     public class Rootobject
