@@ -7,7 +7,7 @@ using DadataRequestLibrary;
 
 namespace Solution
 {
-    class Programm
+    class Program
     {
         private static DadataConfiguration tokenContainer;
         static HttpClient httpClient = new HttpClient();
