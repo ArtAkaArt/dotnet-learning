@@ -17,7 +17,7 @@ namespace WebApplication1.Controllers
         /// </summary>
         /// <param name="INN"> ИНН сюда</param>
         /// <returns></returns>
-        [HttpPost(Name = "GetCompanyName/{INN}")]
+        [HttpGet(Name = "GetCompanyName/{INN}")]
         
         public async Task<ActionResult> GetName([FromQuery] string INN)
         {

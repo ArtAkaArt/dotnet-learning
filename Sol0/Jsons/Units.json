@@ -1,0 +1,17 @@
+﻿[
+  {
+    "Id": 1,
+    "Name": "ГФУ-2",
+    "FactoryId": 1
+  },
+  {
+    "Id": 2,
+    "Name": "АВТ-6",
+    "FactoryId": 1
+  },
+  {
+    "Id": 3,
+    "Name": "АВТ-10",
+    "FactoryId": 2
+  }
+]
