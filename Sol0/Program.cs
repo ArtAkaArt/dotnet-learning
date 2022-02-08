@@ -4,13 +4,13 @@ namespace Sol0
 {
     class Program
     {
-        static List<Unit> units = new List<Unit>();
-        static List<Tank> tanks = new List<Tank>();
-        static List<Factory> factories = new List<Factory>();
+        static List<Unit> units = new();
+        static List<Tank> tanks = new();
+        static List<Factory> factories = new();
         public static void Main()
         {
-            var directoryPath = Directory.GetCurrentDirectory() + "\\Jsons\\";
-          
+            var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Jsons\\");
+
             if (FileCheck(Path.Combine(directoryPath, "Units.json")))
             {
                 var json = File.ReadAllText(Path.Combine(directoryPath, "Units.json"));
@@ -36,7 +36,8 @@ namespace Sol0
             var unitName = Console.ReadLine();
             do
             {
-                try { 
+                try 
+                { 
                     var foundUnit = FindUnit(units, tanks, unitName);
                     var factory = FindFactory(factories, foundUnit);
                 
@@ -53,7 +54,6 @@ namespace Sol0
             } while (unitName != "-");
         }
         
-        
         public static int GetTotalVolume(IEnumerable<Tank> tanks)
         {
             return tanks.Sum(t => t.Volume);
@@ -65,44 +65,27 @@ namespace Sol0
 
         public static Unit FindUnit(IEnumerable<Unit> units, IEnumerable<Tank> tanks, string unitName)
         {
-            try
-            {
-                var tank = tanks.Where(t => t.Name == unitName)
-                                .First();
-                return units.Where(t => t.Id == tank.UnitId)
-                            .First();
-            }
-            catch (InvalidOperationException ex)
-            {
-                Console.WriteLine(ex + $"\n\tОшибка: вероятно не найден первый элемент последовательности. unitName = {unitName}");
-            }
-            catch (Exception ex)//на случай если какая-то другая ошибка вылезет
-            {
-                Console.WriteLine(ex.Message);
-            }
-            throw new Exception("Установка не найдена");
+            var tank = tanks.Where(t => t.Name == unitName)
+                            .FirstOrDefault();
+            if (tank is null) 
+                throw new InvalidOperationException($"Не найдена установка с именем {unitName}");
+            var unit = units.Where(t => t.Id == tank.UnitId)
+                            .FirstOrDefault();
+            if (unit is null) 
+                throw new InvalidOperationException($"Не найдена установка с именем {unitName}");
+            return unit;
         }
 
         public static Factory FindFactory(IEnumerable<Factory> factories, Unit unit)
         {
-            try { 
-
-            return factories.Where(t => t.Id == unit.FactoryId)
-                            .First();
-            }
-            catch (InvalidOperationException ex)
-            {
-                Console.WriteLine(ex + $"\n\tОшибка: вероятно не найден первый элемент последовательности. FactoryId = {unit.FactoryId}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            throw new Exception("Завод не найден");
+            var factory = factories.Where(t => t.Id == unit.FactoryId)
+                            .FirstOrDefault();
+            if (factory is null)
+                throw new InvalidOperationException($"Не найден завод у установки с именем {unit.Name}");
+            return factory;
         }
         static bool FileCheck(string path)// какая-никакая проверка на наличие файлов
         {
-
             var file = new FileInfo(path);
             return (file.Exists && file.Length > 0);
         }
