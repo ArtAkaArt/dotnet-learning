@@ -9,21 +9,20 @@ namespace Sol0
         static List<Factory> factories = new();
         public static void Main()
         {
-            var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Jsons\\");
-
+            var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Jsons");
             if (FileCheck(Path.Combine(directoryPath, "Units.json")))
             {
                 var json = File.ReadAllText(Path.Combine(directoryPath, "Units.json"));
                 units = JsonSerializer.Deserialize<List<Unit>>(json);
             }
-            if (FileCheck(directoryPath + "Tanks.json"))
+            if (FileCheck(Path.Combine(directoryPath, "Tanks.json")))
             {
                 var json = File.ReadAllText(Path.Combine(directoryPath, "Tanks.json"));
                 tanks = JsonSerializer.Deserialize<List<Tank>>(json);
             }
-            if (FileCheck(directoryPath + "Factories.json"))
+            if (FileCheck(Path.Combine(directoryPath, "Factories.json")))
             {
-                var json = File.ReadAllText(directoryPath + "Factories.json");
+                var json = File.ReadAllText(Path.Combine(directoryPath, "Factories.json"));
                 factories = JsonSerializer.Deserialize<List<Factory>>(json);
             }
             if (tanks != null && tanks.Any())
@@ -65,12 +64,10 @@ namespace Sol0
 
         public static Unit FindUnit(IEnumerable<Unit> units, IEnumerable<Tank> tanks, string unitName)
         {
-            var tank = tanks.Where(t => t.Name == unitName)
-                            .FirstOrDefault();
+            var tank = tanks.FirstOrDefault(t => t.Name == unitName);
             if (tank is null) 
                 throw new InvalidOperationException($"Не найдена установка с именем {unitName}");
-            var unit = units.Where(t => t.Id == tank.UnitId)
-                            .FirstOrDefault();
+            var unit = units.FirstOrDefault(t => t.Id == tank.UnitId);
             if (unit is null) 
                 throw new InvalidOperationException($"Не найдена установка с именем {unitName}");
             return unit;
@@ -78,8 +75,7 @@ namespace Sol0
 
         public static Factory FindFactory(IEnumerable<Factory> factories, Unit unit)
         {
-            var factory = factories.Where(t => t.Id == unit.FactoryId)
-                            .FirstOrDefault();
+            var factory = factories.FirstOrDefault(t => t.Id == unit.FactoryId);
             if (factory is null)
                 throw new InvalidOperationException($"Не найден завод у установки с именем {unit.Name}");
             return factory;
