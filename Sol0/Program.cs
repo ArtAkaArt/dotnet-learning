@@ -4,112 +4,67 @@ namespace Sol0
 {
     class Program
     {
-        static List<Unit> units = new();
-        static List<Tank> tanks = new();
-        static List<Factory> factories = new();
+        static string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Jsons");
         public static void Main()
         {
-            var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Jsons");
-            if (FileCheck(Path.Combine(directoryPath, "Units.json")))
+            //эх, статиками удобнее было)
+            List<Unit> units = new();
+            List<Tank> tanks = new();
+            List<Factory> factories = new();
+            try
             {
-                var json = File.ReadAllText(Path.Combine(directoryPath, "Units.json"));
-                units = JsonSerializer.Deserialize<List<Unit>>(json);
+                tanks = GetTanks();
+                units = GetUnits();
+                factories = GetFactories();
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
+            var user = new UserInterractions();
+            user.Notify += delegate (string mes) 
+                {
+                    Console.WriteLine($"Пользователь ввел название {mes} в {DateTime.Now.ToString("HH:mm:ss")}"); 
+                };
+            if (tanks is not null && tanks.Any())
+            {
+                user.ShowVolumes(tanks);
+            }
+            user.SerachUnits(units, tanks, factories);
+        }
+
+
+        public static List<Tank> GetTanks()
+        {
             if (FileCheck(Path.Combine(directoryPath, "Tanks.json")))
             {
                 var json = File.ReadAllText(Path.Combine(directoryPath, "Tanks.json"));
-                tanks = JsonSerializer.Deserialize<List<Tank>>(json);
+                return JsonSerializer.Deserialize<List<Tank>>(json);
             }
-            if (FileCheck(Path.Combine(directoryPath, "Factories.json")))
+            throw new Exception("Ошибка загрузки резервуаров");
+        }
+        public static List<Unit> GetUnits()
+        {
+            if (FileCheck(Path.Combine(directoryPath, "Units.json.")))
+            {
+                var json = File.ReadAllText(Path.Combine(directoryPath, "Units.json"));
+                return JsonSerializer.Deserialize<List<Unit>>(json);
+            }
+            throw new Exception("Ошибка загрузки установок.");
+        }
+        public static List<Factory> GetFactories()
+        {
             {
                 var json = File.ReadAllText(Path.Combine(directoryPath, "Factories.json"));
-                factories = JsonSerializer.Deserialize<List<Factory>>(json);
+                return JsonSerializer.Deserialize<List<Factory>>(json);
             }
-            if (tanks != null && tanks.Any())
-            {
-                //tanks.ForEach(t => GetTankInfo(t));
-                Console.WriteLine($"Общая загрузка всех резервуаров {GetTotalVolume(tanks)}");
-                Console.WriteLine($"Общая максимальная загрузка всех резервуаров {GetTotalMaxVolume(tanks)}");
-            }
-            Console.WriteLine("Введите название резервуара");
-            var unitName = Console.ReadLine();
-            do
-            {
-                try 
-                { 
-                    var foundUnit = FindUnit(units, tanks, unitName);
-                    var factory = FindFactory(factories, foundUnit);
-                
-                    Console.WriteLine($"{unitName} принадлежит установке {foundUnit.Name} и заводу {factory.Name}");
-                    Console.WriteLine("Повторите поиск или введите - для завершения");
-                    unitName = Console.ReadLine();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine("Повторите поиск или введите - для завершения");
-                    unitName = Console.ReadLine();
-                }
-            } while (unitName != "-");
-        }
-        
-        public static int GetTotalVolume(IEnumerable<Tank> tanks)
-        {
-            return tanks.Sum(t => t.Volume);
-        }
-        public static int GetTotalMaxVolume(IEnumerable<Tank> tanks)
-        {
-            return tanks.Sum(t => t.MaxVolume);
+            throw new Exception("Ошибка загрузки заводов.");
         }
 
-        public static Unit FindUnit(IEnumerable<Unit> units, IEnumerable<Tank> tanks, string unitName)
-        {
-            var tank = tanks.FirstOrDefault(t => t.Name == unitName);
-            if (tank is null) 
-                throw new InvalidOperationException($"Не найдена установка с именем {unitName}");
-            var unit = units.FirstOrDefault(t => t.Id == tank.UnitId);
-            if (unit is null) 
-                throw new InvalidOperationException($"Не найдена установка с именем {unitName}");
-            return unit;
-        }
-
-        public static Factory FindFactory(IEnumerable<Factory> factories, Unit unit)
-        {
-            var factory = factories.FirstOrDefault(t => t.Id == unit.FactoryId);
-            if (factory is null)
-                throw new InvalidOperationException($"Не найден завод у установки с именем {unit.Name}");
-            return factory;
-        }
         static bool FileCheck(string path)// какая-никакая проверка на наличие файлов
         {
             var file = new FileInfo(path);
             return (file.Exists && file.Length > 0);
         }
-        static void GetTankInfo(Tank tank)
-        {
-            try
-            {
-                var unitName = units.Where(t => t.Id == tank.UnitId)
-                                        .Select(t => t.Name)
-                                        .First();
-
-                var factoryId = units.Where(t => t.Id == tank.UnitId)
-                                        .Select(t => t.FactoryId)
-                                        .First();
-
-                var factoryName = factories.Where(t => t.Id == factoryId)
-                                            .Select(t => t.Name)
-                                            .First();
-                Console.WriteLine($"{tank.Name} принадлежит установке {unitName} и заводу {factoryName}");
-            }
-            catch (InvalidOperationException ex)//свою ошибку генерировать не стал, вроде бы незачем. Тут еще не нравится, что эта ошибка может возникнуть в трех местах
-            {
-                Console.WriteLine(ex + "\n\tОшибка: вероятно не найден первый элемент последовательности.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
+        
     }
 }
