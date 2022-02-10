@@ -21,17 +21,16 @@ namespace Sol0
                 Console.WriteLine(ex.Message);
             }
             var user = new UserInterractions();
-            user.Notify += delegate (string mes) 
+            user.Notify += (sender, arg) =>
                 {
-                    Console.WriteLine($"Пользователь ввел название {mes} в {DateTime.Now.ToString("HH:mm:ss")}"); 
+                    Console.WriteLine($"Пользователь ввел название {arg.Name} в {arg.Date.ToString("HH:mm:ss")}"); 
                 };
             if (tanks is not null && tanks.Any())
-            {
                 user.ShowVolumes(tanks);
-            }
-            user.SerachUnits(units, tanks, factories);
+            
+            if (tanks is not null && tanks.Any() && units is not null && units.Any() && factories is not null && factories.Any())
+                user.SerachUnits(units, tanks, factories);
         }
-
 
         public static List<Tank> GetTanks()
         {
@@ -59,12 +58,10 @@ namespace Sol0
             }
             throw new Exception("Ошибка загрузки заводов.");
         }
-
         static bool FileCheck(string path)// какая-никакая проверка на наличие файлов
         {
             var file = new FileInfo(path);
             return (file.Exists && file.Length > 0);
         }
-        
     }
 }

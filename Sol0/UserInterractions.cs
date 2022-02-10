@@ -2,8 +2,7 @@
 {
     public class UserInterractions
     {
-        public delegate void UserInputHandler(string msg);
-        public event UserInputHandler Notify;
+        public event EventHandler<CustomEventArgs> Notify; //нашел как предустановленный делегат использовать с кастомным arg
 
         internal void SerachUnits(IEnumerable<Unit> units, IEnumerable<Tank> tanks, IEnumerable<Factory> factories)
         {
@@ -11,7 +10,7 @@
             var unitName = Console.ReadLine();
             do
             {
-                Notify?.Invoke(unitName);
+                Notify?.Invoke(this, new CustomEventArgs(DateTime.Now, unitName));
                 try
                 {
                     var foundUnit = FindUnit(units, tanks, unitName);
@@ -55,7 +54,6 @@
                 throw new InvalidOperationException($"Не найдена установка с именем {unitName}");
             return unit;
         }
-
         internal Factory FindFactory(IEnumerable<Factory> factories, Unit unit)
         {
             //var factory = factories.FirstOrDefault(t => t.Id == unit.FactoryId);
@@ -67,6 +65,16 @@
             if (factory is null)
                 throw new InvalidOperationException($"Не найден завод у установки с именем {unit.Name}");
             return factory;
+        }
+    }
+    public class CustomEventArgs : EventArgs
+    {
+        public DateTime Date { get; } // перенес дату в аргументы из делегата, для универсальности
+        public string Name { get; }
+        public CustomEventArgs(DateTime date, string name)
+        {
+            Date = date;
+            Name = name;
         }
     }
 }
