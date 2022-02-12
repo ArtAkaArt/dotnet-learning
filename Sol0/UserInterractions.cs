@@ -92,19 +92,17 @@ namespace Sol0
         //
         void CreateUnit(List<Unit> list)
         {
-            Console.WriteLine("C_ВВедите через запятую значения для Id, Name и FactoryId");
-            var unitStats = Console.ReadLine();
-            var stats = unitStats.Split(',');
+            var stats = ReadUnitInput();
 
-            if (stats.Length == 3 && Int32.TryParse(stats[0], out int stat1) && Int32.TryParse(stats[2], out int stat3))
+            if (stats.Length == 3 && Int32.TryParse(stats[0], out int Id) && Int32.TryParse(stats[2], out int FactoryId))
             {
-                list.Add(new Unit { Id = stat1, Name = stats[1], FactoryId = stat3 });
+                list.Add(new Unit { Id = Id, Name = stats[1].Trim(), FactoryId = FactoryId });
             }
             SaveToFile(list);
         }
         void DeleteUnit(List<Unit> list) 
         {
-            list.ForEach(t => Console.WriteLine($"Id = {t.Id}, Name = {t.Name}, FactoryId = {t.FactoryId}"));
+            list.ForEach(t => t.GetInfo());
             Console.WriteLine("D_Выберите Id установки для удаления");
             int.TryParse(Console.ReadLine(), out int id);
             var unit = list.FirstOrDefault(t =>t.Id == id);
@@ -114,18 +112,16 @@ namespace Sol0
         }
         void UpdateUnit(List<Unit> list)
         {
-            list.ForEach(t => Console.WriteLine($"Id = {t.Id}, Name = {t.Name}, FactoryId = {t.FactoryId}"));
+            list.ForEach(t => t.GetInfo());
             Console.WriteLine("U_Выберите Id установки для изменения");
             int.TryParse(Console.ReadLine(), out int id);
             var unit = list.FirstOrDefault(t => t.Id == id);
-            Console.WriteLine("C_ВВедите через запятую значения для Id, Name и FactoryId");
-            var unitStats = Console.ReadLine();
-            var stats = unitStats.Split(',');
-            if (unit is not null && Int32.TryParse(stats[0], out int stat1) && Int32.TryParse(stats[2], out int stat3))
+            var stats = ReadUnitInput();
+            if (unit is not null && Int32.TryParse(stats[0], out int Id) && Int32.TryParse(stats[2], out int FactoryId))
             {
-                unit.Id = stat1;
-                unit.Name = stats[1];
-                unit.FactoryId = stat3;
+                unit.Id = Id;
+                unit.Name = stats[1].Trim();
+                unit.FactoryId = FactoryId;
             }
             SaveToFile(list);
         }
@@ -136,13 +132,13 @@ namespace Sol0
             switch (responce)
             {
                 case "Unit":
-                    units.ForEach(t => Console.WriteLine($"Id = {t.Id}, Name = {t.Name}, FactoryId = {t.FactoryId}"));
+                    units.ForEach(t => t.GetInfo());
                     break;
                 case "Tank":
-                        tanks.ForEach(t => Console.WriteLine($"Id = {t.Id}, Name = {t.Name}, UnitId = {t.UnitId}, Volume = {t.Volume}, MaxVolume = {t.MaxVolume}"));
+                        tanks.ForEach(t => t.GetInfo());
                         break;
                 case "Facility":
-                    factories.ForEach(t => Console.WriteLine($"Id = {t.Id}, Name = {t.Name}, Description = {t.Description}"));
+                    factories.ForEach(t => t.GetInfo());
                     break;
             }
         }
@@ -162,6 +158,12 @@ namespace Sol0
         {
             var content = JsonSerializer.Serialize(list);
             File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Jsons\\TanksTst.json"), content, Encoding.UTF8);
+        }
+        internal static string[] ReadUnitInput()
+        {
+            Console.WriteLine("C_ВВедите через запятую значения для Id, Name и FactoryId");
+            var unitStats = Console.ReadLine();
+            return unitStats.Split(',');
         }
     }
     public class CustomEventArgs : EventArgs

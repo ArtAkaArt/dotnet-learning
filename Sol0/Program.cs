@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
-
+//постгрес субд
+//можно postgres+pgadmin, можно MS SQL + sql server management studio
 namespace Sol0
 {
     class Program
