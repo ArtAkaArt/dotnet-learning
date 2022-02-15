@@ -1,19 +1,22 @@
 ﻿using System.Text.Json;
 using System.Text;
+using Npgsql;
 
 namespace Sol0
 {
     public class UserInterractions
     {
-        public event EventHandler<CustomEventArgs> Notify; //нашел как предустановленный делегат использовать с кастомным arg
+        public event EventHandler<CustomEventArgs> UserInput;
+        
 
-        internal void SerachUnits(List<Unit> units, List<Tank> tanks, List<Factory> factories)
+        internal void SerachUnits(List<Unit> units, List<Tank> tanks, List<Factory> factories, Account acc)
         {
             Console.WriteLine("Введите название резервуара");
+            string conn_param = $"Server=127.0.0.1;Port=5432;User Id={acc.AccName};Password={acc.Password};Database=Facilities;";
             var unitName = Console.ReadLine();
             do
             {
-                Notify?.Invoke(this, new CustomEventArgs(DateTime.Now, unitName));
+                UserInput?.Invoke(this, new CustomEventArgs(DateTime.Now, unitName));
                 try
                 {
                     var foundUnit = FindUnit(units, tanks, unitName);
@@ -28,16 +31,16 @@ namespace Sol0
                     switch (responce)
                     {
                         case "C":
-                            CreateUnit(units);
+                            CreateUnit(conn_param);
                             break;
                         case "R":
-                            ReadFacility(units, tanks, factories);
+                            ReadFacility(conn_param);
                             break;
                         case "U":
-                            UpdateUnit(units);
+                            UpdateUnit(conn_param);
                             break;
                         case "D":
-                            DeleteUnit(units);
+                            DeleteUnit(conn_param);
                             break;
                     }
                     Console.WriteLine("Повторите поиск или введите - для завершения");
@@ -100,9 +103,28 @@ namespace Sol0
             }
             SaveToFile(list);
         }
+        void CreateUnit(string conn_param)
+        {
+            string[] input = ReadUnitInput();
+            var conn = new NpgsqlConnection(conn_param);
+            if (input.Length == 3 && Int32.TryParse(input[0], out int id) && Int32.TryParse(input[2], out int factoryId)) 
+            { 
+                conn.Open();
+                using (var comm = new NpgsqlCommand($"INSERT INTO units (id, name, factoryid) VALUES (@i1, @n1, @f1)", conn))
+                {
+                    comm.Parameters.AddWithValue("i1", id);
+                    comm.Parameters.AddWithValue("n1", input[1].Trim());
+                    comm.Parameters.AddWithValue("f1", factoryId);
+
+                    int nRows = comm.ExecuteNonQuery();
+                    //Console.Out.WriteLine(String.Format("Number of rows inserted={0}", nRows));
+                }
+                conn.Close();
+            }
+        }
         void DeleteUnit(List<Unit> list) 
         {
-            list.ForEach(t => t.GetInfo());
+            list.ForEach(t => t.PrintInfo());
             Console.WriteLine("D_Выберите Id установки для удаления");
             int.TryParse(Console.ReadLine(), out int id);
             var unit = list.FirstOrDefault(t =>t.Id == id);
@@ -110,9 +132,24 @@ namespace Sol0
                 list.Remove(unit);
             SaveToFile(list);
         }
+        void DeleteUnit(string conn_param)
+        {
+            ReadFacility(conn_param);
+            Console.WriteLine("D_Выберите Id установки для удаления");
+            int.TryParse(Console.ReadLine(), out int id);
+            var conn = new NpgsqlConnection(conn_param);
+            conn.Open();
+            using (var comm = new NpgsqlCommand($"DELETE FROM units WHERE id = @i", conn))
+            {
+                comm.Parameters.AddWithValue("i", id);
+                int nRows = comm.ExecuteNonQuery();
+                //Console.Out.WriteLine(String.Format("Number of rows deleted={0}", nRows));
+            }
+            conn.Close();
+        }
         void UpdateUnit(List<Unit> list)
         {
-            list.ForEach(t => t.GetInfo());
+            list.ForEach(t => t.PrintInfo());
             Console.WriteLine("U_Выберите Id установки для изменения");
             int.TryParse(Console.ReadLine(), out int id);
             var unit = list.FirstOrDefault(t => t.Id == id);
@@ -125,6 +162,30 @@ namespace Sol0
             }
             SaveToFile(list);
         }
+        void UpdateUnit(string conn_param)
+        {
+            ReadFacility(conn_param);
+            Console.WriteLine("U_Выберите Id установки для изменения");
+            int.TryParse(Console.ReadLine(), out int idDel);
+            string[] input = ReadUnitInput();
+            if (input.Length == 3 && Int32.TryParse(input[0], out int id) && Int32.TryParse(input[2], out int factoryId))
+            {
+                var conn = new NpgsqlConnection(conn_param);
+                conn.Open();
+                using (var comm = new NpgsqlCommand("UPDATE units SET id = @i, name = @n, factoryid = @f WHERE id = @d", conn))
+                {
+
+                    comm.Parameters.AddWithValue("i", id);
+                    comm.Parameters.AddWithValue("n", input[1].Trim());
+                    comm.Parameters.AddWithValue("f", factoryId);
+                    comm.Parameters.AddWithValue("d", idDel);
+                    int nRows = comm.ExecuteNonQuery();
+                    //Console.Out.WriteLine(String.Format("Number of rows updated={0}", nRows));
+                }
+                conn.Close();
+            }
+        }
+
         void ReadFacility(List<Unit> units, List<Tank> tanks, List<Factory> factories)
         {
             Console.WriteLine("R_Введите Unit, Tank или Facility для информации о хранящихся данных");
@@ -132,15 +193,29 @@ namespace Sol0
             switch (responce)
             {
                 case "Unit":
-                    units.ForEach(t => t.GetInfo());
+                    units.ForEach(t => t.PrintInfo());
                     break;
                 case "Tank":
-                        tanks.ForEach(t => t.GetInfo());
+                        tanks.ForEach(t => t.PrintInfo());
                         break;
                 case "Facility":
-                    factories.ForEach(t => t.GetInfo());
+                    factories.ForEach(t => t.PrintInfo());
                     break;
             }
+        }
+        void ReadFacility(string conn_param)
+        {
+            var conn = new NpgsqlConnection(conn_param);
+            conn.Open();
+            using (var comm = new NpgsqlCommand($"Select * FROM units", conn))
+            {
+                var reader = comm.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine($"Id = {reader.GetInt32(0)}, Name = {reader.GetString(1)}, FactoryId = {reader.GetInt32(2)}");
+                }
+            }
+            conn.Close();
         }
 
         //блок методов сохранения файлов после CRUD операций

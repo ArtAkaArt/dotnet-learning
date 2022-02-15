@@ -1,14 +1,23 @@
 ﻿using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Npgsql;
 //постгрес субд
 //можно postgres+pgadmin, можно MS SQL + sql server management studio
 namespace Sol0
 {
     class Program
     {
+        
+
         static string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Jsons");
         public static void Main()
         {
-            //эх, статиками удобнее было)
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("settings.json", optional: false);
+            var config = builder.Build();
+            var accountInfo = Options.Create<Account>(config.GetSection("Account").Get<Account>());
             List<Unit> units = new();
             List<Tank> tanks = new();
             List<Factory> factories = new();
@@ -22,15 +31,16 @@ namespace Sol0
                 Console.WriteLine(ex.Message);
             }
             var user = new UserInterractions();
-            user.Notify += (sender, arg) =>
+            user.UserInput += (sender, arg) =>
                 {
                     Console.WriteLine($"Пользователь ввел название {arg.Name} в {arg.Date.ToString("HH:mm:ss")}"); 
                 };
+            
             if (tanks is not null && tanks.Any())
                 user.ShowVolumes(tanks);
             
             if (tanks is not null && tanks.Any() && units is not null && units.Any() && factories is not null && factories.Any())
-                user.SerachUnits(units, tanks, factories);
+                user.SerachUnits(units, tanks, factories, accountInfo.Value);
         }
 
         public static List<Tank> GetTanks()
