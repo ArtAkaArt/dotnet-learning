@@ -1,18 +1,15 @@
 ﻿using System.Text.Json;
 using System.Text;
-using Npgsql;
 
 namespace Sol0
 {
     public class UserInterractions
     {
         public event EventHandler<CustomEventArgs> UserInput;
-        
 
-        internal void SerachUnits(List<Unit> units, List<Tank> tanks, List<Factory> factories, Account acc)
+        internal void SerachUnits(List<Unit> units, List<Tank> tanks, List<Factory> factories)
         {
             Console.WriteLine("Введите название резервуара");
-            string conn_param = $"Server=127.0.0.1;Port=5432;User Id={acc.AccName};Password={acc.Password};Database=Facilities;";
             var unitName = Console.ReadLine();
             do
             {
@@ -31,16 +28,16 @@ namespace Sol0
                     switch (responce)
                     {
                         case "C":
-                            CreateUnit(conn_param);
+                            DBRequester.CreateUnit();
                             break;
                         case "R":
-                            ReadFacility(conn_param);
+                            DBRequester.ReadFacility();
                             break;
                         case "U":
-                            UpdateUnit(conn_param);
+                            DBRequester.UpdateUnit();
                             break;
                         case "D":
-                            DeleteUnit(conn_param);
+                            DBRequester.DeleteUnit();
                             break;
                     }
                     Console.WriteLine("Повторите поиск или введите - для завершения");
@@ -54,7 +51,6 @@ namespace Sol0
                 }
             } while (unitName != "-");
         }
-
         internal void ShowVolumes(IEnumerable<Tank> tanks)
         {
             Console.WriteLine($"Общая загрузка всех резервуаров {GetTotalVolume(tanks)}");
@@ -92,36 +88,16 @@ namespace Sol0
                 throw new InvalidOperationException($"Не найден завод у установки с именем {unit.Name}");
             return factory;
         }
-        //
+        
         void CreateUnit(List<Unit> list)
         {
-            var stats = ReadUnitInput();
-
-            if (stats.Length == 3 && Int32.TryParse(stats[0], out int Id) && Int32.TryParse(stats[2], out int FactoryId))
+            if (ReadUnitInput(out InputContainer stats))
             {
-                list.Add(new Unit { Id = Id, Name = stats[1].Trim(), FactoryId = FactoryId });
+                list.Add(new Unit { Id = stats.Id, Name = stats.Name, FactoryId = stats.FactoryId });
             }
             SaveToFile(list);
         }
-        void CreateUnit(string conn_param)
-        {
-            string[] input = ReadUnitInput();
-            var conn = new NpgsqlConnection(conn_param);
-            if (input.Length == 3 && Int32.TryParse(input[0], out int id) && Int32.TryParse(input[2], out int factoryId)) 
-            { 
-                conn.Open();
-                using (var comm = new NpgsqlCommand($"INSERT INTO units (id, name, factoryid) VALUES (@i1, @n1, @f1)", conn))
-                {
-                    comm.Parameters.AddWithValue("i1", id);
-                    comm.Parameters.AddWithValue("n1", input[1].Trim());
-                    comm.Parameters.AddWithValue("f1", factoryId);
-
-                    int nRows = comm.ExecuteNonQuery();
-                    //Console.Out.WriteLine(String.Format("Number of rows inserted={0}", nRows));
-                }
-                conn.Close();
-            }
-        }
+        
         void DeleteUnit(List<Unit> list) 
         {
             list.ForEach(t => t.PrintInfo());
@@ -132,60 +108,22 @@ namespace Sol0
                 list.Remove(unit);
             SaveToFile(list);
         }
-        void DeleteUnit(string conn_param)
-        {
-            ReadFacility(conn_param);
-            Console.WriteLine("D_Выберите Id установки для удаления");
-            int.TryParse(Console.ReadLine(), out int id);
-            var conn = new NpgsqlConnection(conn_param);
-            conn.Open();
-            using (var comm = new NpgsqlCommand($"DELETE FROM units WHERE id = @i", conn))
-            {
-                comm.Parameters.AddWithValue("i", id);
-                int nRows = comm.ExecuteNonQuery();
-                //Console.Out.WriteLine(String.Format("Number of rows deleted={0}", nRows));
-            }
-            conn.Close();
-        }
+        
         void UpdateUnit(List<Unit> list)
         {
             list.ForEach(t => t.PrintInfo());
             Console.WriteLine("U_Выберите Id установки для изменения");
             int.TryParse(Console.ReadLine(), out int id);
             var unit = list.FirstOrDefault(t => t.Id == id);
-            var stats = ReadUnitInput();
-            if (unit is not null && Int32.TryParse(stats[0], out int Id) && Int32.TryParse(stats[2], out int FactoryId))
+            if (ReadUnitInput(out InputContainer stats))
             {
-                unit.Id = Id;
-                unit.Name = stats[1].Trim();
-                unit.FactoryId = FactoryId;
+                unit.Id = stats.Id;
+                unit.Name = stats.Name;
+                unit.FactoryId = stats.FactoryId;
             }
             SaveToFile(list);
         }
-        void UpdateUnit(string conn_param)
-        {
-            ReadFacility(conn_param);
-            Console.WriteLine("U_Выберите Id установки для изменения");
-            int.TryParse(Console.ReadLine(), out int idDel);
-            string[] input = ReadUnitInput();
-            if (input.Length == 3 && Int32.TryParse(input[0], out int id) && Int32.TryParse(input[2], out int factoryId))
-            {
-                var conn = new NpgsqlConnection(conn_param);
-                conn.Open();
-                using (var comm = new NpgsqlCommand("UPDATE units SET id = @i, name = @n, factoryid = @f WHERE id = @d", conn))
-                {
-
-                    comm.Parameters.AddWithValue("i", id);
-                    comm.Parameters.AddWithValue("n", input[1].Trim());
-                    comm.Parameters.AddWithValue("f", factoryId);
-                    comm.Parameters.AddWithValue("d", idDel);
-                    int nRows = comm.ExecuteNonQuery();
-                    //Console.Out.WriteLine(String.Format("Number of rows updated={0}", nRows));
-                }
-                conn.Close();
-            }
-        }
-
+        
         void ReadFacility(List<Unit> units, List<Tank> tanks, List<Factory> factories)
         {
             Console.WriteLine("R_Введите Unit, Tank или Facility для информации о хранящихся данных");
@@ -203,20 +141,6 @@ namespace Sol0
                     break;
             }
         }
-        void ReadFacility(string conn_param)
-        {
-            var conn = new NpgsqlConnection(conn_param);
-            conn.Open();
-            using (var comm = new NpgsqlCommand($"Select * FROM units", conn))
-            {
-                var reader = comm.ExecuteReader();
-                while (reader.Read())
-                {
-                    Console.WriteLine($"Id = {reader.GetInt32(0)}, Name = {reader.GetString(1)}, FactoryId = {reader.GetInt32(2)}");
-                }
-            }
-            conn.Close();
-        }
 
         //блок методов сохранения файлов после CRUD операций
         internal void SaveToFile(List<Unit> list)
@@ -224,21 +148,18 @@ namespace Sol0
             var content = JsonSerializer.Serialize(list);
             File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(),"..\\..\\..\\Jsons\\UnitsTst.json"), content, Encoding.UTF8);
         }
-        internal void SaveToFile(List<Factory> list)
-        {
-            var content = JsonSerializer.Serialize(list);
-            File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Jsons\\FactoriesTst.json"), content, Encoding.UTF8);
-        }
-        internal void SaveToFile(List<Tank> list)
-        {
-            var content = JsonSerializer.Serialize(list);
-            File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Jsons\\TanksTst.json"), content, Encoding.UTF8);
-        }
-        internal static string[] ReadUnitInput()
+        internal static bool ReadUnitInput(out InputContainer container) // зачем-то кортежи придумали же
         {
             Console.WriteLine("C_ВВедите через запятую значения для Id, Name и FactoryId");
-            var unitStats = Console.ReadLine();
-            return unitStats.Split(',');
+            var unitLine = Console.ReadLine();
+            var input= unitLine.Split(',');
+            if (input.Length == 3 && Int32.TryParse(input[0], out int id) && Int32.TryParse(input[2], out int factoryId))
+            {
+                container = new (id,input[1].Trim(), factoryId);
+                return true;
+            }
+            container = new InputContainer(0, null,0) ;
+            return false;
         }
     }
     public class CustomEventArgs : EventArgs

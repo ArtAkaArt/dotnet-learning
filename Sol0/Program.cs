@@ -1,15 +1,12 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Npgsql;
-//постгрес субд
-//можно postgres+pgadmin, можно MS SQL + sql server management studio
+
 namespace Sol0
 {
     class Program
     {
-        
-
+        static internal Account acc = new();
         static string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Jsons");
         public static void Main()
         {
@@ -18,6 +15,7 @@ namespace Sol0
                 .AddJsonFile("settings.json", optional: false);
             var config = builder.Build();
             var accountInfo = Options.Create<Account>(config.GetSection("Account").Get<Account>());
+            acc = accountInfo.Value;
             List<Unit> units = new();
             List<Tank> tanks = new();
             List<Factory> factories = new();
@@ -40,7 +38,7 @@ namespace Sol0
                 user.ShowVolumes(tanks);
             
             if (tanks is not null && tanks.Any() && units is not null && units.Any() && factories is not null && factories.Any())
-                user.SerachUnits(units, tanks, factories, accountInfo.Value);
+                user.SerachUnits(units, tanks, factories);
         }
 
         public static List<Tank> GetTanks()
