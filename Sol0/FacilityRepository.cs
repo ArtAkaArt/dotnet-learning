@@ -4,78 +4,83 @@ using static Sol0.Program;
 
 namespace Sol0
 {
-    internal class DBRequester
+    internal class FacilityRepository
     {
-        static string conn_param;
-        static DBRequester()
+        private readonly string conn_param;
+        internal FacilityRepository(Account acc)
         {
             conn_param = $"Server=127.0.0.1;Port=5432;User Id={acc.AccName};Password={acc.Password};Database=Facilities;";
         }
-        internal static void CreateUnit()//string conn_param
+        internal async void CreateUnit()//string conn_param
         {
-            var conn = new NpgsqlConnection(conn_param);
+            using var conn = new NpgsqlConnection(conn_param);
             if (ReadUnitInput(out InputContainer stats))
             {
                 conn.Open();
-                using (var comm = new NpgsqlCommand($"INSERT INTO units (id, name, factoryid) VALUES (@i1, @n1, @f1)", conn))
+                await using (var comm = new NpgsqlCommand($"INSERT INTO units (id, name, factoryid) VALUES (@i1, @n1, @f1)", conn))
                 {
                     comm.Parameters.AddWithValue("i1", stats.Id);
                     comm.Parameters.AddWithValue("n1", stats.Name);
                     comm.Parameters.AddWithValue("f1", stats.FactoryId);
 
-                    int nRows = comm.ExecuteNonQuery();
+                    int nRows = await comm.ExecuteNonQueryAsync();
                     //Console.Out.WriteLine(String.Format("Number of rows inserted={0}", nRows));
                 }
                 conn.Close();
             }
         }
-        internal static void UpdateUnit()
+        internal async void UpdateUnit()
         {
-            ReadFacility();
+            var list = await ReadFacility();
+            list.ForEach(t => t.PrintInfo());
             Console.WriteLine("U_Выберите Id установки для изменения");
             int.TryParse(Console.ReadLine(), out int idDel);
             if (ReadUnitInput(out InputContainer stats))
             {
-                var conn = new NpgsqlConnection(conn_param);
+                using var conn = new NpgsqlConnection(conn_param);
                 conn.Open();
-                using (var comm = new NpgsqlCommand("UPDATE units SET id = @i, name = @n, factoryid = @f WHERE id = @d", conn))
+                await using (var comm = new NpgsqlCommand("UPDATE units SET id = @i, name = @n, factoryid = @f WHERE id = @d", conn))
                 {
 
                     comm.Parameters.AddWithValue("i", stats.Id);
                     comm.Parameters.AddWithValue("n", stats.Name);
                     comm.Parameters.AddWithValue("f", stats.FactoryId);
                     comm.Parameters.AddWithValue("d", idDel);
-                    int nRows = comm.ExecuteNonQuery();
+                    int nRows = await comm.ExecuteNonQueryAsync();
                     //Console.Out.WriteLine(String.Format("Number of rows updated={0}", nRows));
                 }
                 conn.Close();
             }
         }
-        internal static void ReadFacility()
+        internal async Task<List<Unit>> ReadFacility()
         {
-            var conn = new NpgsqlConnection(conn_param);
+            var list = new List<Unit>();
+            using var conn = new NpgsqlConnection(conn_param);
             conn.Open();
-            using (var comm = new NpgsqlCommand($"Select * FROM units", conn))
+            await using (var comm = new NpgsqlCommand($"Select * FROM units", conn))
             {
-                var reader = comm.ExecuteReader();
-                while (reader.Read())
+                var reader = await comm.ExecuteReaderAsync();
+                
+                while (await reader.ReadAsync())
                 {
-                    Console.WriteLine($"Id = {reader.GetInt32(0)}, Name = {reader.GetString(1)}, FactoryId = {reader.GetInt32(2)}");
+                    list.Add(new Unit {Id = reader.GetInt32(0), Name = reader.GetString(1), FactoryId = reader.GetInt32(2)});
                 }
             }
             conn.Close();
+            return list;
         }
-        internal static void DeleteUnit()
+        internal async void DeleteUnit()
         {
-            ReadFacility();
+            var list = await ReadFacility();
+            list.ForEach(t => t.PrintInfo());
             Console.WriteLine("D_Выберите Id установки для удаления");
             int.TryParse(Console.ReadLine(), out int id);
-            var conn = new NpgsqlConnection(conn_param);
+            using var conn = new NpgsqlConnection(conn_param);
             conn.Open();
-            using (var comm = new NpgsqlCommand($"DELETE FROM units WHERE id = @i", conn))
+            await using (var comm = new NpgsqlCommand($"DELETE FROM units WHERE id = @i", conn))
             {
                 comm.Parameters.AddWithValue("i", id);
-                int nRows = comm.ExecuteNonQuery();
+                int nRows = await comm.ExecuteNonQueryAsync();
                 //Console.Out.WriteLine(String.Format("Number of rows deleted={0}", nRows));
             }
             conn.Close();

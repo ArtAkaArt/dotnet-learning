@@ -6,8 +6,12 @@ namespace Sol0
     public class UserInterractions
     {
         public event EventHandler<CustomEventArgs> UserInput;
-
-        internal void SerachUnits(List<Unit> units, List<Tank> tanks, List<Factory> factories)
+        internal FacilityRepository repo { get; set; }
+        internal UserInterractions(FacilityRepository repo)
+        {
+            this.repo = repo;
+        }
+        internal async void SerachUnits(List<Unit> units, List<Tank> tanks, List<Factory> factories)
         {
             Console.WriteLine("Введите название резервуара");
             var unitName = Console.ReadLine();
@@ -20,36 +24,39 @@ namespace Sol0
                     var factory = FindFactory(factories, foundUnit);
 
                     Console.WriteLine($"\n{unitName} принадлежит установке {foundUnit.Name} и заводу {factory.Name}\n"); //тоже своего рода Read
-                    Console.WriteLine("Для информации о всех установках, Заводах и резервуаров введите R" +
-                                    "\nДля создания новой установки введите С" +
-                                    "\nДля изменения сведений об установке введите U" +
-                                    "\nДля удаления установки введите D");
-                    var responce = Console.ReadLine();
-                    switch (responce)
-                    {
-                        case "C":
-                            DBRequester.CreateUnit();
-                            break;
-                        case "R":
-                            DBRequester.ReadFacility();
-                            break;
-                        case "U":
-                            DBRequester.UpdateUnit();
-                            break;
-                        case "D":
-                            DBRequester.DeleteUnit();
-                            break;
-                    }
-                    Console.WriteLine("Повторите поиск или введите - для завершения");
-                    unitName = Console.ReadLine();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    Console.WriteLine("Повторите поиск или введите - для завершения");
-                    unitName = Console.ReadLine();
                 }
-            } while (unitName != "-");
+                Console.WriteLine("Для информации о всех установках, Заводах и резервуаров введите R" +
+                                    "\nДля создания новой установки введите С" +
+                                    "\nДля изменения сведений об установке введите U" +
+                                    "\nДля удаления установки введите D");
+                var responce = Console.ReadLine();
+                try
+                {
+                    switch (responce)
+                    {
+                        case "C":
+                            repo.CreateUnit();
+                            break;
+                        case "R":
+                            var list = await repo.ReadFacility();
+                            list.ForEach(t => t.PrintInfo());
+                            break;
+                        case "U":
+                            repo.UpdateUnit();
+                            break;
+                        case "D":
+                            repo.DeleteUnit();
+                            break;
+                    }
+                }catch (Exception ex) { Console.WriteLine(ex.Message); }
+                Console.WriteLine("Повторите поиск или введите - для завершения");
+                unitName = Console.ReadLine();
+                
+            } while (unitName != "--");
         }
         internal void ShowVolumes(IEnumerable<Tank> tanks)
         {

@@ -28,7 +28,8 @@ namespace Sol0
             {
                 Console.WriteLine(ex.Message);
             }
-            var user = new UserInterractions();
+            var FRepo = new FacilityRepository(accountInfo.Value); // тоже интересный вопрос где именно экземпляр создавать надо: здесь или в UI
+            var user = new UserInterractions(FRepo);
             user.UserInput += (sender, arg) =>
                 {
                     Console.WriteLine($"Пользователь ввел название {arg.Name} в {arg.Date.ToString("HH:mm:ss")}"); 
