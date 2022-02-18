@@ -11,7 +11,7 @@ namespace Sol0
         {
             conn_param = $"Server=127.0.0.1;Port=5432;User Id={acc.AccName};Password={acc.Password};Database=Facilities;";
         }
-        internal async void CreateUnit()//string conn_param
+        internal async Task CreateUnit()//string conn_param
         {
             using var conn = new NpgsqlConnection(conn_param);
             if (ReadUnitInput(out InputContainer stats))
@@ -29,9 +29,9 @@ namespace Sol0
                 conn.Close();
             }
         }
-        internal async void UpdateUnit()
+        internal async Task UpdateUnit()
         {
-            var list = await ReadFacility();
+            var list = await ReadFacilities();
             list.ForEach(t => t.PrintInfo());
             Console.WriteLine("U_Выберите Id установки для изменения");
             int.TryParse(Console.ReadLine(), out int idDel);
@@ -52,7 +52,7 @@ namespace Sol0
                 conn.Close();
             }
         }
-        internal async Task<List<Unit>> ReadFacility()
+        internal async Task<List<Unit>> ReadFacilities()
         {
             var list = new List<Unit>();
             using var conn = new NpgsqlConnection(conn_param);
@@ -69,9 +69,9 @@ namespace Sol0
             conn.Close();
             return list;
         }
-        internal async void DeleteUnit()
+        internal async Task DeleteUnit()
         {
-            var list = await ReadFacility();
+            var list = await ReadFacilities();
             list.ForEach(t => t.PrintInfo());
             Console.WriteLine("D_Выберите Id установки для удаления");
             int.TryParse(Console.ReadLine(), out int id);

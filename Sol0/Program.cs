@@ -8,7 +8,7 @@ namespace Sol0
     {
         static internal Account acc = new();
         static string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Jsons");
-        public static void Main()
+        public static async Task Main()
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -32,14 +32,14 @@ namespace Sol0
             var user = new UserInterractions(FRepo);
             user.UserInput += (sender, arg) =>
                 {
-                    Console.WriteLine($"Пользователь ввел название {arg.Name} в {arg.Date.ToString("HH:mm:ss")}"); 
+                        Console.WriteLine($"Пользователь ввел название {arg.Name} в {arg.Date.ToString("HH:mm:ss")}");
                 };
             
             if (tanks is not null && tanks.Any())
                 user.ShowVolumes(tanks);
             
             if (tanks is not null && tanks.Any() && units is not null && units.Any() && factories is not null && factories.Any())
-                user.SerachUnits(units, tanks, factories);
+                await user.SerachUnits(units, tanks, factories);
         }
 
         public static List<Tank> GetTanks()

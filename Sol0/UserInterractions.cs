@@ -11,7 +11,7 @@ namespace Sol0
         {
             this.repo = repo;
         }
-        internal async void SerachUnits(List<Unit> units, List<Tank> tanks, List<Factory> factories)
+        internal async Task SerachUnits(List<Unit> units, List<Tank> tanks, List<Factory> factories)
         {
             Console.WriteLine("Введите название резервуара");
             var unitName = Console.ReadLine();
@@ -39,17 +39,17 @@ namespace Sol0
                     switch (responce)
                     {
                         case "C":
-                            repo.CreateUnit();
+                            await repo.CreateUnit();
                             break;
                         case "R":
-                            var list = await repo.ReadFacility();
+                            var list = await repo.ReadFacilities();
                             list.ForEach(t => t.PrintInfo());
                             break;
                         case "U":
-                            repo.UpdateUnit();
+                            await repo.UpdateUnit();
                             break;
                         case "D":
-                            repo.DeleteUnit();
+                            await repo.DeleteUnit();
                             break;
                     }
                 }catch (Exception ex) { Console.WriteLine(ex.Message); }
