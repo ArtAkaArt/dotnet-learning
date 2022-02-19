@@ -56,7 +56,7 @@ namespace Sol0
                 Console.WriteLine("Повторите поиск или введите - для завершения");
                 unitName = Console.ReadLine();
                 
-            } while (unitName != "--");
+            } while (unitName != "-");
         }
         internal void ShowVolumes(IEnumerable<Tank> tanks)
         {

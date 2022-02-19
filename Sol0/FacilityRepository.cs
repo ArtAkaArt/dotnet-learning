@@ -13,10 +13,10 @@ namespace Sol0
         }
         internal async Task CreateUnit()//string conn_param
         {
-            using var conn = new NpgsqlConnection(conn_param);
+            await using var conn = new NpgsqlConnection(conn_param);
             if (ReadUnitInput(out InputContainer stats))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 await using (var comm = new NpgsqlCommand($"INSERT INTO units (id, name, factoryid) VALUES (@i1, @n1, @f1)", conn))
                 {
                     comm.Parameters.AddWithValue("i1", stats.Id);
@@ -26,7 +26,7 @@ namespace Sol0
                     int nRows = await comm.ExecuteNonQueryAsync();
                     //Console.Out.WriteLine(String.Format("Number of rows inserted={0}", nRows));
                 }
-                conn.Close();
+                //conn.Close();
             }
         }
         internal async Task UpdateUnit()
@@ -37,8 +37,8 @@ namespace Sol0
             int.TryParse(Console.ReadLine(), out int idDel);
             if (ReadUnitInput(out InputContainer stats))
             {
-                using var conn = new NpgsqlConnection(conn_param);
-                conn.Open();
+                await using var conn = new NpgsqlConnection(conn_param);
+                await conn.OpenAsync();
                 await using (var comm = new NpgsqlCommand("UPDATE units SET id = @i, name = @n, factoryid = @f WHERE id = @d", conn))
                 {
 
@@ -49,14 +49,14 @@ namespace Sol0
                     int nRows = await comm.ExecuteNonQueryAsync();
                     //Console.Out.WriteLine(String.Format("Number of rows updated={0}", nRows));
                 }
-                conn.Close();
+                //conn.Close();
             }
         }
         internal async Task<List<Unit>> ReadFacilities()
         {
             var list = new List<Unit>();
-            using var conn = new NpgsqlConnection(conn_param);
-            conn.Open();
+            await using var conn = new NpgsqlConnection(conn_param);
+            await conn.OpenAsync();
             await using (var comm = new NpgsqlCommand($"Select * FROM units", conn))
             {
                 var reader = await comm.ExecuteReaderAsync();
@@ -66,7 +66,7 @@ namespace Sol0
                     list.Add(new Unit {Id = reader.GetInt32(0), Name = reader.GetString(1), FactoryId = reader.GetInt32(2)});
                 }
             }
-            conn.Close();
+            //conn.Close();
             return list;
         }
         internal async Task DeleteUnit()
@@ -75,15 +75,15 @@ namespace Sol0
             list.ForEach(t => t.PrintInfo());
             Console.WriteLine("D_Выберите Id установки для удаления");
             int.TryParse(Console.ReadLine(), out int id);
-            using var conn = new NpgsqlConnection(conn_param);
-            conn.Open();
+            await using var conn = new NpgsqlConnection(conn_param);
+            await conn.OpenAsync();
             await using (var comm = new NpgsqlCommand($"DELETE FROM units WHERE id = @i", conn))
             {
                 comm.Parameters.AddWithValue("i", id);
                 int nRows = await comm.ExecuteNonQueryAsync();
                 //Console.Out.WriteLine(String.Format("Number of rows deleted={0}", nRows));
             }
-            conn.Close();
+            //conn.Close();
         }
     }
 }
