@@ -1,4 +1,4 @@
-using Xunit;
+п»їusing Xunit;
 using System.Linq;
 using Solution;
 
@@ -64,7 +64,7 @@ namespace TestProject
 		{
 			var part1 = Enumerable.Range(15_000, 100_000); // 15000, 15001, ... 114998, 114999
 			var part2 = Enumerable.Range(0, 14_995); // 0, 1, ... 14993, 14994
-			var sample = part1.Concat(part2).ToArray(); // объединение двух последовательностей // 15000, 15001, ... 114998, 114999, 0, 1, ... 14993, 14994
+			var sample = part1.Concat(part2).ToArray(); // РѕР±СЉРµРґРёРЅРµРЅРёРµ РґРІСѓС… РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚РµР№ // 15000, 15001, ... 114998, 114999, 0, 1, ... 14993, 14994
 
 			var result = Program.GetShiftPositionAlt(sample);
 
