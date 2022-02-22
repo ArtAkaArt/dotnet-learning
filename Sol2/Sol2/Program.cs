@@ -1,6 +1,6 @@
 ﻿namespace Solution
 {
-    class Program
+    public class Program
     {
         public static void Main()
         {
@@ -24,7 +24,7 @@
             Console.WriteLine($"В массиве sample6 сдвиг равен = {GetShiftPositionAlt(sample6)}");
             Console.WriteLine($"В массиве sample7 сдвиг равен = {GetShiftPositionAlt(sample7)}");
         }
-        static int GetShiftPositionAlt(int[] arr)
+        public static int GetShiftPositionAlt(int[] arr)
         {
             if (arr[0] < arr[arr.Length - 1] || arr.Length == 1) return 0;
             var start = 0;
@@ -36,7 +36,7 @@
                 else if (arr[((end - start) / 2) + start ] > arr[((end - start) / 2) + start + 1]) return ((end - start) / 2) + start + 1; //багуля
             }
             var buffer = int.MaxValue;
-            int result = 0;
+            var result = 0;
             for (int i = start; i<=end; i++)
             {
                 if (arr[i] < buffer)
