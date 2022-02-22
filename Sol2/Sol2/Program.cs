@@ -24,6 +24,9 @@
             Console.WriteLine($"В массиве sample6 сдвиг равен = {GetShiftPositionAlt(sample6)}");
             Console.WriteLine($"В массиве sample7 сдвиг равен = {GetShiftPositionAlt(sample7)}");
         }
+        /// <summary>
+        /// Second (better) version
+        /// </summary>
         public static int GetShiftPositionAlt(int[] arr)
         {
             if (arr[0] < arr[arr.Length - 1] || arr.Length == 1) return 0;
@@ -31,9 +34,10 @@
             var end = arr.Length-1;
             while (end - start > 3)
             {
-                if (arr[start] > arr[((end-start) / 2)+start]) end = start + (end-start)/2; 
-                else if (arr[((end - start) / 2) + start + 1] > arr[end]) start = ((end - start) / 2) + start + 1;
-                else if (arr[((end - start) / 2) + start ] > arr[((end - start) / 2) + start + 1]) return ((end - start) / 2) + start + 1; //багуля
+                var half = ((end - start) / 2)+start;
+                if (arr[start] > arr[half]) end = half; 
+                else if (arr[half + 1] > arr[end]) start = half + 1;
+                else if (arr[half] > arr[half + 1]) return half + 1;
             }
             var buffer = int.MaxValue;
             var result = 0;
@@ -47,6 +51,9 @@
             }
             return result;
         }
+        /// <summary>
+        /// First version
+        /// </summary>
         static int FindLowest(int[] arr)
         {
             if (arr[0] < arr[arr.Length - 1] || arr.Length == 1) return arr[0];
