@@ -87,7 +87,7 @@
             return result;
         }
 
-        static int GetShiftPosition(int[] arr)
+        public static int GetShiftPosition(int[] arr)
         {
             return Array.IndexOf(arr, FindLowest(arr));
         }
