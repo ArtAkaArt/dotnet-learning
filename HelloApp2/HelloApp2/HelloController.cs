@@ -16,7 +16,7 @@ namespace HelloApp2
         /// <summary>
         /// Гет запрос получает, ответ HelloApp
         /// </summary>
-        [HttpGet(Name = "GetWorld/{INN}")]
+        [HttpGet(Name = "GetWorld")]
         public async Task<ActionResult> GetWorld()
         {
             try

@@ -19,9 +19,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProject", "Sol2\TestPro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkTest", "Sol2\BenchmarkTest\BenchmarkTest.csproj", "{8E7D2E57-EEAC-4352-97E5-0B43B6E149B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloApp", "HelloApp\HelloApp\HelloApp.csproj", "{7A0CC5CE-6F42-4D8B-8C43-EAC3B13F1D39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloApp", "HelloApp\HelloApp\HelloApp.csproj", "{7A0CC5CE-6F42-4D8B-8C43-EAC3B13F1D39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloApp2", "HelloApp2\HelloApp2\HelloApp2.csproj", "{287A8FD5-878C-4FDF-B7C8-BE12D1E535C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloApp2", "HelloApp2\HelloApp2\HelloApp2.csproj", "{287A8FD5-878C-4FDF-B7C8-BE12D1E535C8}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{CD8BA077-646D-4493-9FFD-AF4049D63973}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{287A8FD5-878C-4FDF-B7C8-BE12D1E535C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{287A8FD5-878C-4FDF-B7C8-BE12D1E535C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{287A8FD5-878C-4FDF-B7C8-BE12D1E535C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD8BA077-646D-4493-9FFD-AF4049D63973}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD8BA077-646D-4493-9FFD-AF4049D63973}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD8BA077-646D-4493-9FFD-AF4049D63973}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD8BA077-646D-4493-9FFD-AF4049D63973}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

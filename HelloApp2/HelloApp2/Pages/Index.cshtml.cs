@@ -12,9 +12,17 @@ namespace HelloApp2.Pages
             _logger = logger;
         }
 
-        public void OnGet()
+        public async Task OnGet()
         {
+            using (var client = new HttpClient())
+            {
 
+            
+                var request = new HttpRequestMessage();
+                request.RequestUri = new Uri("http://test/api");
+                var response = await client.SendAsync(request);
+                ViewData["Message"] = await response.Content.ReadAsStringAsync();
+            }
         }
     }
 }
