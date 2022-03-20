@@ -5,8 +5,8 @@ services:
     #image: ${DOCKER_REGISTRY-}helloapp2
     ports:
       - "7059:80"
-    environment: 
-      - Configuration__Adress=http://helloapp
+    #environment: 
+    #  - Configuration__Adress=http://helloapp3
     build:
       context: .
       dockerfile: HelloApp2/HelloApp2/Dockerfile
