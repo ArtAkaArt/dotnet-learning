@@ -6,7 +6,7 @@ services:
     ports:
       - "7059:80"
     environment: 
-      - Configuration__Adress=http://helloapp
+      - Configuration__Adress=http://helloapp3
     build:
       context: .
       dockerfile: HelloApp2/HelloApp2/Dockerfile
