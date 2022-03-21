@@ -8,10 +8,12 @@ namespace HelloApp2
     public class HelloController : ControllerBase
     {
         private readonly string address;
+        private readonly string mess;
         static readonly HttpClient client = new HttpClient();
         public HelloController(IOptions<AdressContainer>  cont)
         {
             address = cont.Value.Address;
+            mess = cont.Value.Message;
 
         }
         /// <summary>
@@ -25,7 +27,7 @@ namespace HelloApp2
                 var response = await client.GetAsync(address);
                 response.EnsureSuccessStatusCode();
                 var responseText = await response.Content.ReadAsStringAsync();
-                return Ok($"Hello {responseText}!");
+                return Ok(mess.Replace("{responseText}", responseText));
             }
             catch (Exception e)
             {
