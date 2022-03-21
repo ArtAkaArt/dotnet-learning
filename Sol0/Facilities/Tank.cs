@@ -1,6 +1,6 @@
 ﻿namespace Sol0
 {
-    internal class Tank: IFacility
+    public class Tank: IFacility
     {
         public int Id { get; set; }
         public string Name { get; set; }
