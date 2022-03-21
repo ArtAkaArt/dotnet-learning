@@ -3,6 +3,6 @@
     public class AdressContainer
     {
             public const string Configuration = "Configuration";
-            public string Adress { get; set; } = String.Empty;
+            public string Address { get; set; } = String.Empty;
     }
 }

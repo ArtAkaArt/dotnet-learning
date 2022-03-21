@@ -3,15 +3,16 @@ using Microsoft.Extensions.Options;
 
 namespace HelloApp2
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class HelloController : ControllerBase
     {
-        private readonly string adress;
+        private readonly string address;
         static readonly HttpClient client = new HttpClient();
         public HelloController(IOptions<AdressContainer>  cont)
         {
-            adress = cont.Value.Adress;
+            address = cont.Value.Address;
+
         }
         /// <summary>
         /// Гет запрос получает, ответ HelloApp
@@ -21,10 +22,10 @@ namespace HelloApp2
         {
             try
             {
-                var response = await client.GetAsync(adress);
+                var response = await client.GetAsync(address);
                 response.EnsureSuccessStatusCode();
-                var responseBody = await response.Content.ReadAsStringAsync();
-                return Ok($"Hello, {responseBody}");
+                var responseText = await response.Content.ReadAsStringAsync();
+                return Ok($"Hello {responseText}!");
             }
             catch (Exception e)
             {
