@@ -18,7 +18,7 @@ namespace Sol3.Controllers
             pwd = acc.Value.Password;
         }
         /// <summary>
-        /// получение всех юнитов
+        /// РїРѕР»СѓС‡РµРЅРёРµ РІСЃРµС… СЋРЅРёС‚РѕРІ
         /// </summary>
         /// <returns></returns>
         [HttpGet()]
@@ -27,7 +27,7 @@ namespace Sol3.Controllers
             return Ok();
         }
         /// <summary>
-        /// получение юнита по id
+        /// РїРѕР»СѓС‡РµРЅРёРµ СЋРЅРёС‚Р° РїРѕ id
         /// </summary>
         /// <returns></returns>
         [HttpGet("{id}")]
@@ -36,9 +36,9 @@ namespace Sol3.Controllers
             return Ok(id);
         }
         /// <summary>
-        /// добавление новой установки
+        /// РґРѕР±Р°РІР»РµРЅРёРµ РЅРѕРІРѕР№ СѓСЃС‚Р°РЅРѕРІРєРё
         /// </summary>
-        /// <param name="unit">Json юнита</param>
+        /// <param name="unit">Json СЋРЅРёС‚Р°</param>
         /// <returns></returns>
         [HttpPost(Name = "Add")]
         public ActionResult AddUnit([FromBody] Unit unit)
@@ -46,25 +46,25 @@ namespace Sol3.Controllers
             return Ok(unit.Name);
         }
         /// <summary>
-        /// редактирование установки
+        /// СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СѓСЃС‚Р°РЅРѕРІРєРё
         /// </summary>
-        /// <param name="id"> id юнита для изменения</param>
+        /// <param name="id"> id СЋРЅРёС‚Р° РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ</param>
         /// <param name="unit"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
         public ActionResult ReplaceById([FromRoute] string id, [FromBody] Unit unit)
         {
-            return Ok($"Меняем юнит по {id}, на {unit.Name}");
+            return Ok($"РњРµРЅСЏРµРј СЋРЅРёС‚ РїРѕ {id}, РЅР° {unit.Name}");
         }
         /// <summary>
-        /// удаление установки со всеми резервуарами
+        /// СѓРґР°Р»РµРЅРёРµ СѓСЃС‚Р°РЅРѕРІРєРё СЃРѕ РІСЃРµРјРё СЂРµР·РµСЂРІСѓР°СЂР°РјРё
         /// </summary>
-        /// <param name="id">id юнита</param>
+        /// <param name="id">id СЋРЅРёС‚Р°</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
         public ActionResult DeleteById([FromRoute] string id)
         {
-            return Ok($"Будет удален юнит с {id}");
+            return Ok($"Р‘СѓРґРµС‚ СѓРґР°Р»РµРЅ СЋРЅРёС‚ СЃ {id}");
         }
     }
 }
