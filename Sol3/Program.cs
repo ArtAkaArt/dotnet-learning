@@ -1,5 +1,6 @@
 using System.Reflection;
-using Sol3;
+using FacilityRepoEF;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,8 +16,7 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
-builder.Services.Configure<AccountB>(
-    builder.Configuration.GetSection(AccountB.Configuration));
+builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 
 var app = builder.Build();
 

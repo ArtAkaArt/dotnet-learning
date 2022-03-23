@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
-using Sol0;
+using FacilityRepoEF;
 
 namespace Sol3.Controllers
 {
@@ -9,13 +8,11 @@ namespace Sol3.Controllers
     [Route("[controller]")]
     public class FacilitiApi : ControllerBase
     {
-        private string login;
-        private string pwd;
+        FacilityContext repo;
 
-        public FacilitiApi(IOptions<AccountB> acc)
+        public FacilitiApi(FacilityContext _repo)
         {
-            login = acc.Value.AccName;
-            pwd = acc.Value.Password;
+            repo = _repo;
         }
         /// <summary>
         /// получение всех юнитов
@@ -24,7 +21,12 @@ namespace Sol3.Controllers
         [HttpGet("unit/all")]
         public ActionResult GetAllUnits()
         {
-            return Ok();
+            using (repo)
+            {
+                var units = repo.Units.ToList();
+                return Ok(units);
+            }
+            return Ok("-");
         }
         /// <summary>
         /// получение юнита по id
