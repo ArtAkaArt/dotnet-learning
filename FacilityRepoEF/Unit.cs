@@ -1,16 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FacilityRepoEF
 {
-    public class Unit
+    public partial class Unit
     {
-        [Required]
         public int Id { get; set; }
-        [Required]
-        public string Name { get; set; }
-        [Required]
-        public int FactoryId { get; set; }
-
+        public string Name { get; set; } = null!;
+        public int Factoryid { get; set; }
     }
 }
-

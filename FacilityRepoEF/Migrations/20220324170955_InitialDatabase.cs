@@ -5,65 +5,65 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FacilityRepoEF.Migrations
 {
-    public partial class Initial : Migration
+    public partial class InitialDatabase : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Factories",
+                name: "factories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false)
+                    name = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Factories", x => x.Id);
+                    table.PrimaryKey("PK_factories", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tanks",
+                name: "tanks",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Volume = table.Column<int>(type: "integer", nullable: false),
-                    MaxVolume = table.Column<int>(type: "integer", nullable: false),
-                    UnitId = table.Column<int>(type: "integer", nullable: false)
+                    name = table.Column<string>(type: "text", nullable: false),
+                    volume = table.Column<int>(type: "integer", nullable: false),
+                    maxvolume = table.Column<int>(type: "integer", nullable: false),
+                    unitid = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tanks", x => x.Id);
+                    table.PrimaryKey("PK_tanks", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Units",
+                name: "units",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    FactoryId = table.Column<int>(type: "integer", nullable: false)
+                    name = table.Column<string>(type: "text", nullable: false),
+                    factoryid = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Units", x => x.Id);
+                    table.PrimaryKey("PK_units", x => x.id);
                 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Factories");
+                name: "factories");
 
             migrationBuilder.DropTable(
-                name: "Tanks");
+                name: "tanks");
 
             migrationBuilder.DropTable(
-                name: "Units");
+                name: "units");
         }
     }
 }

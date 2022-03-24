@@ -1,18 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FacilityRepoEF
 {
-    public class Tank
+    public partial class Tank
     {
-        [Required]
         public int Id { get; set; }
-        [Required]
-        public string Name { get; set; }
-        [Required]
+        public string Name { get; set; } = null!;
         public int Volume { get; set; }
-        [Required]
-        public int MaxVolume { get; set; }
-        [Required]
-        public int UnitId { get; set; }
+        public int Maxvolume { get; set; }
+        public int Unitid { get; set; }
     }
 }

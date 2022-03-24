@@ -23,69 +23,69 @@ namespace FacilityRepoEF.Migrations
 
             modelBuilder.Entity("FacilityRepoEF.Factory", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
 
-                    b.Property<string>("Description")
+                    b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("id");
 
-                    b.ToTable("Factories");
+                    b.ToTable("factories");
                 });
 
             modelBuilder.Entity("FacilityRepoEF.Tank", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
 
-                    b.Property<int>("MaxVolume")
+                    b.Property<int>("maxvolume")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UnitId")
+                    b.Property<int>("unitid")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Volume")
+                    b.Property<int>("volume")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("id");
 
-                    b.ToTable("Tanks");
+                    b.ToTable("tanks");
                 });
 
             modelBuilder.Entity("FacilityRepoEF.Unit", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
 
-                    b.Property<int>("FactoryId")
+                    b.Property<int>("factoryid")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("id");
 
-                    b.ToTable("Units");
+                    b.ToTable("units");
                 });
 #pragma warning restore 612, 618
         }

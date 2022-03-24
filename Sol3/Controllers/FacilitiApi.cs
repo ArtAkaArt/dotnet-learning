@@ -21,12 +21,13 @@ namespace Sol3.Controllers
         [HttpGet("unit/all")]
         public ActionResult GetAllUnits()
         {
-            using (repo)
+            using (FacilitiesContext db = new FacilitiesContext())
             {
-                var units = repo.Units.ToList();
-                return Ok(units);
+                var units = db.Units.ToList();
+                var unit = units.FirstOrDefault();
+                return Ok(unit.Name);
             }
-            return Ok("-");
+            
         }
         /// <summary>
         /// получение юнита по id
@@ -45,7 +46,7 @@ namespace Sol3.Controllers
         [HttpPost("unit")]
         public ActionResult AddUnit([FromBody] Unit unit) // unit обрезать [FromRoute] string unitId,
         {
-            return Ok(unit.Name);
+            return Ok();
         }
         /// <summary>
         /// редактирование установки
@@ -56,7 +57,7 @@ namespace Sol3.Controllers
         [HttpPut("unit/{unitId}")]
         public ActionResult ReplaceUnitById([FromRoute] string unitId, [FromBody] Unit unit)
         {
-            return Ok($"Меняем юнит по {unitId}, на {unit.Name}");
+            return Ok($"Меняем юнит по {unitId}, на");
         }
         /// <summary>
         /// удаление установки со всеми резервуарами
@@ -86,7 +87,7 @@ namespace Sol3.Controllers
         [HttpPost("tank/unit/{unitId}")]
         public ActionResult AddTank([FromBody] Tank tank, [FromRoute] string unitId) // танк обрезать
         {
-            return Ok($"{tank.Name}   id = {unitId}");
+            return Ok($"   id = {unitId}");
         }
         /// <summary>
         /// редактирование резервуара
@@ -97,7 +98,7 @@ namespace Sol3.Controllers
         [HttpPut("tank/{tankId}")]
         public ActionResult ReplaceTankById([FromRoute] string tankId, [FromBody] Tank tank)
         {
-            return Ok($"Меняем резервуар по {tankId}, на {tank.Name}");
+            return Ok($"Меняем резервуар по {tankId}, на");
         }
         /// <summary>
         /// удаление установки со всеми резервуарами
