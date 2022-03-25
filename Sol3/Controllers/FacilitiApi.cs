@@ -8,7 +8,7 @@ namespace Sol3.Controllers
     [Route("[controller]")]
     public class FacilitiApi : ControllerBase
     {
-        FacilityContext repo;
+        public FacilityContext repo;
 
         public FacilitiApi(FacilityContext repo)
         {
@@ -21,9 +21,11 @@ namespace Sol3.Controllers
         [HttpGet("unit/all")]
         public ActionResult GetAllUnits()
         {
-
-                return Ok();
-            
+            using (repo)
+            {
+                var tst = repo.Units.FirstOrDefault();
+                return Ok(tst?.Name);
+            }
         }
         /// <summary>
         /// получение юнита по id
