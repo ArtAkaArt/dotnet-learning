@@ -20,7 +20,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FacilityRepoEF\FacilityRepoEF.csproj" />
+    <ProjectReference Include="..\FacilityRepoEF\FacilityContextLib.csproj" />
   </ItemGroup>
 
 </Project>

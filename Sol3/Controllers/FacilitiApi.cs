@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using FacilityRepoEF;
+using FacilityContextLib;
 
 namespace Sol3.Controllers
 {
@@ -10,9 +10,9 @@ namespace Sol3.Controllers
     {
         FacilityContext repo;
 
-        public FacilitiApi(FacilityContext _repo)
+        public FacilitiApi(FacilityContext repo)
         {
-            repo = _repo;
+            this.repo = repo;
         }
         /// <summary>
         /// получение всех юнитов
@@ -21,12 +21,8 @@ namespace Sol3.Controllers
         [HttpGet("unit/all")]
         public ActionResult GetAllUnits()
         {
-            using (FacilitiesContext db = new FacilitiesContext())
-            {
-                var units = db.Units.ToList();
-                var unit = units.FirstOrDefault();
-                return Ok(unit.Name);
-            }
+
+                return Ok();
             
         }
         /// <summary>

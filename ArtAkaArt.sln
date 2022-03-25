@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkTest", "Sol2\Bench
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sol3", "Sol3\Sol3.csproj", "{01DCAC4B-5F15-4641-BD26-810F49DD02BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacilityRepoEF", "FacilityRepoEF\FacilityRepoEF.csproj", "{13BF9F5B-C8AC-4172-ADE8-E18018799D08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityContextLib", "FacilityRepoEF\FacilityContextLib.csproj", "{13BF9F5B-C8AC-4172-ADE8-E18018799D08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FacilityRepoEF
+namespace FacilityContextLib
 {
     public partial class Tank
     {
@@ -10,5 +10,6 @@ namespace FacilityRepoEF
         public int Volume { get; set; }
         public int Maxvolume { get; set; }
         public int Unitid { get; set; }
+        public Unit? Unit { get; set; }
     }
 }

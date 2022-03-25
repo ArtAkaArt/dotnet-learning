@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace FacilityRepoEF
+namespace FacilityContextLib
 {
 
     public class FacilityContext : DbContext
     {
-        public DbSet<Unit> units { get; set; } = null!;
-        public DbSet<Tank> tanks { get; set; } = null!;
-        public DbSet<Factory> factories { get; set; } = null!;
+        public DbSet<Unit> Units { get; set; } = null!;
+        public DbSet<Tank> Tanks { get; set; } = null!;
+        public DbSet<Factory> Factories { get; set; } = null!;
 
 
         public FacilityContext(DbContextOptions<FacilityContext> options): base(options)
