@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 using FacilityContextLib;
 
 namespace Sol3.Controllers
@@ -8,9 +7,9 @@ namespace Sol3.Controllers
     [Route("[controller]")]
     public class FacilitiApi : ControllerBase
     {
-        public FacilityContext repo;
+        public FacilityRepo repo;
 
-        public FacilitiApi(FacilityContext repo)
+        public FacilitiApi(FacilityRepo repo)
         {
             this.repo = repo;
         }
@@ -19,12 +18,14 @@ namespace Sol3.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("unit/all")]
-        public ActionResult GetAllUnits()
+        public async Task<ActionResult> GetAllUnits()
         {
-            using (repo)
+            try 
             {
-                var tst = repo.Units.FirstOrDefault();
-                return Ok(tst?.Name);
+                return Ok(await repo.GetAllUnits());
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
         /// <summary>
@@ -32,9 +33,19 @@ namespace Sol3.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("unit/{unitId}")]
-        public ActionResult GetUnitById([FromRoute] string unitId)
+        public async Task<ActionResult> GetUnitById([FromRoute] int unitId)
         {
-            return Ok(unitId);
+            try
+            {
+                var unit = await repo.GetUnitById(unitId);
+                if (unit is not null)
+                    return Ok(unit);
+                return BadRequest("Юнит не найден");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         /// <summary>
         /// добавление новой установки
@@ -42,8 +53,15 @@ namespace Sol3.Controllers
         /// <param name="unit">Json юнита</param>
         /// <returns></returns>
         [HttpPost("unit")]
-        public ActionResult AddUnit([FromBody] Unit unit) // unit обрезать [FromRoute] string unitId,
+        public async Task<ActionResult> AddUnit([FromBody] UnitShort unit)
         {
+            try
+            {
+                await repo.AddUnit(unit);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return Ok();
         }
         /// <summary>
@@ -53,9 +71,16 @@ namespace Sol3.Controllers
         /// <param name="unit"></param>
         /// <returns></returns>
         [HttpPut("unit/{unitId}")]
-        public ActionResult ReplaceUnitById([FromRoute] string unitId, [FromBody] Unit unit)
+        public async Task<ActionResult> ReplaceUnitById([FromRoute] int unitId, [FromBody] UnitDTO unit)
         {
-            return Ok($"Меняем юнит по {unitId}, на");
+            try 
+            { 
+                await repo.ReplaceUnitById(unitId, unit);
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
         }
         /// <summary>
         /// удаление установки со всеми резервуарами
@@ -63,18 +88,36 @@ namespace Sol3.Controllers
         /// <param name="unitId">id юнита</param>
         /// <returns></returns>
         [HttpDelete("unit/{unitId}")]
-        public ActionResult DeleteUnitById([FromRoute] string unitId)
+        public async Task<ActionResult> DeleteUnitById([FromRoute] int unitId)
         {
-            return Ok($"Будет удален юнит с {unitId}");
+            try
+            {
+                await repo.DeleteUnitById(unitId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
         }
         /// <summary>
         /// получение резервуара по id
         /// </summary>
         /// <returns></returns>
         [HttpGet("tank/{tankId}")]
-        public ActionResult GetTankById([FromRoute] string tankId)
+        public async Task<ActionResult> GetTankById([FromRoute] int tankId)
         {
-            return Ok(tankId);
+            try
+            {
+                var tank = await repo.GetUnitById(tankId);
+                if (tank is not null)
+                    return Ok(tank);
+                return BadRequest("Резервуар не найден");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         /// <summary>
         /// добавление нового резервуара
@@ -83,9 +126,17 @@ namespace Sol3.Controllers
         /// <param name="unitId">id юнита</param>
         /// <returns></returns>
         [HttpPost("tank/unit/{unitId}")]
-        public ActionResult AddTank([FromBody] Tank tank, [FromRoute] string unitId) // танк обрезать
+        public async Task<ActionResult> AddTank([FromBody] TankShort tank, [FromRoute] int unitId) // танк обрезать
         {
-            return Ok($"   id = {unitId}");
+            try
+            {
+                await repo.AddTank(unitId, tank);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
         }
         /// <summary>
         /// редактирование резервуара
@@ -94,9 +145,17 @@ namespace Sol3.Controllers
         /// <param name="tank">Json резервуара</param>
         /// <returns></returns>
         [HttpPut("tank/{tankId}")]
-        public ActionResult ReplaceTankById([FromRoute] string tankId, [FromBody] Tank tank)
+        public async Task<ActionResult> ReplaceTankById([FromRoute] int tankId, [FromBody] TankDTO tank)
         {
-            return Ok($"Меняем резервуар по {tankId}, на");
+            try
+            {
+                await repo.ReplaceTankById(tankId, tank);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
         }
         /// <summary>
         /// удаление установки со всеми резервуарами
@@ -104,9 +163,42 @@ namespace Sol3.Controllers
         /// <param name="tankId">id резервуара</param>
         /// <returns></returns>
         [HttpDelete("tank/{tankId}")]
-        public ActionResult DeleteTankById([FromRoute] string tankId)
+        public async Task<ActionResult> DeleteTankById([FromRoute] int tankId)
         {
-            return Ok($"Будет удален резервуар с {tankId}");
+            try 
+            {
+            await repo.DeleteTankById(tankId);
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
         }
+    }
+    public class UnitShort
+    {
+        public string Name { get; set; } = null!;
+        public int Factoryid { get; set; }
+    }
+    public class UnitDTO
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public int Factoryid { get; set; }
+    }
+    public partial class TankShort
+    {
+        public string Name { get; set; } = null!;
+        public int Volume { get; set; }
+        public int Maxvolume { get; set; }
+        public int Unitid { get; set; }
+    }
+    public partial class TankDTO
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public int Volume { get; set; }
+        public int Maxvolume { get; set; }
+        public int Unitid { get; set; }
     }
 }

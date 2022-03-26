@@ -18,6 +18,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 
+builder.Services.AddTransient<Sol3.FacilityRepo>();
 var app = builder.Build();
 
 
