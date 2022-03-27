@@ -9,7 +9,7 @@ namespace FacilityContextLib
         public string Name { get; set; } = null!;
         public int Volume { get; set; }
         public int Maxvolume { get; set; }
-        public int Unitid { get; set; }
+        public int UnitId { get; set; }
         public Unit? Unit { get; set; }
     }
 }

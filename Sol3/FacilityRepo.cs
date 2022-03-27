@@ -24,9 +24,8 @@ namespace Sol3
         {
             var unit = new Unit
             {
-                Id = 4, // надо автоинкремент
                 Name = us.Name,
-                Factoryid = us.Factoryid
+                FactoryId = us.Factoryid
             };
             context.Units.Add(unit);
             await context.SaveChangesAsync();
@@ -38,7 +37,7 @@ namespace Sol3
             {
                 unit.Id = unitUpd.Id;
                 unit.Name = unitUpd.Name;
-                unit.Factoryid = unitUpd.Factoryid;
+                unit.FactoryId = unitUpd.Factoryid;
                 context.Units.Update(unit);
                 await context.SaveChangesAsync();
             }
@@ -76,7 +75,7 @@ namespace Sol3
                 tank.Name = tankUpd.Name;
                 tank.Volume = tankUpd.Volume;
                 tank.Maxvolume = tankUpd.Maxvolume;
-                tank.Unitid = tankUpd.Unitid;
+                tank.UnitId = tankUpd.Unitid;
                 context.Tanks.Update(tank);
                 await context.SaveChangesAsync();
             }
