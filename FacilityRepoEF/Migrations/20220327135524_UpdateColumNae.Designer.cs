@@ -2,6 +2,7 @@
 using FacilityContextLib;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FacilityContextLib.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20220327135524_UpdateColumNae")]
+    partial class UpdateColumNae
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,10 +52,6 @@ namespace FacilityContextLib.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("Maxvolume")
                         .HasColumnType("integer");
 
@@ -81,10 +79,6 @@ namespace FacilityContextLib.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<int>("FactoryId")
                         .HasColumnType("integer");
@@ -114,17 +108,12 @@ namespace FacilityContextLib.Migrations
             modelBuilder.Entity("FacilityContextLib.Unit", b =>
                 {
                     b.HasOne("FacilityContextLib.Factory", "Factory")
-                        .WithMany("Units")
+                        .WithMany()
                         .HasForeignKey("FactoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Factory");
-                });
-
-            modelBuilder.Entity("FacilityContextLib.Factory", b =>
-                {
-                    b.Navigation("Units");
                 });
 #pragma warning restore 612, 618
         }

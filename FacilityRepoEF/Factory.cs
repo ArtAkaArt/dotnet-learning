@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FacilityContextLib
 {
-    public partial class Factory
+    public class Factory
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
+        public IList<Unit> Units { get; set; }
     }
 }

@@ -16,6 +16,9 @@ namespace FacilityContextLib
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.UseSerialColumns();
+            builder.Entity<Unit>()
+            .Property(u => u.Id)
+            .ValueGeneratedOnAdd();
         }
     }
 }
