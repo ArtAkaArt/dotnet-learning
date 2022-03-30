@@ -1,6 +1,7 @@
 using System.Reflection;
 using FacilityContextLib;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,10 +16,12 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
-
 builder.Services.AddTransient<Sol3.FacilityRepo>();
+
+
 var app = builder.Build();
 
 

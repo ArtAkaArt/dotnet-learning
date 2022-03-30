@@ -5,10 +5,9 @@ namespace FacilityContextLib
 {
     public class Tank
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string Name { get; set; } = null!;
-        public string Description { get; set; } = null!;
+        public string? Name { get; set; }
+        public string? Description { get; set; }
         public int Volume { get; set; }
         public int Maxvolume { get; set; }
         public int UnitId { get; set; }

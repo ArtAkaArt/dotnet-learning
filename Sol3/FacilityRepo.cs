@@ -1,7 +1,6 @@
 ﻿using FacilityContextLib;
 using Microsoft.EntityFrameworkCore;
-using Sol3.Controllers;
-using static Sol3.Controllers.TanksApi;
+using Sol3.Profiles;
 
 namespace Sol3
 
@@ -43,10 +42,8 @@ namespace Sol3
                 unit.Name = unitUpd.Name;
                 unit.Description = unitUpd.Description;
                 unit.FactoryId = unitUpd.Factoryid;
-                context.Units.Update(unit);
                 await context.SaveChangesAsync();
             }
-            else throw new Exception($"Юнит с Id {id} не найден");
         }
         public async Task DeleteUnitById(int id)
         {
@@ -87,7 +84,6 @@ namespace Sol3
                 tank.Volume = tankUpd.Volume;
                 tank.Maxvolume = tankUpd.Maxvolume;
                 tank.UnitId = tankUpd.Unitid;
-                context.Tanks.Update(tank);
                 await context.SaveChangesAsync();
             }
             else throw new Exception($"Танк с Id {id} не найден");

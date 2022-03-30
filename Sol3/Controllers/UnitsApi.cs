@@ -1,13 +1,17 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Sol3.Profiles;
 
 namespace Sol3.Controllers
 {
     public class UnitsApi : ControllerBase
     {
         public FacilityRepo repo;
+        public readonly IMapper mapper;
 
-        public UnitsApi(FacilityRepo repo)
+        public UnitsApi(FacilityRepo repo, IMapper mapper)
         {
+            this.mapper = mapper;
             this.repo = repo;
         }
         /// <summary>
@@ -15,45 +19,41 @@ namespace Sol3.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("unit/all")]
-        public async Task<ActionResult> GetAllUnits()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UnitDTO>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<UnitDTO>>> GetAllUnits()
         {
-            return Ok(await repo.GetAllUnits());
+            return mapper.Map<List<UnitDTO>>(await repo.GetAllUnits()); //ничосиумный, даже объяснять не пришлось чокуда
         }
         /// <summary>
         /// получение юнита по id
         /// </summary>
         /// <returns></returns>
         [HttpGet("unit/{unitId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UnitDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<UnitDTO>> GetUnitById([FromRoute] int unitId)
         {
             var unit = await repo.GetUnitById(unitId);
             if (unit is not null)
-                return new UnitDTO
-                {
-                    Id = unit.Id,
-                    Name = unit.Name,
-                    Description = unit.Description,
-                    Factoryid = unit.FactoryId
-                };
+                return mapper.Map<UnitDTO>(unit);
             else return BadRequest($"Юнит с ID {unitId} не найден");
         }
         /// <summary>
         /// добавление новой установки
         /// </summary>
-        /// <param name="unit">Json юнита</param>
+        /// <param name="unitS">Json unitShort'а</param>
         /// <returns></returns>
         [HttpPost("unit")]
-        public async Task<ActionResult<UnitDTO>> AddUnit([FromBody] UnitShort unit)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UnitDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<UnitDTO>> AddUnit([FromBody] UnitShort unitS)
         {
-            var factoryCheck = await repo.GetFactoryById(unit.Factoryid);
+            var factoryCheck = await repo.GetFactoryById(unitS.Factoryid);
             if (factoryCheck is not null)
             {
-                var unit2 = await repo.AddUnit(unit);
-
-                return new UnitDTO {Id = unit2.Id, 
-                    Name = unit2.Name,
-                    Description = unit2.Description, 
-                    Factoryid = unit2.FactoryId };
+                var unitD = await repo.AddUnit(unitS);
+                return mapper.Map<UnitDTO>(unitD);
             }
             return BadRequest();
         }
@@ -61,16 +61,18 @@ namespace Sol3.Controllers
         /// редактирование установки
         /// </summary>
         /// <param name="unitId"> id юнита для изменения</param>
-        /// <param name="unit"></param>
+        /// <param name="unit"> UnitDto json</param>
         /// <returns></returns>
         [HttpPut("unit/{unitId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> ReplaceUnitById([FromRoute] int unitId, [FromBody] UnitDTO unit)
         {
             var unitCheck = await repo.GetUnitById(unitId);
             if (unitCheck is not null)
             {
                 await repo.ReplaceUnitById(unitId, unit);
-                return Ok();
+                return NoContent();
             }
             else return BadRequest($"Юнит с ID {unitId} не найден");
         }
@@ -80,28 +82,17 @@ namespace Sol3.Controllers
         /// <param name="unitId">id юнита</param>
         /// <returns></returns>
         [HttpDelete("unit/{unitId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> DeleteUnitById([FromRoute] int unitId)
         { 
             var unitCheck = await repo.GetUnitById(unitId);
             if (unitCheck is not null)
             {
                 await repo.DeleteUnitById(unitId);
-                return Ok();
+                return NoContent();
             }
             else return BadRequest($"Юнит с ID {unitId} не найден");
         }
-    }
-    public class UnitShort
-    {
-        public string Name { get; set; } = null!;
-        public string Description { get; set; } = null!;
-        public int Factoryid { get; set; }
-    }
-    public class UnitDTO
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = null!;
-        public string Description { get; set; } = null!;
-        public int Factoryid { get; set; }
     }
 }
