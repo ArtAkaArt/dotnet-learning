@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Sol3.Profiles;
 
 namespace Sol3
-
 {
     public class FacilityRepo
     {
         private readonly FacilityContext context;
-        public FacilityRepo(FacilityContext context)
+        ILogger<FacilityRepo> logger;
+        public FacilityRepo(FacilityContext context, ILogger<FacilityRepo> logger)
         {
             this.context = context;
+            this.logger = logger;
         }
         public async Task<List<Unit>> GetAllUnits()
         {
@@ -76,6 +77,14 @@ namespace Sol3
         public async Task ReplaceTankById(int id, TankDTO tankUpd)
         {
             var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
+            /* не уверен какая именно логика тут нужна будет по заданию, но я бы пока так сделал
+             * if (tankUpd.Maxvolume<tankUpd.Volume || 0> tankUpd.Volume)   MaxVolume беру у апдейта, если вдруг он там тоже меняется
+             * {
+             *      logger.LogError($"Значение Volume {tankUpd.Volume} выходит за допустимый предел");
+             *      throw new Exception($"Значение Volume {tankUpd.Volume} выходит за допустимый предел"); не уверен что надо в ошибку выходить, но пусть
+             * }
+             */
+
             if (tank != null)
             {
                 tank.Id = tankUpd.Id;

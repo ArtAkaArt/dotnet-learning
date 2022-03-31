@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FacilityContextLib
 {
-
     public class FacilityContext : DbContext
     {
         public DbSet<Unit> Units { get; set; } = null!;

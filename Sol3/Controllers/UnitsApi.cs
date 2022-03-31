@@ -8,7 +8,6 @@ namespace Sol3.Controllers
     {
         public FacilityRepo repo;
         public readonly IMapper mapper;
-
         public UnitsApi(FacilityRepo repo, IMapper mapper)
         {
             this.mapper = mapper;

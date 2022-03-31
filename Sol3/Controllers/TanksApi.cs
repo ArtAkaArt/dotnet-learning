@@ -83,6 +83,5 @@ namespace Sol3.Controllers
             }
             else return BadRequest($"Танк с Id {tankId} не найден");
         }
-
     }
 }

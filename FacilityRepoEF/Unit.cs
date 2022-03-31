@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace FacilityContextLib
+﻿namespace FacilityContextLib
 {
     public class Unit
     {

@@ -1,14 +1,20 @@
 using System.Reflection;
 using FacilityContextLib;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+var logger = new LoggerConfiguration()
+    .MinimumLevel.Error()
+    .WriteTo.File(Path.Combine(Directory.GetCurrentDirectory(), "logs/log.txt"))
+    .Enrich.FromLogContext()
+    .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(options =>
@@ -21,9 +27,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddTransient<Sol3.FacilityRepo>();
 
-
 var app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {
