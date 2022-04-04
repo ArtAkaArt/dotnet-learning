@@ -1,5 +1,7 @@
 ﻿using FacilityContextLib;
 using AutoMapper;
+using FluentValidation;
+
 namespace Sol3.Profiles
 {
     public class FacilityProfiles : Profile
@@ -8,9 +10,10 @@ namespace Sol3.Profiles
         {
             CreateMap<Unit, UnitDTO>();
             CreateMap<Tank, TankDTO>();
+            CreateMap<CreateTankDTO, TankDTO>();
         }
     }
-    public class UnitShort
+    public class CreateUnitDTO
     {
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
@@ -23,7 +26,7 @@ namespace Sol3.Profiles
         public string Description { get; set; } = null!;
         public int Factoryid { get; set; }
     }
-    public class TankShort
+    public class CreateTankDTO
     {
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
@@ -38,5 +41,14 @@ namespace Sol3.Profiles
         public int Volume { get; set; }
         public int Maxvolume { get; set; }
         public int Unitid { get; set; }
+    }
+    public class TankDTOValidator : AbstractValidator<TankDTO>
+    {
+        public TankDTOValidator()
+        {
+            RuleFor(x => x.Name).Length(0, 50);
+            RuleFor(x => x.Description).Length(0, 50);
+            RuleFor(x => x.Volume).GreaterThanOrEqualTo(0).LessThanOrEqualTo(x => x.Maxvolume);
+        }
     }
 }

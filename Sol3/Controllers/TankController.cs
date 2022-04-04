@@ -4,11 +4,11 @@ using Sol3.Profiles;
 
 namespace Sol3.Controllers
 {
-    public class TanksApi : ControllerBase
+    public class TankController : ControllerBase
     {
         public FacilityRepo repo;
         public readonly IMapper mapper;
-        public TanksApi(FacilityRepo repo, IMapper mapper)
+        public TankController(FacilityRepo repo, IMapper mapper)
         {
             this.repo = repo;
             this.mapper = mapper;
@@ -19,13 +19,13 @@ namespace Sol3.Controllers
         /// <returns></returns>
         [HttpGet("tank/{tankId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TankDTO))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> GetTankById([FromRoute] int tankId)
         {
-            var tank = await repo.GetTankById(tankId);
-            if (tank is not null)
-                return mapper.Map<TankDTO>(tank);
-            else return BadRequest($"Танк с Id {tankId} не найден");
+            var result = await repo.GetTankById(tankId);
+            if (result is not null)
+                return mapper.Map<TankDTO>(result);
+            else return NotFound($"Танк с Id {tankId} не найден");
         }
         /// <summary>
         /// добавление нового резервуара
@@ -35,16 +35,17 @@ namespace Sol3.Controllers
         /// <returns></returns>
         [HttpPost("tank/unit/{unitId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TankDTO))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<TankDTO>> AddTank([FromBody] TankShort tankS, [FromRoute] int unitId)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<TankDTO>> AddTank([FromBody] CreateTankDTO tankS, [FromRoute] int unitId)
         {
             var unit = await repo.GetUnitById(unitId);
             if (unit is not null)
             {
-                var tankD = await repo.AddTank(unitId, tankS);
-                return mapper.Map<TankDTO>(tankD);
+                var tank = mapper.Map<TankDTO>(tankS);
+                var result = await repo.AddTank(unitId, tank);
+                return mapper.Map<TankDTO>(result);
             }
-            else return BadRequest($"Юнита с Id {unitId} не существует");
+            else return NotFound($"Юнита с Id {unitId} не существует");
         }
         /// <summary>
         /// редактирование резервуара
@@ -54,14 +55,14 @@ namespace Sol3.Controllers
         /// <returns></returns>
         [HttpPut("tank/{tankId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> ReplaceTankById([FromRoute] int tankId, [FromBody] TankDTO tank)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<TankDTO>> ReplaceTankById([FromRoute] int tankId, [FromBody] TankDTO tank)
         {
             var tankCheck = await repo.GetTankById(tankId);
             if (tankCheck is not null)
             {
-                await repo.ReplaceTankById(tankId, tank);
-                return NoContent();
+                var result = await repo.ReplaceTankById(tankId, tank);
+                return mapper.Map<TankDTO>(result);
             }
             else return BadRequest($"Танк с Id {tankId} не найден");
         }
@@ -72,7 +73,7 @@ namespace Sol3.Controllers
         /// <returns></returns>
         [HttpDelete("tank/{tankId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteTankById([FromRoute] int tankId)
         {
             var tankCheck = await repo.GetTankById(tankId);
@@ -81,7 +82,7 @@ namespace Sol3.Controllers
                 await repo.DeleteTankById(tankId);
                 return NoContent();
             }
-            else return BadRequest($"Танк с Id {tankId} не найден");
+            else return NotFound($"Танк с Id {tankId} не найден");
         }
     }
 }

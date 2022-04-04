@@ -1,12 +1,16 @@
 using System.Reflection;
 using FacilityContextLib;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Sol3.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddFluentValidation();
 
 var logger = new LoggerConfiguration()
     .MinimumLevel.Error()
@@ -24,6 +28,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
 builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddTransient<Sol3.FacilityRepo>();
 

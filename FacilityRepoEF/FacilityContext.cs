@@ -15,9 +15,7 @@ namespace FacilityContextLib
         }
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            new UnitEntityTypeConfiguration().Configure(builder.Entity<Unit>());
-            new TankEntityTypeConfiguration().Configure(builder.Entity<Tank>());
-            new FactoryEntityTypeConfiguration().Configure(builder.Entity<Factory>());
+            builder.ApplyConfigurationsFromAssembly(typeof(FacilityContext).Assembly);
 
             builder.UseSerialColumns();
         }
@@ -26,8 +24,6 @@ namespace FacilityContextLib
     {
         public void Configure(EntityTypeBuilder<Unit> builder)
         {
-            builder.Property(u => u.Id)
-                   .ValueGeneratedOnAdd();
             builder.Property(u => u.Name)
                    .HasMaxLength(50);
             builder.Property(u => u.Description)
@@ -38,8 +34,6 @@ namespace FacilityContextLib
     {
         public void Configure(EntityTypeBuilder<Tank> builder)
         {
-            builder.Property(u => u.Id)
-                   .ValueGeneratedOnAdd();
             builder.Property(u => u.Name)
                    .HasMaxLength(50);
             builder.Property(u => u.Description)
@@ -50,8 +44,6 @@ namespace FacilityContextLib
     {
         public void Configure(EntityTypeBuilder<Factory> builder)
         {
-            builder.Property(u => u.Id)
-                   .ValueGeneratedOnAdd();
             builder.Property(u => u.Name)
                    .HasMaxLength(50);
             builder.Property(u => u.Description)

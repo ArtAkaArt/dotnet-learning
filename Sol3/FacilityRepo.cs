@@ -1,4 +1,5 @@
 ﻿using FacilityContextLib;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Sol3.Profiles;
 
@@ -8,10 +9,12 @@ namespace Sol3
     {
         private readonly FacilityContext context;
         ILogger<FacilityRepo> logger;
-        public FacilityRepo(FacilityContext context, ILogger<FacilityRepo> logger)
+        IValidator<TankDTO> validator;
+        public FacilityRepo(FacilityContext context, ILogger<FacilityRepo> logger, IValidator<TankDTO> validator)
         {
             this.context = context;
             this.logger = logger;
+            this.validator = validator;
         }
         public async Task<List<Unit>> GetAllUnits()
         {
@@ -21,7 +24,7 @@ namespace Sol3
         {
             return await context.Units.FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<Unit> AddUnit(UnitShort us)
+        public async Task<Unit> AddUnit(CreateUnitDTO us)
         {
             var unit = new Unit
             {
@@ -34,7 +37,7 @@ namespace Sol3
             await context.SaveChangesAsync();
             return unit;
         }
-        public async Task ReplaceUnitById(int id, UnitDTO unitUpd)
+        public async Task<Unit> ReplaceUnitById(int id, UnitDTO unitUpd)
         {
             var unit = await context.Units.FirstOrDefaultAsync(x => x.Id == id);
             if (unit != null)
@@ -44,7 +47,9 @@ namespace Sol3
                 unit.Description = unitUpd.Description;
                 unit.FactoryId = unitUpd.Factoryid;
                 await context.SaveChangesAsync();
+                return unit;
             }
+            else throw new Exception($"Юнит с Id {id} не найден");
         }
         public async Task DeleteUnitById(int id)
         {
@@ -54,14 +59,19 @@ namespace Sol3
                 context.Units.Remove(unit);
                 await context.SaveChangesAsync();
             }
-            else throw new Exception($"Юнит с Id {id} не найден"); // кстати инетерсно, считать ли ошибкой если нет юнита, который надо удалить?
+            else throw new Exception($"Юнит с Id {id} не найден");
         }
         public async Task<Tank> GetTankById(int id)
         {
             return await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<Tank> AddTank(int unitId, TankShort ts) //* как и в юните добавлять с пустым id пока нельзя, присваивания в базе не проиходит?
+        public async Task<Tank> AddTank(int unitId, TankDTO ts)
         {
+            if (!validator.Validate(ts).IsValid)
+            {
+                logger.LogError($"Значение Volume {ts.Volume} выходит за допустимый предел");
+                throw new Exception($"Значение Volume {ts.Volume} выходит за допустимый предел");
+            }
             var tank = new Tank()
             {
                 Name = ts.Name,
@@ -74,16 +84,15 @@ namespace Sol3
             await context.SaveChangesAsync();
             return tank;
         }
-        public async Task ReplaceTankById(int id, TankDTO tankUpd)
+        public async Task<Tank> ReplaceTankById(int id, TankDTO tankUpd)
         {
             var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
-            /* не уверен какая именно логика тут нужна будет по заданию, но я бы пока так сделал
-             * if (tankUpd.Maxvolume<tankUpd.Volume || 0> tankUpd.Volume)   MaxVolume беру у апдейта, если вдруг он там тоже меняется
-             * {
-             *      logger.LogError($"Значение Volume {tankUpd.Volume} выходит за допустимый предел");
-             *      throw new Exception($"Значение Volume {tankUpd.Volume} выходит за допустимый предел"); не уверен что надо в ошибку выходить, но пусть
-             * }
-             */
+
+             if (!validator.Validate(tankUpd).IsValid)
+             {
+                  logger.LogError($"Значение Volume {tankUpd.Volume} выходит за допустимый предел");
+                  throw new Exception($"Значение Volume {tankUpd.Volume} выходит за допустимый предел");
+             }
 
             if (tank != null)
             {
@@ -94,6 +103,7 @@ namespace Sol3
                 tank.Maxvolume = tankUpd.Maxvolume;
                 tank.UnitId = tankUpd.Unitid;
                 await context.SaveChangesAsync();
+                return tank;
             }
             else throw new Exception($"Танк с Id {id} не найден");
         }
