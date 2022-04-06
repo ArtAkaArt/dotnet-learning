@@ -1,5 +1,4 @@
 ﻿using FacilityContextLib;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Sol3.Profiles;
 
@@ -8,13 +7,9 @@ namespace Sol3
     public class FacilityRepo
     {
         private readonly FacilityContext context;
-        ILogger<FacilityRepo> logger;
-        IValidator<TankDTO> validator;
-        public FacilityRepo(FacilityContext context, ILogger<FacilityRepo> logger, IValidator<TankDTO> validator)
+        public FacilityRepo(FacilityContext context)
         {
             this.context = context;
-            this.logger = logger;
-            this.validator = validator;
         }
         public async Task<List<Unit>> GetAllUnits()
         {
@@ -67,11 +62,6 @@ namespace Sol3
         }
         public async Task<Tank> AddTank(int unitId, TankDTO ts)
         {
-            if (!validator.Validate(ts).IsValid)
-            {
-                logger.LogError($"Значение Volume {ts.Volume} выходит за допустимый предел");
-                throw new Exception($"Значение Volume {ts.Volume} выходит за допустимый предел");
-            }
             var tank = new Tank()
             {
                 Name = ts.Name,
@@ -87,12 +77,6 @@ namespace Sol3
         public async Task<Tank> ReplaceTankById(int id, TankDTO tankUpd)
         {
             var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
-
-             if (!validator.Validate(tankUpd).IsValid)
-             {
-                  logger.LogError($"Значение Volume {tankUpd.Volume} выходит за допустимый предел");
-                  throw new Exception($"Значение Volume {tankUpd.Volume} выходит за допустимый предел");
-             }
 
             if (tank != null)
             {

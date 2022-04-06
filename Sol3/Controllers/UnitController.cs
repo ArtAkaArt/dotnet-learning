@@ -8,10 +8,12 @@ namespace Sol3.Controllers
     {
         public FacilityRepo repo;
         public readonly IMapper mapper;
-        public UnitController(FacilityRepo repo, IMapper mapper)
+        ILogger<UnitController> logger;
+        public UnitController(FacilityRepo repo, IMapper mapper, ILogger<UnitController> logger)
         {
             this.mapper = mapper;
             this.repo = repo;
+            this.logger = logger;
         }
         /// <summary>
         /// получение всех юнитов
@@ -21,6 +23,7 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UnitDTO>))]
         public async Task<ActionResult<List<UnitDTO>>> GetAllUnits()
         {
+            logger.LogInformation("Get/all: получение списка юнитов");
             return mapper.Map<List<UnitDTO>>(await repo.GetAllUnits()); //ничосиумный, даже объяснять не пришлось чокуда
         }
         /// <summary>
@@ -34,8 +37,15 @@ namespace Sol3.Controllers
         {
             var result = await repo.GetUnitById(unitId);
             if (result is not null)
+            {
+                logger.LogInformation($"Get: получение юнита по Id {unitId}");
                 return mapper.Map<UnitDTO>(result);
-            else return NotFound($"Юнит с ID {unitId} не найден");
+            }
+            else
+            {
+                logger.LogError($"Get: юнит с ID {unitId} не найден");
+                return NotFound($"Юнит с ID {unitId} не найден");
+            }
         }
         /// <summary>
         /// добавление новой установки
@@ -51,9 +61,14 @@ namespace Sol3.Controllers
             if (factoryCheck is not null)
             {
                 var result = await repo.AddUnit(unitS);
+                logger.LogInformation($"Post: добавлен новый юнит {unitS}");
                 return mapper.Map<UnitDTO>(result);
             }
-            return NotFound("Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
+            else
+            {
+                logger.LogError($"Post: Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
+                return NotFound("Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
+            }
         }
         /// <summary>
         /// редактирование установки
@@ -70,9 +85,14 @@ namespace Sol3.Controllers
             if (unitCheck is not null)
             {
                 var result = await repo.ReplaceUnitById(unitId, unit);
+                logger.LogInformation($"Put: изменен юнит с Id {unitId}: {unit}");
                 return mapper.Map<UnitDTO>(result);
             }
-            else return NotFound($"Юнит с ID {unitId} не найден");
+            else
+            {
+                logger.LogError($"Put: юнит с ID {unitId} не найден");
+                return NotFound($"Юнит с ID {unitId} не найден");
+            }
         }
         /// <summary>
         /// удаление установки со всеми резервуарами
@@ -88,9 +108,14 @@ namespace Sol3.Controllers
             if (unitCheck is not null)
             {
                 await repo.DeleteUnitById(unitId);
+                logger.LogInformation($"Delete: удален юнит с Id {unitId}");
                 return NoContent();
             }
-            else return NotFound($"Юнит с ID {unitId} не найден");
+            else
+            {
+                logger.LogError($"Delete: юнит с ID {unitId} не найден");
+                return NotFound($"Юнит с ID {unitId} не найден");
+            }
         }
     }
 }

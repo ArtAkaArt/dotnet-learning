@@ -13,10 +13,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddFluentValidation();
 
 var logger = new LoggerConfiguration()
-    .MinimumLevel.Error()
-    .WriteTo.File(Path.Combine(Directory.GetCurrentDirectory(), "logs/log.txt"))
+    .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .CreateLogger();
+/*
+.MinimumLevel.Error()
+.WriteTo.File(Path.Combine(Directory.GetCurrentDirectory(), "logs/log.txt"))
+.Enrich.FromLogContext()
+.CreateLogger();
+*/
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 

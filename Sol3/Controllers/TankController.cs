@@ -1,17 +1,22 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
+using FluentValidation;
 
 namespace Sol3.Controllers
 {
     public class TankController : ControllerBase
     {
-        public FacilityRepo repo;
-        public readonly IMapper mapper;
-        public TankController(FacilityRepo repo, IMapper mapper)
+        private FacilityRepo repo;
+        private readonly IMapper mapper;
+        private readonly IValidator<TankDTO> validator;
+        private readonly ILogger<TankController> logger;
+        public TankController(FacilityRepo repo, IMapper mapper , IValidator<TankDTO> validator, ILogger<TankController> logger)
         {
             this.repo = repo;
             this.mapper = mapper;
+            this.validator = validator;
+            this.logger = logger;
         }
         /// <summary>
         /// получение резервуара по id
@@ -24,8 +29,16 @@ namespace Sol3.Controllers
         {
             var result = await repo.GetTankById(tankId);
             if (result is not null)
+            {
+                logger.LogInformation($"Get: получена информация по резервуару c Id {tankId}");
                 return mapper.Map<TankDTO>(result);
-            else return NotFound($"Танк с Id {tankId} не найден");
+            }
+
+            else
+            {
+                logger.LogError($"Get: резервуар с Id {tankId} не найден");
+                return NotFound($"Резервуар с Id {tankId} не найден");
+            }
         }
         /// <summary>
         /// добавление нового резервуара
@@ -35,17 +48,37 @@ namespace Sol3.Controllers
         /// <returns></returns>
         [HttpPost("tank/unit/{unitId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TankDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> AddTank([FromBody] CreateTankDTO tankS, [FromRoute] int unitId)
         {
+            TankDTO tank;
+            if (tankS is not null)
+            {
+                tank = mapper.Map<TankDTO>(tankS);
+                if (!validator.Validate(tank).IsValid)
+                {
+                    logger.LogError($"Post: значение Volume {tank.Volume} выходит за допустимый предел", tank.Volume);
+                    return BadRequest($"Значение Volume {tank.Volume} выходит за допустимый предел");
+                }
+            }
+            else
+            {
+                logger.LogError($"Post: не введены параметры Tank'а");
+                return BadRequest($"Не введены параметры Tank'а");
+            }
             var unit = await repo.GetUnitById(unitId);
             if (unit is not null)
             {
-                var tank = mapper.Map<TankDTO>(tankS);
                 var result = await repo.AddTank(unitId, tank);
+                logger.LogInformation($"Post: добавлен новый резервуар {tank}");
                 return mapper.Map<TankDTO>(result);
             }
-            else return NotFound($"Юнита с Id {unitId} не существует");
+            else
+            {
+                logger.LogError($"Post: юнита с Id {unitId} не существует");
+                return NotFound($"Добавление резервуара: юнита с Id {unitId} не существует");
+            }
         }
         /// <summary>
         /// редактирование резервуара
@@ -55,16 +88,32 @@ namespace Sol3.Controllers
         /// <returns></returns>
         [HttpPut("tank/{tankId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> ReplaceTankById([FromRoute] int tankId, [FromBody] TankDTO tank)
         {
+            if (tank is not null)
+            {
+                if (!validator.Validate(tank).IsValid)
+                {
+                    logger.LogError($"Put: pначение Volume {tank.Volume} выходит за допустимый предел", tank.Volume);
+                    return BadRequest($"Значение Volume {tank.Volume} выходит за допустимый предел");
+                }
+            }
+            else return BadRequest($"Не введены параметры резервуара");
+
             var tankCheck = await repo.GetTankById(tankId);
             if (tankCheck is not null)
             {
                 var result = await repo.ReplaceTankById(tankId, tank);
+                logger.LogInformation($"Put: изменен резервуар {tank}");
                 return mapper.Map<TankDTO>(result);
             }
-            else return BadRequest($"Танк с Id {tankId} не найден");
+            else
+            {
+                logger.LogError($"Put: резервуар с Id {tankId} не найден");
+                return NotFound($"резервуар с Id {tankId} не найден");
+            }
         }
         /// <summary>
         /// удаление установки со всеми резервуарами
@@ -80,9 +129,14 @@ namespace Sol3.Controllers
             if (tankCheck is not null)
             {
                 await repo.DeleteTankById(tankId);
+                logger.LogInformation($"Delete: удален резервуар с Id {tankId}");
                 return NoContent();
             }
-            else return NotFound($"Танк с Id {tankId} не найден");
+            else
+            {
+                logger.LogError($"Delete: резервуар с Id {tankId} не найден");
+                return NotFound($"Резервуар с Id {tankId} не найден");
+            }
         }
     }
 }
