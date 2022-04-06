@@ -33,7 +33,6 @@ namespace Sol3.Controllers
                 logger.LogInformation($"Get: получена информация по резервуару c Id {tankId}");
                 return mapper.Map<TankDTO>(result);
             }
-
             else
             {
                 logger.LogError($"Get: резервуар с Id {tankId} не найден");
@@ -52,20 +51,18 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> AddTank([FromBody] CreateTankDTO tankS, [FromRoute] int unitId)
         {
-            TankDTO tank;
-            if (tankS is not null)
-            {
-                tank = mapper.Map<TankDTO>(tankS);
-                if (!validator.Validate(tank).IsValid)
-                {
-                    logger.LogError($"Post: значение Volume {tank.Volume} выходит за допустимый предел", tank.Volume);
-                    return BadRequest($"Значение Volume {tank.Volume} выходит за допустимый предел");
-                }
-            }
-            else
+
+            if (tankS is null)
             {
                 logger.LogError($"Post: не введены параметры Tank'а");
                 return BadRequest($"Не введены параметры Tank'а");
+            }
+            var tank = mapper.Map<TankDTO>(tankS);
+
+            if (!validator.Validate(tank).IsValid)
+            {
+                logger.LogError($"Post: значение Volume {tank.Volume} выходит за допустимый предел", tank.Volume);
+                return BadRequest($"Значение Volume {tank.Volume} выходит за допустимый предел");
             }
             var unit = await repo.GetUnitById(unitId);
             if (unit is not null)
@@ -92,16 +89,17 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> ReplaceTankById([FromRoute] int tankId, [FromBody] TankDTO tank)
         {
-            if (tank is not null)
+            if (tank is null)
             {
-                if (!validator.Validate(tank).IsValid)
-                {
-                    logger.LogError($"Put: pначение Volume {tank.Volume} выходит за допустимый предел", tank.Volume);
-                    return BadRequest($"Значение Volume {tank.Volume} выходит за допустимый предел");
-                }
+                logger.LogError($"Put: введенный пользователем резервуар is null");
+                return BadRequest($"Не введены параметры резервуара");
             }
-            else return BadRequest($"Не введены параметры резервуара");
 
+            if (!validator.Validate(tank).IsValid)
+            {
+                logger.LogError($"Put: значение Volume {tank.Volume} выходит за допустимый предел", tank.Volume);
+                return BadRequest($"Значение Volume {tank.Volume} выходит за допустимый предел");
+            }
             var tankCheck = await repo.GetTankById(tankId);
             if (tankCheck is not null)
             {
