@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
+using FluentValidation;
 
 namespace Sol3.Controllers
 {
@@ -9,11 +10,13 @@ namespace Sol3.Controllers
         public FacilityRepo repo;
         public readonly IMapper mapper;
         ILogger<UnitController> logger;
-        public UnitController(FacilityRepo repo, IMapper mapper, ILogger<UnitController> logger)
+        private readonly IValidator<UnitDTO> validator;
+        public UnitController(FacilityRepo repo, IMapper mapper, ILogger<UnitController> logger, IValidator<UnitDTO> validator)
         {
             this.mapper = mapper;
             this.repo = repo;
             this.logger = logger;
+            this.validator = validator;
         }
         /// <summary>
         /// получение всех юнитов
@@ -36,16 +39,14 @@ namespace Sol3.Controllers
         public async Task<ActionResult<UnitDTO>> GetUnitById([FromRoute] int unitId)
         {
             var result = await repo.GetUnitById(unitId);
-            if (result is not null)
-            {
-                logger.LogInformation($"Get: получение юнита по Id {unitId}");
-                return mapper.Map<UnitDTO>(result);
-            }
-            else
+            if (result is null)
             {
                 logger.LogError($"Get: юнит с ID {unitId} не найден");
                 return NotFound($"Юнит с ID {unitId} не найден");
+                
             }
+            logger.LogInformation($"Get: получение юнита по Id {unitId}");
+            return mapper.Map<UnitDTO>(result);
         }
         /// <summary>
         /// добавление новой установки
@@ -58,17 +59,22 @@ namespace Sol3.Controllers
         public async Task<ActionResult<UnitDTO>> AddUnit([FromBody] CreateUnitDTO unitS)
         {
             var factoryCheck = await repo.GetFactoryById(unitS.Factoryid);
-            if (factoryCheck is not null)
-            {
-                var result = await repo.AddUnit(unitS);
-                logger.LogInformation($"Post: добавлен новый юнит {unitS}");
-                return mapper.Map<UnitDTO>(result);
-            }
-            else
+            if (factoryCheck is null)
             {
                 logger.LogError($"Post: Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
                 return NotFound("Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
             }
+            var validationResult = validator.Validate(mapper.Map<UnitDTO>(unitS));
+            if (!validationResult.IsValid)
+            {
+                var logMsg = "";
+                validationResult.Errors.ForEach(x => logMsg += ($"{x.ErrorMessage} "));
+                logger.LogError($"Post: {logMsg}");
+                return BadRequest(logMsg);
+            }
+            var result = await repo.AddUnit(unitS);
+            logger.LogInformation($"Post: добавлен новый юнит");
+            return mapper.Map<UnitDTO>(result);
         }
         /// <summary>
         /// редактирование установки
@@ -82,17 +88,28 @@ namespace Sol3.Controllers
         public async Task<ActionResult<UnitDTO>> ReplaceUnitById([FromRoute] int unitId, [FromBody] UnitDTO unit)
         {
             var unitCheck = await repo.GetUnitById(unitId);
-            if (unitCheck is not null)
-            {
-                var result = await repo.ReplaceUnitById(unitId, unit);
-                logger.LogInformation($"Put: изменен юнит с Id {unitId}: {unit}");
-                return mapper.Map<UnitDTO>(result);
-            }
-            else
+            if (unitCheck is null)
             {
                 logger.LogError($"Put: юнит с ID {unitId} не найден");
                 return NotFound($"Юнит с ID {unitId} не найден");
             }
+            var factoryCheck = await repo.GetFactoryById(unit.Factoryid);
+            if (factoryCheck is null)
+            {
+                logger.LogError($"Put: Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
+                return NotFound("Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
+            }
+            var validationResult = validator.Validate(unit);
+            if (!validationResult.IsValid)
+            {
+                var logMsg = "";
+                validationResult.Errors.ForEach(x => logMsg += ($"{x.ErrorMessage} "));
+                logger.LogError($"Put: {logMsg}");
+                return BadRequest(logMsg);
+            }
+            var result = await repo.ReplaceUnitById(unitId, unit);
+            logger.LogInformation($"Put: изменен юнит с Id {unitId}");
+            return mapper.Map<UnitDTO>(result);
         }
         /// <summary>
         /// удаление установки со всеми резервуарами
@@ -105,17 +122,15 @@ namespace Sol3.Controllers
         public async Task<ActionResult> DeleteUnitById([FromRoute] int unitId)
         { 
             var unitCheck = await repo.GetUnitById(unitId);
-            if (unitCheck is not null)
-            {
-                await repo.DeleteUnitById(unitId);
-                logger.LogInformation($"Delete: удален юнит с Id {unitId}");
-                return NoContent();
-            }
-            else
+            if (unitCheck is null)
             {
                 logger.LogError($"Delete: юнит с ID {unitId} не найден");
                 return NotFound($"Юнит с ID {unitId} не найден");
+                
             }
+            await repo.DeleteUnitById(unitId);
+            logger.LogInformation($"Delete: удален юнит с Id {unitId}");
+            return NoContent();
         }
     }
 }

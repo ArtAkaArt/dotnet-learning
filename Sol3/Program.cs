@@ -16,12 +16,7 @@ var logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .CreateLogger();
-/*
-.MinimumLevel.Error()
-.WriteTo.File(Path.Combine(Directory.GetCurrentDirectory(), "logs/log.txt"))
-.Enrich.FromLogContext()
-.CreateLogger();
-*/
+
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
@@ -34,6 +29,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
+builder.Services.AddTransient<IValidator<UnitDTO>, UnitDTOValidator>();
 builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddTransient<Sol3.FacilityRepo>();
 

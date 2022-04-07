@@ -11,6 +11,7 @@ namespace Sol3.Profiles
             CreateMap<Unit, UnitDTO>();
             CreateMap<Tank, TankDTO>();
             CreateMap<CreateTankDTO, TankDTO>();
+            CreateMap<CreateUnitDTO, UnitDTO>();
         }
     }
     public class CreateUnitDTO
@@ -46,9 +47,17 @@ namespace Sol3.Profiles
     {
         public TankDTOValidator()
         {
-            RuleFor(x => x.Name).Length(0, 50);
-            RuleFor(x => x.Description).Length(0, 50);
-            RuleFor(x => x.Volume).GreaterThanOrEqualTo(0).LessThanOrEqualTo(x => x.Maxvolume);
+            RuleFor(x => x.Name).Length(0, 50).WithMessage("Name превышает 50 символов.");
+            RuleFor(x => x.Description).Length(0, 50).WithMessage("Description превышает 50 символов.");
+            RuleFor(x => x.Volume).GreaterThanOrEqualTo(0).LessThanOrEqualTo(x => x.Maxvolume).WithMessage("Volume превышает допустимый предел.");
+        }
+    }
+    public class UnitDTOValidator : AbstractValidator<UnitDTO>
+    {
+        public UnitDTOValidator()
+        {
+            RuleFor(x => x.Name).Length(0, 50).WithMessage("Name превышает 50 символов.");
+            RuleFor(x => x.Description).Length(0, 50).WithMessage("Description превышает 50 символов.");
         }
     }
 }
