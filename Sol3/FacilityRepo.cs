@@ -32,7 +32,7 @@ namespace Sol3
             await context.SaveChangesAsync();
             return unit;
         }
-        public async Task<Unit> ReplaceUnitById(int id, UnitDTO unitUpd)
+        public async Task<Unit> UpdateUnit(int id, UnitDTO unitUpd)
         {
             var unit = await context.Units.FirstOrDefaultAsync(x => x.Id == id);
             if (unit != null)

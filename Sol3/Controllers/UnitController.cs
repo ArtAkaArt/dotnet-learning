@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
 using FluentValidation;
+using System.Text;
 
 namespace Sol3.Controllers
 {
@@ -26,7 +27,7 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UnitDTO>))]
         public async Task<ActionResult<List<UnitDTO>>> GetAllUnits()
         {
-            logger.LogInformation("Get/all: получение списка юнитов");
+            logger.LogInformation("Get/all: получение списка Units");
             return mapper.Map<List<UnitDTO>>(await repo.GetAllUnits()); //ничосиумный, даже объяснять не пришлось чокуда
         }
         /// <summary>
@@ -41,11 +42,10 @@ namespace Sol3.Controllers
             var result = await repo.GetUnitById(unitId);
             if (result is null)
             {
-                logger.LogError($"Get: юнит с ID {unitId} не найден");
-                return NotFound($"Юнит с ID {unitId} не найден");
-                
+                logger.LogError($"Get: Unit с ID {unitId} не найден");
+                return NotFound($"Unit с ID {unitId} не найден");
             }
-            logger.LogInformation($"Get: получение юнита по Id {unitId}");
+            logger.LogInformation($"Get: получение Unit по Id {unitId}");
             return mapper.Map<UnitDTO>(result);
         }
         /// <summary>
@@ -58,22 +58,11 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UnitDTO>> AddUnit([FromBody] CreateUnitDTO unitS)
         {
-            var factoryCheck = await repo.GetFactoryById(unitS.Factoryid);
-            if (factoryCheck is null)
-            {
-                logger.LogError($"Post: Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
-                return NotFound("Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
-            }
-            var validationResult = validator.Validate(mapper.Map<UnitDTO>(unitS));
-            if (!validationResult.IsValid)
-            {
-                var logMsg = "";
-                validationResult.Errors.ForEach(x => logMsg += ($"{x.ErrorMessage} "));
-                logger.LogError($"Post: {logMsg}");
-                return BadRequest(logMsg);
-            }
+            var methodMsg = new StringBuilder("Post: ");
+            if (!await CheckAndLog(unitS, methodMsg))
+                return NotFound(methodMsg.ToString());
             var result = await repo.AddUnit(unitS);
-            logger.LogInformation($"Post: добавлен новый юнит");
+            logger.LogInformation($"Post: добавлен новый Unit");
             return mapper.Map<UnitDTO>(result);
         }
         /// <summary>
@@ -85,30 +74,14 @@ namespace Sol3.Controllers
         [HttpPut("unit/{unitId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<UnitDTO>> ReplaceUnitById([FromRoute] int unitId, [FromBody] UnitDTO unit)
+        public async Task<ActionResult<UnitDTO>> UpdateUnit([FromRoute] int unitId, [FromBody] UnitDTO unit)
         {
-            var unitCheck = await repo.GetUnitById(unitId);
-            if (unitCheck is null)
-            {
-                logger.LogError($"Put: юнит с ID {unitId} не найден");
-                return NotFound($"Юнит с ID {unitId} не найден");
-            }
-            var factoryCheck = await repo.GetFactoryById(unit.Factoryid);
-            if (factoryCheck is null)
-            {
-                logger.LogError($"Put: Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
-                return NotFound("Невозможно добавить установку, т.к. в базе отсутствует заданный завод");
-            }
-            var validationResult = validator.Validate(unit);
-            if (!validationResult.IsValid)
-            {
-                var logMsg = "";
-                validationResult.Errors.ForEach(x => logMsg += ($"{x.ErrorMessage} "));
-                logger.LogError($"Put: {logMsg}");
-                return BadRequest(logMsg);
-            }
-            var result = await repo.ReplaceUnitById(unitId, unit);
-            logger.LogInformation($"Put: изменен юнит с Id {unitId}");
+            
+            var methodMsg = new StringBuilder("Put: ");
+            if (!await CheckAndLog(unitId, unit, methodMsg))
+                return BadRequest(methodMsg.ToString());
+            var result = await repo.UpdateUnit(unitId, unit);
+            logger.LogInformation($"Put: изменен Unit с Id {unitId}");
             return mapper.Map<UnitDTO>(result);
         }
         /// <summary>
@@ -121,16 +94,70 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteUnitById([FromRoute] int unitId)
         { 
-            var unitCheck = await repo.GetUnitById(unitId);
-            if (unitCheck is null)
-            {
-                logger.LogError($"Delete: юнит с ID {unitId} не найден");
-                return NotFound($"Юнит с ID {unitId} не найден");
-                
-            }
+            var methodMsg = new StringBuilder("Delete: ");
+            if (!await NullCheckAndLog(unitId, methodMsg))
+                return NotFound(methodMsg.ToString());
             await repo.DeleteUnitById(unitId);
-            logger.LogInformation($"Delete: удален юнит с Id {unitId}");
+            logger.LogInformation($"Delete: удален Unit с Id {unitId}");
             return NoContent();
         }
+        private async Task<bool> NullCheckAndLog(int unitId, StringBuilder msg)
+        {
+            var unit = await repo.GetUnitById(unitId);
+            if (unit is null)
+            {
+                msg.Append($"Unit c Id {unitId} не найден");
+                logger.LogError(msg.ToString());
+                return false;
+            }
+            return true;
+        }
+        private async Task<bool> ValidationAndLog(UnitDTO uDto, StringBuilder msg)
+        {
+            var validationResult = validator.Validate(uDto);
+            if (!validationResult.IsValid)
+            {
+                validationResult.Errors.ForEach(x => msg.Append($"{x.ErrorMessage} "));
+                logger.LogError(msg.ToString());
+                return false;
+            }
+            return true;
+        }
+        private async Task<bool> CheckAndLog(int unitId, UnitDTO uDto, StringBuilder msg)
+        {
+            if (!await NullCheckAndLog(unitId, msg))
+                return false;
+            if (uDto.Id != unitId)
+            {
+                msg.Append($"Заданный Id {unitId} не соответствует Id в DTO {uDto.Id}");
+                logger.LogError(msg.ToString());
+                return false;
+            }
+            return await CheckAndLog(uDto, msg);
+        }
+        private async Task<bool> CheckAndLog(UnitDTO uDto, StringBuilder msg)
+        {
+            var factory = await repo.GetFactoryById(uDto.Factoryid);
+            if (factory is null)
+            {
+                msg.Append("Невозможно добавить Unit, т.к. в базе отсутствует заданный Factory");
+                logger.LogError(msg.ToString());
+                return false;
+            }
+            return await ValidationAndLog(uDto, msg);
+        }
+        private async Task<bool> CheckAndLog(CreateUnitDTO unitS, StringBuilder msg)
+        {
+            var factory = await repo.GetFactoryById(unitS.Factoryid);
+            if (factory is null)
+            {
+                msg.Append("Невозможно добавить Unit, т.к. в базе отсутствует заданный Factory");
+                logger.LogError(msg.ToString());
+                return false;
+            }
+            var uDto = mapper.Map<UnitDTO>(unitS);
+            return await ValidationAndLog(uDto, msg);
+        }
+        
     }
 }

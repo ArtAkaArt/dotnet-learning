@@ -16,8 +16,6 @@ namespace FacilityContextLib
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfigurationsFromAssembly(typeof(FacilityContext).Assembly);
-
-            builder.UseSerialColumns();
         }
     }
     public class UnitEntityTypeConfiguration : IEntityTypeConfiguration<Unit>
