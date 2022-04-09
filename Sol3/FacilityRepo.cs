@@ -74,7 +74,7 @@ namespace Sol3
             await context.SaveChangesAsync();
             return tank;
         }
-        public async Task<Tank> ReplaceTankById(int id, TankDTO tankUpd)
+        public async Task<Tank> UpdateTank(int id, TankDTO tankUpd)
         {
             var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
 

@@ -101,12 +101,24 @@ namespace Sol3.Controllers
             logger.LogInformation($"Delete: удален Unit с Id {unitId}");
             return NoContent();
         }
+
         private async Task<bool> NullCheckAndLog(int unitId, StringBuilder msg)
         {
             var unit = await repo.GetUnitById(unitId);
             if (unit is null)
             {
                 msg.Append($"Unit c Id {unitId} не найден");
+                logger.LogError(msg.ToString());
+                return false;
+            }
+            return true;
+        }
+        private async Task<bool> FactoryCheckAndLog(int factoryId, StringBuilder msg)
+        {
+            var factory = await repo.GetFactoryById(factoryId);
+            if (factory is null)
+            {
+                msg.Append("Невозможно добавить Unit, т.к. в базе отсутствует заданный Factory");
                 logger.LogError(msg.ToString());
                 return false;
             }
@@ -123,6 +135,7 @@ namespace Sol3.Controllers
             }
             return true;
         }
+
         private async Task<bool> CheckAndLog(int unitId, UnitDTO uDto, StringBuilder msg)
         {
             if (!await NullCheckAndLog(unitId, msg))
@@ -137,27 +150,16 @@ namespace Sol3.Controllers
         }
         private async Task<bool> CheckAndLog(UnitDTO uDto, StringBuilder msg)
         {
-            var factory = await repo.GetFactoryById(uDto.Factoryid);
-            if (factory is null)
-            {
-                msg.Append("Невозможно добавить Unit, т.к. в базе отсутствует заданный Factory");
-                logger.LogError(msg.ToString());
+            if (!await FactoryCheckAndLog(uDto.Factoryid, msg))
                 return false;
-            }
             return await ValidationAndLog(uDto, msg);
         }
         private async Task<bool> CheckAndLog(CreateUnitDTO unitS, StringBuilder msg)
         {
-            var factory = await repo.GetFactoryById(unitS.Factoryid);
-            if (factory is null)
-            {
-                msg.Append("Невозможно добавить Unit, т.к. в базе отсутствует заданный Factory");
-                logger.LogError(msg.ToString());
+            if (!await FactoryCheckAndLog(unitS.Factoryid, msg))
                 return false;
-            }
             var uDto = mapper.Map<UnitDTO>(unitS);
             return await ValidationAndLog(uDto, msg);
         }
-        
     }
 }

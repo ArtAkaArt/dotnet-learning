@@ -87,7 +87,7 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TankDTO>> ReplaceTankById([FromRoute] int tankId, [FromBody] TankDTO tank)
+        public async Task<ActionResult<TankDTO>> UpdateTank([FromRoute] int tankId, [FromBody] TankDTO tank)
         {
             if (tank is null)
             {
@@ -111,7 +111,7 @@ namespace Sol3.Controllers
                 return NotFound($"резервуар с Id {tankId} не найден");
                 
             }
-            var result = await repo.ReplaceTankById(tankId, tank);
+            var result = await repo.UpdateTank(tankId, tank);
             logger.LogInformation($"Put: изменен резервуар c Id {tankId}");
             return mapper.Map<TankDTO>(result);
         }
