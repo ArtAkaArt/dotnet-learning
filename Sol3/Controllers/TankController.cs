@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
 using FluentValidation;
+using System.Text;
 
 namespace Sol3.Controllers
 {
@@ -61,8 +62,8 @@ namespace Sol3.Controllers
 
             if (!validationResult.IsValid)
             {
-                var logMsg = "";
-                validationResult.Errors.ForEach(x => logMsg += ($"{x.ErrorMessage} "));
+                var logMsg = new StringBuilder();
+                validationResult.Errors.ForEach(x => logMsg.Append($"{x.ErrorMessage} "));
                 logger.LogError($"Post: {logMsg}");
                 return BadRequest(logMsg);
             }
@@ -98,8 +99,8 @@ namespace Sol3.Controllers
 
             if (!validationResult.IsValid)
             {
-                var logMsg = "";
-                validationResult.Errors.ForEach(x => logMsg+=($"{x.ErrorMessage} "));
+                var logMsg = new StringBuilder();
+                validationResult.Errors.ForEach(x => logMsg.Append($"{x.ErrorMessage} "));
                 logger.LogError($"Put: {logMsg}");
 
                 return BadRequest(logMsg);
