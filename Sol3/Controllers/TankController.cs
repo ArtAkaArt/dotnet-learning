@@ -31,11 +31,11 @@ namespace Sol3.Controllers
             var result = await repo.GetTankById(tankId);
             if (result is null)
             {
-                logger.LogError($"Get: резервуар с Id {tankId} не найден");
-                return NotFound($"Резервуар с Id {tankId} не найден");
+                logger.LogError($"Get: Tank с Id {tankId} не найден");
+                return NotFound($"Tank с Id {tankId} не найден");
                 
             }
-            logger.LogInformation($"Get: получена информация по резервуару c Id {tankId}");
+            logger.LogInformation($"Get: получена информация по Tank c Id {tankId}");
             return mapper.Map<TankDTO>(result);
         }
         /// <summary>
@@ -53,8 +53,8 @@ namespace Sol3.Controllers
 
             if (tankS is null)
             {
-                logger.LogError($"Post: не введены параметры Tank'а");
-                return BadRequest($"Не введены параметры Tank'а");
+                logger.LogError($"Post: не введены параметры Tank");
+                return BadRequest($"Не введены параметры Tank");
             }
             var tank = mapper.Map<TankDTO>(tankS);
 
@@ -70,12 +70,12 @@ namespace Sol3.Controllers
             var unit = await repo.GetUnitById(unitId);
             if (unit is null)
             {
-                logger.LogError($"Post: юнита с Id {unitId} не существует");
-                return NotFound($"Добавление резервуара: юнита с Id {unitId} не существует");
+                logger.LogError($"Post: Unit с Id {unitId} не существует");
+                return NotFound($"Добавление Tank: Unit с Id {unitId} не существует");
                 
             }
             var result = await repo.AddTank(unitId, tank);
-            logger.LogInformation($"Post: добавлен новый резервуар");
+            logger.LogInformation($"Post: добавлен новый Tank");
             return mapper.Map<TankDTO>(result);
         }
         /// <summary>
@@ -92,8 +92,8 @@ namespace Sol3.Controllers
         {
             if (tank is null)
             {
-                logger.LogError($"Put: введенный пользователем резервуар is null");
-                return BadRequest($"Не введены параметры резервуара");
+                logger.LogError($"Put: введенный пользователем Tank is null");
+                return BadRequest($"Не введены параметры Tank");
             }
             var validationResult = validator.Validate(tank);
 
@@ -108,12 +108,12 @@ namespace Sol3.Controllers
             var tankCheck = await repo.GetTankById(tankId);
             if (tankCheck is null)
             {
-                logger.LogError($"Put: резервуар с Id {tankId} не найден");
-                return NotFound($"резервуар с Id {tankId} не найден");
+                logger.LogError($"Put: Tank с Id {tankId} не найден");
+                return NotFound($"Tank с Id {tankId} не найден");
                 
             }
             var result = await repo.UpdateTank(tankId, tank);
-            logger.LogInformation($"Put: изменен резервуар c Id {tankId}");
+            logger.LogInformation($"Put: изменен Tank c Id {tankId}");
             return mapper.Map<TankDTO>(result);
         }
         /// <summary>
@@ -129,12 +129,12 @@ namespace Sol3.Controllers
             var tankCheck = await repo.GetTankById(tankId);
             if (tankCheck is null)
             {
-                logger.LogError($"Delete: резервуар с Id {tankId} не найден");
-                return NotFound($"Резервуар с Id {tankId} не найден");
+                logger.LogError($"Delete: Tank с Id {tankId} не найден");
+                return NotFound($"Tank с Id {tankId} не найден");
                 
             }
             await repo.DeleteTankById(tankId);
-            logger.LogInformation($"Delete: удален резервуар с Id {tankId}");
+            logger.LogInformation($"Delete: удален Tank с Id {tankId}");
             return NoContent();
         }
     }
