@@ -32,9 +32,8 @@ namespace Sol3
             await context.SaveChangesAsync();
             return unit;
         }
-        public async Task<Unit> UpdateUnit(int id, UnitDTO unitUpd)
+        public async Task<Unit> UpdateUnit(Unit unit, UnitDTO unitUpd)
         {
-            var unit = await context.Units.FirstOrDefaultAsync(x => x.Id == id);
             if (unit != null)
             {
                 unit.Id = unitUpd.Id;
@@ -44,17 +43,16 @@ namespace Sol3
                 await context.SaveChangesAsync();
                 return unit;
             }
-            else throw new Exception($"Юнит с Id {id} не найден");
+            else throw new Exception($"Unit не найден");
         }
-        public async Task DeleteUnitById(int id)
+        public async Task DeleteUnitById(Unit unit)
         {
-            var unit = await context.Units.FirstOrDefaultAsync(x => x.Id == id);
             if (unit != null)
             {
                 context.Units.Remove(unit);
                 await context.SaveChangesAsync();
             }
-            else throw new Exception($"Юнит с Id {id} не найден");
+            else throw new Exception($"Unit не найден");
         }
         public async Task<Tank> GetTankById(int id)
         {
@@ -74,9 +72,9 @@ namespace Sol3
             await context.SaveChangesAsync();
             return tank;
         }
-        public async Task<Tank> UpdateTank(int id, TankDTO tankUpd)
+        public async Task<Tank> UpdateTank(Tank tank, TankDTO tankUpd)
         {
-            var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
+            //var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
 
             if (tank != null)
             {
@@ -89,17 +87,17 @@ namespace Sol3
                 await context.SaveChangesAsync();
                 return tank;
             }
-            else throw new Exception($"Танк с Id {id} не найден");
+            else throw new Exception($"Tank не найден");
         }
-        public async Task DeleteTankById(int id)
+        public async Task DeleteTankById(Tank tank)
         {
-            var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
+            //var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
             if (tank != null)
             {
                 context.Tanks.Remove(tank);
                 await context.SaveChangesAsync();
             }
-            else throw new Exception($"Танк с Id {id} не найден");
+            else throw new Exception($"Tank не найден");
         }
         public async Task<Factory> GetFactoryById(int id)
         {

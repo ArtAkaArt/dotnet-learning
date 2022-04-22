@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
 using FluentValidation;
 using System.Text;
+using FacilityContextLib;
 
 namespace Sol3.Controllers
 {
@@ -12,7 +13,7 @@ namespace Sol3.Controllers
         private readonly IMapper mapper;
         private readonly IValidator<TankDTO> validator;
         private readonly ILogger<TankController> logger;
-        public TankController(FacilityRepo repo, IMapper mapper , IValidator<TankDTO> validator, ILogger<TankController> logger)
+        public TankController(FacilityRepo repo, IMapper mapper, IValidator<TankDTO> validator, ILogger<TankController> logger)
         {
             this.repo = repo;
             this.mapper = mapper;
@@ -28,15 +29,13 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> GetTankById([FromRoute] int tankId)
         {
-            var result = await repo.GetTankById(tankId);
-            if (result is null)
-            {
-                logger.LogError($"Get: Tank с Id {tankId} не найден");
-                return NotFound($"Tank с Id {tankId} не найден");
-                
-            }
+            var logMsg = new StringBuilder("Get: ");
+            var tankCheck = await repo.GetTankById(tankId);
+            if (!DBTankCheck(tankCheck, logMsg, tankId))
+                return BadRequest(logMsg.ToString());
+
             logger.LogInformation($"Get: получена информация по Tank c Id {tankId}");
-            return mapper.Map<TankDTO>(result);
+            return mapper.Map<TankDTO>(tankCheck);
         }
         /// <summary>
         /// добавление нового резервуара
@@ -50,7 +49,7 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> AddTank([FromBody] CreateTankDTO tankS, [FromRoute] int unitId)
         {
-
+            var logMsg = new StringBuilder("Post: ");
             if (tankS is null)
             {
                 logger.LogError($"Post: не введены параметры Tank");
@@ -58,22 +57,13 @@ namespace Sol3.Controllers
             }
             var tank = mapper.Map<TankDTO>(tankS);
 
-            var validationResult = validator.Validate(tank);
+            
+            if (!ValidationCheck(tank, logMsg))
+                return BadRequest(logMsg.ToString());
 
-            if (!validationResult.IsValid)
-            {
-                var logMsg = new StringBuilder();
-                validationResult.Errors.ForEach(x => logMsg.Append($"{x.ErrorMessage} "));
-                logger.LogError($"Post: {logMsg}");
-                return BadRequest(logMsg);
-            }
-            var unit = await repo.GetUnitById(unitId);
-            if (unit is null)
-            {
-                logger.LogError($"Post: Unit с Id {unitId} не существует");
-                return NotFound($"Добавление Tank: Unit с Id {unitId} не существует");
-                
-            }
+            if (!await DBUnitCheck(unitId, logMsg))
+                return NotFound(logMsg.ToString());
+
             var result = await repo.AddTank(unitId, tank);
             logger.LogInformation($"Post: добавлен новый Tank");
             return mapper.Map<TankDTO>(result);
@@ -90,29 +80,30 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> UpdateTank([FromRoute] int tankId, [FromBody] TankDTO tank)
         {
+            var logMsg = new StringBuilder("Put: ");
             if (tank is null)
             {
                 logger.LogError($"Put: введенный пользователем Tank is null");
                 return BadRequest($"Не введены параметры Tank");
             }
-            var validationResult = validator.Validate(tank);
+            
+            if (!ValidationCheck(tank, logMsg))
+                return BadRequest(logMsg.ToString());
 
-            if (!validationResult.IsValid)
+            if (tank.Id != tankId)
             {
-                var logMsg = new StringBuilder();
-                validationResult.Errors.ForEach(x => logMsg.Append($"{x.ErrorMessage} "));
-                logger.LogError($"Put: {logMsg}");
-
-                return BadRequest(logMsg);
+                logger.LogError($"Put: Заданный Id {tankId} не соответствует переданному Id в DTO {tank.Id}");
+                return BadRequest($"Заданный Id {tankId} не соответствует переданному Id в DTO {tank.Id}");
             }
+
             var tankCheck = await repo.GetTankById(tankId);
-            if (tankCheck is null)
-            {
-                logger.LogError($"Put: Tank с Id {tankId} не найден");
-                return NotFound($"Tank с Id {tankId} не найден");
-                
-            }
-            var result = await repo.UpdateTank(tankId, tank);
+            if (!DBTankCheck(tankCheck, logMsg, tankId))
+                return BadRequest(logMsg.ToString());
+
+            if (!await DBUnitCheck(tank.Unitid, logMsg))
+                return NotFound(logMsg.ToString());
+
+            var result = await repo.UpdateTank(tankCheck, tank);
             logger.LogInformation($"Put: изменен Tank c Id {tankId}");
             return mapper.Map<TankDTO>(result);
         }
@@ -126,16 +117,46 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteTankById([FromRoute] int tankId)
         {
+            var logMsg = new StringBuilder("Delete: ");
             var tankCheck = await repo.GetTankById(tankId);
-            if (tankCheck is null)
-            {
-                logger.LogError($"Delete: Tank с Id {tankId} не найден");
-                return NotFound($"Tank с Id {tankId} не найден");
-                
-            }
-            await repo.DeleteTankById(tankId);
+            if (!DBTankCheck(tankCheck, logMsg, tankId))
+                return BadRequest(logMsg.ToString());
+            await repo.DeleteTankById(tankCheck);
             logger.LogInformation($"Delete: удален Tank с Id {tankId}");
             return NoContent();
+        }
+
+        bool ValidationCheck(TankDTO tank, StringBuilder errMsg)
+        {
+            var validationResult = validator.Validate(tank);
+            if (!validationResult.IsValid)
+            {
+                validationResult.Errors.ForEach(x => errMsg.Append($"{x.ErrorMessage} "));
+                logger.LogError($"Put: {errMsg}");
+                return false;
+            }
+            return true;
+        }
+        bool DBTankCheck(Tank tankCheck, StringBuilder errMsg, int tankId)
+        {
+            if (tankCheck is null)
+            {
+                errMsg.Append($"Tank c Id {tankId} не найден");
+                logger.LogError(errMsg.ToString());
+                return false;
+            }
+            return true;
+        }
+        async Task<bool> DBUnitCheck(int unitId, StringBuilder errMsg)
+        {
+            var unit = await repo.GetUnitById(unitId);
+            if (unit is null)
+            {
+                errMsg.Append($"Put: Unit с Id {unitId} не существует");
+                logger.LogError(errMsg.ToString());
+                return false;
+            }
+            return true;
         }
     }
 }

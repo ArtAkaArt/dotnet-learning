@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
 using FluentValidation;
 using System.Text;
+using FacilityContextLib;
 
 namespace Sol3.Controllers
 {
@@ -69,18 +70,19 @@ namespace Sol3.Controllers
         /// редактирование установки
         /// </summary>
         /// <param name="unitId"> id юнита для изменения</param>
-        /// <param name="unit"> UnitDto json</param>
+        /// <param name="unitDto"> UnitDto json</param>
         /// <returns></returns>
         [HttpPut("unit/{unitId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<UnitDTO>> UpdateUnit([FromRoute] int unitId, [FromBody] UnitDTO unit)
+        public async Task<ActionResult<UnitDTO>> UpdateUnit([FromRoute] int unitId, [FromBody] UnitDTO unitDto)
         {
             
-            var methodMsg = new StringBuilder("Put: ");
-            if (!await CheckAndLog(unitId, unit, methodMsg))
+            var methodMsg = new StringBuilder($"Put: Id = {unitId}. ");
+            var unit = await repo.GetUnitById(unitId);
+            if (!await CheckAndLog(unit, unitDto, methodMsg))
                 return BadRequest(methodMsg.ToString());
-            var result = await repo.UpdateUnit(unitId, unit);
+            var result = await repo.UpdateUnit(unit, unitDto);
             logger.LogInformation($"Put: изменен Unit с Id {unitId}");
             return mapper.Map<UnitDTO>(result);
         }
@@ -94,20 +96,20 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteUnitById([FromRoute] int unitId)
         { 
-            var methodMsg = new StringBuilder("Delete: ");
-            if (!await NullCheckAndLog(unitId, methodMsg))
+            var methodMsg = new StringBuilder($"Delete: Id = {unitId}. ");
+            var unit = await repo.GetUnitById(unitId);
+            if (!await NullCheckAndLog(unit, methodMsg))
                 return NotFound(methodMsg.ToString());
-            await repo.DeleteUnitById(unitId);
+            await repo.DeleteUnitById(unit);
             logger.LogInformation($"Delete: удален Unit с Id {unitId}");
             return NoContent();
         }
 
-        private async Task<bool> NullCheckAndLog(int unitId, StringBuilder msg)
+        private async Task<bool> NullCheckAndLog(Unit unit, StringBuilder msg)
         {
-            var unit = await repo.GetUnitById(unitId);
             if (unit is null)
             {
-                msg.Append($"Unit c Id {unitId} не найден");
+                msg.Append($"Unit не найден");
                 logger.LogError(msg.ToString());
                 return false;
             }
@@ -124,7 +126,7 @@ namespace Sol3.Controllers
             }
             return true;
         }
-        private async Task<bool> ValidationAndLog(UnitDTO uDto, StringBuilder msg)
+        private bool ValidationAndLog(UnitDTO uDto, StringBuilder msg)
         {
             var validationResult = validator.Validate(uDto);
             if (!validationResult.IsValid)
@@ -136,13 +138,13 @@ namespace Sol3.Controllers
             return true;
         }
 
-        private async Task<bool> CheckAndLog(int unitId, UnitDTO uDto, StringBuilder msg)
+        private async Task<bool> CheckAndLog(Unit unit, UnitDTO uDto, StringBuilder msg)
         {
-            if (!await NullCheckAndLog(unitId, msg))
+            if (!await NullCheckAndLog(unit, msg))
                 return false;
-            if (uDto.Id != unitId)
+            if (uDto.Id != unit.Id)
             {
-                msg.Append($"Заданный Id {unitId} не соответствует Id в DTO {uDto.Id}");
+                msg.Append($"Заданный Id {unit.Id} не соответствует Id в DTO {uDto.Id}");
                 logger.LogError(msg.ToString());
                 return false;
             }
@@ -152,14 +154,14 @@ namespace Sol3.Controllers
         {
             if (!await FactoryCheckAndLog(uDto.Factoryid, msg))
                 return false;
-            return await ValidationAndLog(uDto, msg);
+            return ValidationAndLog(uDto, msg);
         }
         private async Task<bool> CheckAndLog(CreateUnitDTO unitS, StringBuilder msg)
         {
             if (!await FactoryCheckAndLog(unitS.Factoryid, msg))
                 return false;
             var uDto = mapper.Map<UnitDTO>(unitS);
-            return await ValidationAndLog(uDto, msg);
+            return ValidationAndLog(uDto, msg);
         }
     }
 }
