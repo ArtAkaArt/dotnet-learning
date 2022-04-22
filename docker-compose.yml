@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  helloapp2:
+    #image: ${DOCKER_REGISTRY-}helloapp2
+    ports:
+      - "7059:80"
+    environment: 
+      - Configuration__Address=http://helloapp
+      - Configuration__Message=Hello, {responseText}!
+    build:
+      context: .
+      dockerfile: HelloApp2/HelloApp2/Dockerfile
+
+  helloapp:
+    #image: ${DOCKER_REGISTRY-}helloapp
+    ports:
+      - "7060:80"
+    build:
+      context: .
+      dockerfile: HelloApp/HelloApp/Dockerfile
