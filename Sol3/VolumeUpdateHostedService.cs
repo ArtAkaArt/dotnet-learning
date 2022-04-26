@@ -38,15 +38,12 @@ namespace Sol3
                 {
                     var tankUpd = mapper.Map<TankDTO>(tank);
                     var modification = rnd.Next(-10, 10);
-                    if (modification != 0)
-                    {
-                        //logger.LogInformation($"Volume до изменения = {tankUpd.Volume} 10% = {modification}");
-                        tankUpd.Volume += (int) (tankUpd.Volume /100.0 * modification);
-                        //logger.LogInformation($"Измененный Volume = {tankUpd.Volume} 10% = {modification}");
-                    }
+                    //logger.LogInformation($"Volume до изменения = {tankUpd.Volume} 10% = {modification}");
+                    tankUpd.Volume += (int) (tankUpd.Volume /100.0 * modification);
+                    //logger.LogInformation($"Измененный Volume = {tankUpd.Volume} 10% = {modification}");
                     if (tankUpd.Volume > tankUpd.Maxvolume || tankUpd.Volume < 0)
                         logger.LogError("Првевышение предела Volume");
-                        else await repo.UpdateTank(tank, tankUpd);
+                    else await repo.UpdateTank(tank, tankUpd);
                 }
             }
         }
