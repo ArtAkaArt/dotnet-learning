@@ -9,8 +9,8 @@ namespace Sol3.Controllers
 {
     public class UnitController : ControllerBase
     {
-        public FacilityRepo repo;
-        public readonly IMapper mapper;
+        private readonly FacilityRepo repo;
+        private readonly IMapper mapper;
         ILogger<UnitController> logger;
         private readonly IValidator<UnitDTO> validator;
         public UnitController(FacilityRepo repo, IMapper mapper, ILogger<UnitController> logger, IValidator<UnitDTO> validator)

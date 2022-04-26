@@ -54,6 +54,10 @@ namespace Sol3
             }
             else throw new Exception($"Unit не найден");
         }
+        public async Task<List<Tank>> GetAllTanks()
+        {
+            return await context.Tanks.ToListAsync();
+        }
         public async Task<Tank> GetTankById(int id)
         {
             return await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
@@ -74,8 +78,6 @@ namespace Sol3
         }
         public async Task<Tank> UpdateTank(Tank tank, TankDTO tankUpd)
         {
-            //var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
-
             if (tank != null)
             {
                 tank.Id = tankUpd.Id;
@@ -91,7 +93,6 @@ namespace Sol3
         }
         public async Task DeleteTankById(Tank tank)
         {
-            //var tank = await context.Tanks.FirstOrDefaultAsync(x => x.Id == id);
             if (tank != null)
             {
                 context.Tanks.Remove(tank);
