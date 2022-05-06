@@ -4,6 +4,7 @@ using Sol3.Profiles;
 using FluentValidation;
 using System.Text;
 using FacilityContextLib;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Sol3.Controllers
 {
@@ -24,7 +25,7 @@ namespace Sol3.Controllers
         /// получение резервуара по id
         /// </summary>
         /// <returns></returns>
-        [HttpGet("tank/{tankId}")]
+        [HttpGet("tank/{tankId}"), Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TankDTO))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> GetTankById([FromRoute] int tankId)
@@ -43,7 +44,7 @@ namespace Sol3.Controllers
         /// <param name="tankS">Short Json резервуара</param>
         /// <param name="unitId">id юнита</param>
         /// <returns></returns>
-        [HttpPost("tank/unit/{unitId}")]
+        [HttpPost("tank/unit/{unitId}"), Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TankDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -74,7 +75,7 @@ namespace Sol3.Controllers
         /// <param name="tankId">id резервуара для изменения</param>
         /// <param name="tank">DTO Json резервуара</param>
         /// <returns></returns>
-        [HttpPut("tank/{tankId}")]
+        [HttpPut("tank/{tankId}"), Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -112,7 +113,7 @@ namespace Sol3.Controllers
         /// </summary>
         /// <param name="tankId">id резервуара</param>
         /// <returns></returns>
-        [HttpDelete("tank/{tankId}")]
+        [HttpDelete("tank/{tankId}"), Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteTankById([FromRoute] int tankId)

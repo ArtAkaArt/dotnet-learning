@@ -4,6 +4,7 @@ using Sol3.Profiles;
 using FluentValidation;
 using System.Text;
 using FacilityContextLib;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Sol3.Controllers
 {
@@ -24,7 +25,7 @@ namespace Sol3.Controllers
         /// получение всех юнитов
         /// </summary>
         /// <returns></returns>
-        [HttpGet("unit/all")]
+        [HttpGet("unit/all"), Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UnitDTO>))]
         public async Task<ActionResult<List<UnitDTO>>> GetAllUnits()
         {
@@ -35,7 +36,7 @@ namespace Sol3.Controllers
         /// получение юнита по id
         /// </summary>
         /// <returns></returns>
-        [HttpGet("unit/{unitId}")]
+        [HttpGet("unit/{unitId}"), Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UnitDTO))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UnitDTO>> GetUnitById([FromRoute] int unitId)
@@ -54,7 +55,7 @@ namespace Sol3.Controllers
         /// </summary>
         /// <param name="unitS">Json unitShort'а</param>
         /// <returns></returns>
-        [HttpPost("unit")]
+        [HttpPost("unit"), Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UnitDTO))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UnitDTO>> AddUnit([FromBody] CreateUnitDTO unitS)
@@ -72,7 +73,7 @@ namespace Sol3.Controllers
         /// <param name="unitId"> id юнита для изменения</param>
         /// <param name="unitDto"> UnitDto json</param>
         /// <returns></returns>
-        [HttpPut("unit/{unitId}")]
+        [HttpPut("unit/{unitId}"), Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UnitDTO>> UpdateUnit([FromRoute] int unitId, [FromBody] UnitDTO unitDto)
@@ -91,7 +92,7 @@ namespace Sol3.Controllers
         /// </summary>
         /// <param name="unitId">id юнита</param>
         /// <returns></returns>
-        [HttpDelete("unit/{unitId}")]
+        [HttpDelete("unit/{unitId}"), Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteUnitById([FromRoute] int unitId)
