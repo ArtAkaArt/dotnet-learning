@@ -13,19 +13,25 @@ namespace Sol3.Controllers
         private UserDBRepo repo;
         private readonly ILogger<AuthenticationController> logger;
         private readonly string key;
-        public AuthenticationController(UserDBRepo repo, ILogger<AuthenticationController> logger, IConfiguration conf)
+        private readonly IHttpContextAccessor accessor;
+        public AuthenticationController(UserDBRepo repo, ILogger<AuthenticationController> logger, IConfiguration conf, IHttpContextAccessor httpContextAccessor)
         {
             this.repo = repo;
             this.logger = logger;
             key = conf["SecretKeys:Key1"];
+            accessor = httpContextAccessor;
         }
         [HttpPost("api/user/auth")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<string>> Auth([FromBody]UserDTO userLog)
         {
-            if (!await repo.VerifyUser(userLog))
+            var user = await repo.FindUser(userLog.Login);
+            if (user == null)
                 return NotFound("User не найден");
+            if (!await repo.VerifyPwd(userLog.Password, user))
+                return BadRequest("Password не подходит");
 
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, userLog.Login) };
             var asd = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
@@ -34,6 +40,38 @@ namespace Sol3.Controllers
                 expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(120)),
                 signingCredentials: new SigningCredentials(asd, SecurityAlgorithms.HmacSha256));
             return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
+        }
+        [HttpPost("api/user/password/update"), Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
+        public async Task<ActionResult> UpdatePwd(UserPwdUpdDTO userUpd)
+        {
+            var name = accessor.HttpContext.User.FindFirst(ClaimTypes.Name);
+            if (name.Value == userUpd.Login)
+                return BadRequest("Нельзя менять пароль другого пользователя");
+            var user = await repo.FindUser(userUpd.Login);
+            if (user == null)
+                return NotFound("User не найден");
+            
+            if (!await repo.VerifyPwd(userUpd.currentPassword, user))
+                return BadRequest("Password не подходит");
+
+            var userDto = new UserDTO { Login = userUpd.Login, Password = userUpd.newPassword };
+            if (!await repo.UpdateUser(userDto, user))
+                return StatusCode(501);
+            return NoContent();
+        }
+        [HttpGet("api/user/current"), Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        public ActionResult ShowInfo()
+        {
+            var user = accessor.HttpContext.User;
+            var sb = new StringBuilder();
+            sb.Append("Login: "+user.FindFirst(ClaimTypes.Name));
+            //и тут можно другие добавлять
+            return Ok(sb.ToString());
         }
     }
 }

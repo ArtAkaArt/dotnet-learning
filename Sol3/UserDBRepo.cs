@@ -25,14 +25,12 @@ namespace Sol3
                 user.Login = userReg.Login;
                 user.Password = hash;
                 user.PasswordSalt = salt;
-                user.Email = userReg.Email;
                 context.Users.Add(user);
                 await context.SaveChangesAsync();
             }
         }
-        public async Task<bool> UpdateUnit(UserDTO userUpd)
+        public async Task<bool> UpdateUser(UserDTO userUpd, User user)
         {
-            var user = await FindUser(userUpd.Login);
             if (user != null)
             {
                 CreatePasswordHash(userUpd.Password, out byte[] hash, out byte[] salt);
@@ -51,14 +49,13 @@ namespace Sol3
                 pwdHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(pwd));
             }
         }
-        public async Task<bool> VerifyUser (UserDTO userVer)
+        public async Task<bool> VerifyPwd (string pwdVer, User user)
         {
-            var user = await FindUser(userVer.Login);
             if (user == null)
                 return false;
             using (var hmac = new HMACSHA512(user.PasswordSalt))
             {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(userVer.Password));
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(pwdVer));
                 return computedHash.SequenceEqual(user.Password);
             }  
         }

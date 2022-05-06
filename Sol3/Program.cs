@@ -53,6 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
         };
     });
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
 builder.Services.AddTransient<IValidator<UnitDTO>, UnitDTOValidator>();
@@ -60,7 +61,7 @@ builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configur
 builder.Services.AddDbContext<UserContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials2")));
 builder.Services.AddTransient<Sol3.FacilityRepo>();
 builder.Services.AddTransient<Sol3.UserDBRepo>();
-builder.Services.AddHostedService<VolumeUpdateHostedService>();
+//builder.Services.AddHostedService<VolumeUpdateHostedService>();
 
 var app = builder.Build();
 
