@@ -25,6 +25,7 @@ namespace Sol3
                 user.Login = userReg.Login;
                 user.Password = hash;
                 user.PasswordSalt = salt;
+                user.Role = "User";
                 context.Users.Add(user);
                 await context.SaveChangesAsync();
             }

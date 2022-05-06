@@ -16,7 +16,7 @@ namespace UserContextLib
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfigurationsFromAssembly(typeof(UserContext).Assembly);
-            var user = new User {Id = 1, Login = "admin"};
+            var user = new User {Id = 1, Login = "admin", Role = "Admin"};
 
             using (var hmac = new HMACSHA512())
             {

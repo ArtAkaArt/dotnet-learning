@@ -33,7 +33,7 @@ namespace Sol3.Controllers
             if (!await repo.VerifyPwd(userLog.Password, user))
                 return BadRequest("Password не подходит");
 
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, userLog.Login) };
+            var claims = new List<Claim> { new Claim(ClaimTypes.Name, user.Login), new Claim (ClaimTypes.Role, user.Role) };
             var asd = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var jwt = new JwtSecurityToken(
                 claims: claims,
@@ -64,14 +64,14 @@ namespace Sol3.Controllers
             return NoContent();
         }
         [HttpGet("api/user/current"), Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfoDTO))]
         public ActionResult ShowInfo()
         {
             var user = accessor.HttpContext.User;
-            var sb = new StringBuilder();
-            sb.Append("Login: "+user.FindFirst(ClaimTypes.Name));
-            //и тут можно другие добавлять
-            return Ok(sb.ToString());
+            string name = user.FindFirst(ClaimTypes.Name).Value;
+            string role = user.FindFirst(ClaimTypes.Role).Value;
+            var info = new UserInfoDTO { Login = name, Role = role };
+            return Ok(info);
         }
     }
 }

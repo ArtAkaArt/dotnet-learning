@@ -4,7 +4,6 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Sol3;
 using Sol3.Profiles;
 using UserContextLib;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

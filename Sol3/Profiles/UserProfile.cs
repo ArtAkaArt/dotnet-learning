@@ -11,4 +11,9 @@
         public string currentPassword { get; set; } = null!;
         public string newPassword { get; set; } = null!;
     }
+    public class UserInfoDTO
+    {
+        public string Login { get; set; } = null!;
+        public string Role { get; set; } = null!;
+    }
 }
