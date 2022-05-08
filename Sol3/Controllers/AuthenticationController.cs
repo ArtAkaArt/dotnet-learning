@@ -13,13 +13,11 @@ namespace Sol3.Controllers
         private UserDBRepo repo;
         private readonly ILogger<AuthenticationController> logger;
         private readonly string key;
-        private readonly IHttpContextAccessor accessor;
-        public AuthenticationController(UserDBRepo repo, ILogger<AuthenticationController> logger, IConfiguration conf, IHttpContextAccessor httpContextAccessor)
+        public AuthenticationController(UserDBRepo repo, ILogger<AuthenticationController> logger, IConfiguration conf)
         {
             this.repo = repo;
             this.logger = logger;
             key = conf["SecretKeys:Key1"];
-            accessor = httpContextAccessor;
         }
         [HttpPost("api/user/auth")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
@@ -39,6 +37,10 @@ namespace Sol3.Controllers
                 claims: claims,
                 expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(120)),
                 signingCredentials: new SigningCredentials(asd, SecurityAlgorithms.HmacSha256));
+            /* не уверен как тут именно надо делать
+            Response.Cookies.Append("Authorization", "bearer " + new JwtSecurityTokenHandler().WriteToken(jwt));
+            Response.Headers.Authorization = "bearer " + new JwtSecurityTokenHandler().WriteToken(jwt); 
+            */
             return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
         }
         [HttpPost("api/user/password/update"), Authorize]
@@ -48,7 +50,7 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         public async Task<ActionResult> UpdatePwd(UserPwdUpdDTO userUpd)
         {
-            var name = accessor.HttpContext.User.FindFirst(ClaimTypes.Name);
+            var name = HttpContext.User.FindFirst(ClaimTypes.Name);
             if (name.Value == userUpd.Login)
                 return BadRequest("Нельзя менять пароль другого пользователя");
             var user = await repo.FindUser(userUpd.Login);
@@ -67,7 +69,7 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserInfoDTO))]
         public ActionResult ShowInfo()
         {
-            var user = accessor.HttpContext.User;
+            var user = HttpContext.User;
             string name = user.FindFirst(ClaimTypes.Name).Value;
             string role = user.FindFirst(ClaimTypes.Role).Value;
             var info = new UserInfoDTO { Login = name, Role = role };
