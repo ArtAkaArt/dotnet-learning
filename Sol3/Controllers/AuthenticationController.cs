@@ -72,7 +72,7 @@ namespace Sol3.Controllers
                 return BadRequest("Password не подходит");
             var userDto = new UserDTO { Login = userUpd.Login, Password = userUpd.NewPassword };
             await repo.UpdateUser(userDto, user);
-            return Ok("Пароль обновен");
+            return Ok("Пароль обновлен");
         }
         /// <summary>
         /// Вывод UserInfoDTO - клеймов аунтифицированного пользователя (логин и роль)
