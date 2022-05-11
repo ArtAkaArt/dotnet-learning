@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Security.Cryptography;
-
 
 namespace UserContextLib
 {
@@ -15,6 +13,8 @@ namespace UserContextLib
         }
         protected override void OnModelCreating(ModelBuilder builder)
         {
+
+            //нужно ли после первой миграции это оставлять? а то возникает конфликт, что юзер уже есть в базе
             builder.ApplyConfigurationsFromAssembly(typeof(UserContext).Assembly);
             var user = new User {Id = 1, Login = "admin", Role = "Admin"};
 
@@ -26,12 +26,4 @@ namespace UserContextLib
             builder.Entity<User>().HasData(user);
         }
     }
-        public class UnserEntityTypeConfiguration : IEntityTypeConfiguration<User>
-        {
-            public void Configure(EntityTypeBuilder<User> builder)
-            {
-                builder.Property(u => u.Login)
-                       .HasMaxLength(50);
-            }
-        }
 }

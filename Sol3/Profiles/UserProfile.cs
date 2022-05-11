@@ -8,8 +8,8 @@
     public class UserPwdUpdDTO
     {
         public string Login { get; set; } = null!;
-        public string currentPassword { get; set; } = null!;
-        public string newPassword { get; set; } = null!;
+        public string CurrentPassword { get; set; } = null!;
+        public string NewPassword { get; set; } = null!;
     }
     public class UserInfoDTO
     {

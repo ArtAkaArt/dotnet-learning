@@ -5,6 +5,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Sol3.Profiles;
+using Sol3;
 using UserContextLib;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -31,7 +32,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    //äîáàâëÿåò êíîïî÷êó â ñâàããåð
+    //Ð´Ð¾Ð±Ð°Ð²Ð»ÑÐµÑ‚ ÐºÐ½Ð¾Ð¿Ð¾Ñ‡ÐºÑƒ Ð² ÑÐ²Ð°Ð³Ð³ÐµÑ€
     options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
         Description = "Authtorization header using the Bearer scheme",
@@ -41,17 +42,20 @@ builder.Services.AddSwaggerGen(options =>
     });
     options.OperationFilter<SecurityRequirementsOperationFilter>(); 
 });
+var keyConfig = new KeysConfiguration { Key1 = builder.Configuration.GetSection("SecretKeys:Key1").Value, Key2 = builder.Configuration.GetSection("SecretKeys:Key1").Value };
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("SecretKeys:Key1").Value)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyConfig.Key1)),
             ValidateIssuer  = false,
             ValidateAudience = false,
         };
     });
+builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
 builder.Services.AddTransient<IValidator<UnitDTO>, UnitDTOValidator>();
