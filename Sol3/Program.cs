@@ -42,7 +42,9 @@ builder.Services.AddSwaggerGen(options =>
     });
     options.OperationFilter<SecurityRequirementsOperationFilter>(); 
 });
-var keyConfig = new KeysConfiguration { Key1 = builder.Configuration.GetSection("SecretKeys:Key1").Value, Key2 = builder.Configuration.GetSection("SecretKeys:Key1").Value };
+KeysConfiguration keyConfig = new();
+builder.Configuration.GetSection(KeysConfiguration.Configuration).Bind(keyConfig);
+//builder.Services.Configure<KeysConfiguration>(builder.Configuration);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

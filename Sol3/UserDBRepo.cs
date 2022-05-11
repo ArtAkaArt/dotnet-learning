@@ -19,7 +19,7 @@ namespace Sol3
         public async Task<UserInfoDTO> RegisterUser(UserDTO userReg)
         {
             if (userReg == null) 
-                throw new ArgumentNullException(nameof(userReg));
+                throw new ArgumentNullException("Пустой UserDTO");
             var user = new User();
             CreatePasswordHash(userReg.Password, out byte[] hash, out byte[] salt);
             user.Login = userReg.Login;
@@ -28,22 +28,18 @@ namespace Sol3
             user.Role = "User";
             context.Users.Add(user);
             await context.SaveChangesAsync();
-            return new UserInfoDTO {Login = user.Login, Role = user.Role }; //можно вернуть тот же DTO, что и в ShowInfo() контроллера
+            return new UserInfoDTO {Login = user.Login, Role = user.Role };
 
         }
-        public async Task<bool> UpdateUser(UserDTO userUpd, User user)
+        public async Task UpdateUser(UserDTO userUpd, User user)
         {
-            if (user != null)
-                //throw new ArgumentNullException(nameof(userReg)); не стал добавлять, добавил нульчек в контроллер, чтобы здесь можно было возвращать bool и => 501
-                //хотя не уверен что будет лучше
-            {
-                CreatePasswordHash(userUpd.Password, out byte[] hash, out byte[] salt);
-                user.PasswordSalt = salt;
-                user.Password = hash;
-                await context.SaveChangesAsync();
-                return true;
-            }
-            return false;
+            if (user == null)
+                throw new ArgumentNullException("Пустой UserDTO");
+            CreatePasswordHash(userUpd.Password, out byte[] hash, out byte[] salt);
+            user.PasswordSalt = salt;
+            user.Password = hash;
+            await context.SaveChangesAsync();
+
         }
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {

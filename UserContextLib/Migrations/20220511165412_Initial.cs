@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace UserContextLib.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -19,7 +19,7 @@ namespace UserContextLib.Migrations
                     Login = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     Password = table.Column<byte[]>(type: "bytea", nullable: true),
                     PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: true),
-                    Email = table.Column<string>(type: "text", nullable: true)
+                    Role = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -28,8 +28,8 @@ namespace UserContextLib.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "Email", "Login", "Password", "PasswordSalt" },
-                values: new object[] { 1, null, "admin", new byte[] { 172, 76, 205, 161, 143, 178, 86, 99, 27, 62, 71, 233, 189, 216, 158, 204, 201, 121, 4, 121, 104, 250, 44, 74, 191, 31, 220, 74, 133, 234, 131, 40, 174, 169, 101, 175, 212, 137, 149, 221, 32, 165, 186, 169, 176, 214, 236, 168, 147, 11, 252, 216, 1, 10, 72, 113, 46, 224, 126, 230, 137, 240, 250, 86 }, new byte[] { 115, 145, 230, 163, 79, 46, 133, 14, 55, 21, 138, 187, 148, 211, 122, 63, 207, 213, 30, 33, 236, 152, 53, 83, 207, 75, 205, 171, 243, 222, 170, 162, 78, 44, 110, 35, 157, 158, 72, 135, 159, 95, 49, 14, 190, 214, 159, 0, 201, 205, 123, 14, 148, 146, 44, 178, 164, 152, 172, 216, 142, 20, 36, 190, 67, 151, 101, 93, 179, 157, 238, 166, 153, 127, 132, 65, 20, 185, 102, 177, 190, 193, 133, 104, 170, 188, 111, 161, 57, 70, 95, 5, 8, 36, 7, 68, 250, 242, 200, 29, 237, 46, 41, 244, 90, 183, 240, 24, 103, 236, 86, 234, 119, 16, 209, 212, 40, 102, 83, 59, 71, 182, 114, 214, 11, 34, 213, 18 } });
+                columns: new[] { "Id", "Login", "Password", "PasswordSalt", "Role" },
+                values: new object[] { 1, "admin", new byte[] { 111, 36, 19, 64, 38, 162, 61, 77, 110, 110, 45, 77, 82, 198, 120, 96, 251, 240, 181, 67, 221, 211, 98, 18, 137, 46, 5, 47, 4, 129, 207, 131, 60, 177, 99, 25, 158, 184, 40, 158, 21, 240, 128, 113, 21, 109, 132, 24, 91, 183, 75, 100, 251, 72, 134, 227, 231, 181, 127, 104, 180, 12, 20, 246 }, new byte[] { 38, 95, 101, 209, 221, 54, 107, 151, 98, 28, 148, 36, 38, 39, 92, 23, 159, 38, 219, 36, 121, 119, 138, 89, 43, 185, 88, 184, 55, 243, 200, 21, 164, 70, 18, 195, 6, 166, 162, 133, 195, 47, 228, 75, 194, 107, 142, 53, 244, 60, 230, 140, 147, 205, 11, 202, 253, 242, 111, 81, 231, 245, 148, 130, 54, 187, 41, 37, 53, 145, 133, 74, 132, 51, 16, 251, 230, 220, 143, 63, 26, 187, 50, 71, 97, 68, 98, 31, 13, 132, 58, 87, 39, 132, 171, 203, 47, 161, 152, 147, 251, 52, 202, 242, 67, 254, 69, 95, 63, 102, 197, 227, 183, 110, 22, 140, 156, 104, 224, 96, 178, 31, 6, 255, 130, 168, 112, 235 }, "Admin" });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

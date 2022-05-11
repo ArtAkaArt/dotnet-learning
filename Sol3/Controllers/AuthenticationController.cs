@@ -37,13 +37,11 @@ namespace Sol3.Controllers
                 return NotFound("User не найден");
             if (!await repo.VerifyPwd(userLog.Password, user))
                 return BadRequest("Password не подходит");
-
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, user.Login), new Claim (ClaimTypes.Role, user.Role) };
-            var asd = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var jwt = new JwtSecurityToken(
                 claims: claims,
                 expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(120)),
-                signingCredentials: new SigningCredentials(asd, SecurityAlgorithms.HmacSha256));
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256));
             /* не уверен как тут именно надо делать
             Response.Cookies.Append("Authorization", "bearer " + new JwtSecurityTokenHandler().WriteToken(jwt));
             Response.Headers.Authorization = "bearer " + new JwtSecurityTokenHandler().WriteToken(jwt); 
@@ -56,7 +54,7 @@ namespace Sol3.Controllers
         /// <param name="userUpd">UserPwdUpdDTO: должен содержать логин, старый и новый пароль</param>
         /// <returns></returns>
         [HttpPost("api/user/password/update"), Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status501NotImplemented)]
@@ -70,14 +68,11 @@ namespace Sol3.Controllers
             var user = await repo.FindUser(userUpd.Login);
             if (user == null)
                 return NotFound("User не найден");
-            
             if (!await repo.VerifyPwd(userUpd.CurrentPassword, user))
                 return BadRequest("Password не подходит");
-
             var userDto = new UserDTO { Login = userUpd.Login, Password = userUpd.NewPassword };
-            if (!await repo.UpdateUser(userDto, user))
-                return StatusCode(501);
-            return NoContent();
+            await repo.UpdateUser(userDto, user);
+            return Ok("Пароль обновен");
         }
         /// <summary>
         /// Вывод UserInfoDTO - клеймов аунтифицированного пользователя (логин и роль)
