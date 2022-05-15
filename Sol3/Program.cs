@@ -44,7 +44,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 KeysConfiguration keyConfig = new();
 builder.Configuration.GetSection(KeysConfiguration.Configuration).Bind(keyConfig);
-//builder.Services.Configure<KeysConfiguration>(builder.Configuration);
+//var keyConfig = builder.Configuration.GetSection(KeysConfiguration.Configuration).Get<KeysConfiguration>(); альтернативное получение экземпляра
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -57,6 +57,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
         };
     });
+
+
 builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
@@ -65,7 +67,7 @@ builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configur
 builder.Services.AddDbContext<UserContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials2")));
 builder.Services.AddTransient<Sol3.FacilityRepo>();
 builder.Services.AddTransient<Sol3.UserDBRepo>();
-//builder.Services.AddHostedService<VolumeUpdateHostedService>();
+builder.Services.AddHostedService<VolumeUpdateHostedService>();
 
 var app = builder.Build();
 

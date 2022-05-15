@@ -42,10 +42,6 @@ namespace Sol3.Controllers
                 claims: claims,
                 expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(120)),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256));
-            /* не уверен как тут именно надо делать
-            Response.Cookies.Append("Authorization", "bearer " + new JwtSecurityTokenHandler().WriteToken(jwt));
-            Response.Headers.Authorization = "bearer " + new JwtSecurityTokenHandler().WriteToken(jwt); 
-            */
             return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
         }
         /// <summary>

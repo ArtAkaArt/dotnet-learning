@@ -25,7 +25,7 @@ namespace Sol3.Controllers
         /// получение всех юнитов
         /// </summary>
         /// <returns></returns>
-        [HttpGet("unit/all"), Authorize(Roles = "User")]
+        [HttpGet("unit/all"), Authorize(Roles = "User")] //тестовый метод с ограничением прав
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UnitDTO>))]
         public async Task<ActionResult<List<UnitDTO>>> GetAllUnits()
         {
