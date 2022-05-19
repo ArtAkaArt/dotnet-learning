@@ -23,10 +23,16 @@ public class Program {
         {
             Console.WriteLine(e);
         }
-        var unique = new Dictionary<string, Post>(); //коллекция для уникального поля Title
-        list.ForEach(post =>unique.Add(post.Title, post));
+        var uniqueTitle = new Dictionary<string, Post>(); //коллекция для уникального поля Title
+        list.ForEach(post => uniqueTitle.Add(post.Title, post));
 
-        Console.WriteLine(unique["qui est esse"].Body); // проверка
+        var uniqueId = new Dictionary<int, Post>(); //коллекция для уникального поля Id, предполагая, что Id уникален
+        list.ForEach(post => uniqueId.Add(post.Id, post));
+
+        //если нет никаких уникальных полей, то так в List и оставить и дергать линком по специфичным запросам, наверно
+
+        Console.WriteLine(uniqueTitle["qui est esse"].Body); // проверка
+        Console.WriteLine(uniqueId[2].Body); // проверка
         Console.ReadKey();
     }
 }
