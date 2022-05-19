@@ -23,8 +23,10 @@ public class Program {
         {
             Console.WriteLine(e);
         }
-        var uniqueTitle = new Dictionary<string, Post>(); //коллекция для уникального поля Title
-        list.ForEach(post => uniqueTitle.Add(post.Title, post));
+        var uniqueTitle = new Dictionary<string, Post>();   //коллекция для уникального поля Title
+        list.OrderBy(p =>p.Title)                           //если правильно помню по отсортированному быстрее поиск проходит
+            .ToList()
+            .ForEach(post => uniqueTitle.Add(post.Title, post));
 
         var uniqueId = new Dictionary<int, Post>(); //коллекция для уникального поля Id, предполагая, что Id уникален
         list.ForEach(post => uniqueId.Add(post.Id, post));
@@ -33,6 +35,7 @@ public class Program {
 
         Console.WriteLine(uniqueTitle["qui est esse"].Body); // проверка
         Console.WriteLine(uniqueId[2].Body); // проверка
+
         Console.ReadKey();
     }
 }
