@@ -13,14 +13,20 @@ public class Program {
             var response = await client.GetAsync("https://jsonplaceholder.typicode.com/posts");
             response.EnsureSuccessStatusCode();
             var responseText = await response.Content.ReadAsStringAsync();
-            list = JsonSerializer.Deserialize<List<Post>>(responseText);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            list = JsonSerializer.Deserialize<List<Post>>(responseText, options);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
         }
+        var unique = new Dictionary<string, Post>(); //коллекция для уникального поля Title
+        list.ForEach(post =>unique.Add(post.Title, post));
 
-        list.ForEach(post => Console.WriteLine(post.Title));
+        Console.WriteLine(unique["qui est esse"].Body); // проверка
         Console.ReadKey();
     }
 }
