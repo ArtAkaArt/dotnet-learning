@@ -3,6 +3,7 @@
 
 
 >Чем отличается IEnumerable и IQueryable? Для чего используется IQueryable?
+    IQueryable : IEnumerable
     определяет где будет происходить обработка дерева запросов, на стороне базы(IQueryable) или программы(IEnumerable)
     в случае с IEnumerable запросом будет получена вся таблица
 
