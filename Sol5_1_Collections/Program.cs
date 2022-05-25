@@ -1,41 +1,39 @@
 ﻿using System.Text.Json;
 
-
 namespace Sol5_1_Collections;
 public class Program {
-
-    static readonly HttpClient client = new HttpClient();
+    static List<Post> list = new();
     static async Task Main()
     {
-        List<Post> list = new();
-        try
-        {
-            var response = await client.GetAsync("https://jsonplaceholder.typicode.com/posts");
-            response.EnsureSuccessStatusCode();
-            var responseText = await response.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-            list = JsonSerializer.Deserialize<List<Post>>(responseText, options);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-        var uniqueTitle = new Dictionary<string, Post>();   //коллекция для уникального поля Title
-        list.OrderBy(p =>p.Title)                           //если правильно помню по отсортированному быстрее поиск проходит
-            .ToList()
-            .ForEach(post => uniqueTitle.Add(post.Title, post));
+        List <Task> tasklist = new();
 
-        var uniqueId = new Dictionary<int, Post>(); //коллекция для уникального поля Id, предполагая, что Id уникален
-        list.ForEach(post => uniqueId.Add(post.Id, post));
-
-        //если нет никаких уникальных полей, то так в List и оставить и дергать линком по специфичным запросам, наверно
-
-        Console.WriteLine(uniqueTitle["qui est esse"].Body); // проверка
-        Console.WriteLine(uniqueId[2].Body); // проверка
-
+        //Task task = new Task(async() => await GetPostAsync(1, list));
+        Task task = GetPostAsync(1, list);
+        //task.Start();
+        task.Wait();
+        Console.WriteLine(list.Count()+"----------");
         Console.ReadKey();
+
+    }
+    static async Task GetPostAsync(int number, List<Post> list)
+    {
+        
+        HttpClient client = new HttpClient();
+        var response = await client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{number}"); // здесь происходит переход на завергение программы
+        var responseText = await response.Content.ReadAsStringAsync();
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        Post post = JsonSerializer.Deserialize<Post>(responseText, options);
+        Console.WriteLine(post.Body);
+        list.Add(post);
+    }
+}
+public static class MyTaskListExtention
+{
+    public static async Task RunInParallel(this IEnumerable<Task> taskList, int vol = 4)
+    {
     }
 }
