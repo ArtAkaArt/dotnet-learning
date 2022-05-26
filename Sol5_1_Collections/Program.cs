@@ -2,8 +2,8 @@
 
 namespace Sol5_1_Collections;
 public class Program {
+    static volatile List<Post> list = new();
     
-    private static SemaphoreSlim semaphore;
     static HttpClient client = new HttpClient();
     static async Task Main()
     {
@@ -25,15 +25,15 @@ public class Program {
             Console.WriteLine(e);
         }
 
-        semaphore = new SemaphoreSlim(5);
-        List<Func<Task<Post>>> funcs = new();
+        List<Func<Task>> funcs = new();
         
         for (int i = 1; i <= 100; i++)
         {
             var count = i; // !!!! крайневажная переменная без нее все работает неправильно
-            funcs.Add(new( async () => await GetPostAsync(count))); // , list
+            Console.WriteLine(i);
+            funcs.Add(new( async () => await GetPostAsync(count, list)));
         }
-        var list = await funcs.RunInParallel(5);
+        funcs.RunInParallel(5);
         Console.WriteLine("Main thread - после RunInParallel");
 
         //дааа... очень топорная сверка
@@ -46,10 +46,10 @@ public class Program {
         }
         Console.ReadKey();
     }
-    static async Task<Post> GetPostAsync(int number) // , List<Post> list
+    static async Task GetPostAsync(int number, List<Post> list)
     {
-        semaphore.Wait();
-        Console.WriteLine($"Task started _ {semaphore.CurrentCount}");
+        
+        Console.WriteLine($"Task started");
         
         var response = await client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{number}");
         var responseText = await response.Content.ReadAsStringAsync();
@@ -59,9 +59,8 @@ public class Program {
         };
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
         Console.WriteLine("Task ended_" +post.Id);
-        //list.Add(post);
-        semaphore.Release();
-        return post;
+        list.Add(post);
+        
     }
 }
 public static class MyTaskListExtention
@@ -69,20 +68,20 @@ public static class MyTaskListExtention
     /* передал значение по умолчанию, но чтобы передать его в семафор, нужно еще сам семафор объявлять в методе и => сами функции тут же
      * это выглядит немного странно в плане функциональности самого метода
      */
-    static volatile List<Post> list = new();
-    public static async Task<List<Post>> RunInParallel(this IEnumerable<Func<Task<Post>>> functs, int vol = 4)
+    private static SemaphoreSlim semaphore;
+    public static void RunInParallel(this IEnumerable<Func<Task>> functs, int vol = 4)
     {
+        semaphore = new SemaphoreSlim(vol);
         List<Task> tasks = new();
         foreach (var func in functs)
         {
-            var task = func.Invoke();
-            tasks.Add(task);
-            list.Add(await task);
-            Console.WriteLine("Task added");
+            semaphore.Wait();
+            tasks.Add(func.Invoke());
+            Console.WriteLine($"Task added count {semaphore.CurrentCount}");
+            semaphore.Release();
         }
         Console.WriteLine(tasks.Count()+" Task count");
         Task.WaitAll(tasks.ToArray());
         Console.WriteLine("End in RunInParallel");
-        return list;
     }
 }
