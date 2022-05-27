@@ -33,7 +33,7 @@ public class Program {
             Console.WriteLine(i);
             funcs.Add(new( async () => await GetPostAsync(count, list)));
         }
-        funcs.RunInParallel(5);
+        await funcs.RunInParallel(5);
         Console.WriteLine("Main thread - после RunInParallel");
 
         //дааа... очень топорная сверка
@@ -65,23 +65,24 @@ public class Program {
 }
 public static class MyTaskListExtention
 {
-    /* передал значение по умолчанию, но чтобы передать его в семафор, нужно еще сам семафор объявлять в методе и => сами функции тут же
-     * это выглядит немного странно в плане функциональности самого метода
-     */
-    private static SemaphoreSlim semaphore;
-    public static void RunInParallel(this IEnumerable<Func<Task>> functs, int vol = 4)
+    public static async Task RunInParallel(this IEnumerable<Func<Task>> functs, int vol = 4)
     {
-        semaphore = new SemaphoreSlim(vol);
-        List<Task> tasks = new();
+        functs.Count();
+        var semaphore = new SemaphoreSlim(vol);
+        //List<Task> tasks = new();
+        var tasks = new Task[functs.Count()];
+        var count = 0;
         foreach (var func in functs)
         {
-            semaphore.Wait();
-            tasks.Add(func.Invoke());
+            await semaphore.WaitAsync();
+            var task = await Task.Factory.StartNew(func);
+            tasks[count] = task;
             Console.WriteLine($"Task added count {semaphore.CurrentCount}");
             semaphore.Release();
+            count++;
         }
-        Console.WriteLine(tasks.Count()+" Task count");
-        Task.WaitAll(tasks.ToArray());
+        Console.WriteLine(tasks.Length+" Task count");
+        await Task.WhenAll(tasks);
         Console.WriteLine("End in RunInParallel");
     }
 }
