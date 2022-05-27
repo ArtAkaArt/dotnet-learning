@@ -60,7 +60,14 @@ public class Program {
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
         Console.WriteLine("Task ended_" +post.Id);
         list.Add(post);
-        
+        Thread.Sleep(2500);
+        Console.WriteLine(111);
+        Thread.Sleep(2500);
+        Console.WriteLine(222);
+        Thread.Sleep(2500);
+        Console.WriteLine(333);
+        Thread.Sleep(2500);
+
     }
 }
 public static class MyTaskListExtention
@@ -75,11 +82,12 @@ public static class MyTaskListExtention
         foreach (var func in functs)
         {
             var task = await Task.Factory.StartNew(async() => { 
-                await semaphore.WaitAsync(); 
-                Console.WriteLine($"Task added count {semaphore.CurrentCount}"); 
-                await func.Invoke();  
-                semaphore.Release();});
+                await semaphore.WaitAsync();
+                await func.Invoke(); 
+                semaphore.Release();
+            });
             tasks[count] = task;
+            
             count++;
         }
         Console.WriteLine(tasks.Length+" Task count");
