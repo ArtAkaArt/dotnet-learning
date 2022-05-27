@@ -74,11 +74,12 @@ public static class MyTaskListExtention
         var count = 0;
         foreach (var func in functs)
         {
-            await semaphore.WaitAsync();
-            var task = await Task.Factory.StartNew(async() => { await func.Invoke(); semaphore.Release();});
+            var task = await Task.Factory.StartNew(async() => { 
+                await semaphore.WaitAsync(); 
+                Console.WriteLine($"Task added count {semaphore.CurrentCount}"); 
+                await func.Invoke();  
+                semaphore.Release();});
             tasks[count] = task;
-            Console.WriteLine($"Task added count {semaphore.CurrentCount}");
-            //semaphore.Release();
             count++;
         }
         Console.WriteLine(tasks.Length+" Task count");
