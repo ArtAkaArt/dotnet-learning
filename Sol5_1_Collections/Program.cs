@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
 
 namespace Sol5_1_Collections;
 public class Program {
-    static volatile List<Post> list = new();
     
     static HttpClient client = new HttpClient();
     static async Task Main()
@@ -25,16 +25,15 @@ public class Program {
             Console.WriteLine(e);
         }
 
-        List<Func<Task>> funcs = new();
+        List<Func<Task<Post>>> funcs = new();
         
         for (int i = 1; i <= 100; i++)
         {
             var count = i; // !!!! крайневажная переменная без нее все работает неправильно
-            Console.WriteLine(i);
-            funcs.Add(new( async () => await GetPostAsync(count, list)));
+            funcs.Add(new( async () => await GetPostAsync(count)));
         }
-        await funcs.RunInParallel(5);
-        Console.WriteLine("Main thread - после RunInParallel");
+        var list = await funcs.RunInParallel(5);
+        Console.WriteLine("Main - после RunInParallel");
 
         //дааа... очень топорная сверка
         for (int i = 1; i <= 100; i++)
@@ -46,7 +45,7 @@ public class Program {
         }
         Console.ReadKey();
     }
-    static async Task GetPostAsync(int number, List<Post> list)
+    static async Task<Post> GetPostAsync(int number)
     {
         
         Console.WriteLine($"Task started");
@@ -58,8 +57,6 @@ public class Program {
             PropertyNameCaseInsensitive = true
         };
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
-        Console.WriteLine("Task ended_" +post.Id);
-        list.Add(post);
         Thread.Sleep(2500);
         Console.WriteLine(111);
         Thread.Sleep(2500);
@@ -67,31 +64,33 @@ public class Program {
         Thread.Sleep(2500);
         Console.WriteLine(333);
         Thread.Sleep(2500);
+        Console.WriteLine("Task ended_" +post.Id);
+        return post;
+        
 
     }
 }
 public static class MyTaskListExtention
 {
-    public static async Task RunInParallel(this IEnumerable<Func<Task>> functs, int vol = 4)
+    public static async Task<IReadOnlyCollection<Post>> RunInParallel(this IEnumerable<Func<Task<Post>>> functs, int vol = 4)
     {
-        functs.Count();
+        ConcurrentBag<Post> list = new ();
         var semaphore = new SemaphoreSlim(vol);
-        //List<Task> tasks = new();
         var tasks = new Task[functs.Count()];
         var count = 0;
         foreach (var func in functs)
         {
-            var task = await Task.Factory.StartNew(async() => { 
+             var task = await Task.Factory.StartNew(async() => {
                 await semaphore.WaitAsync();
-                await func.Invoke(); 
+                list.Add(await func.Invoke());
                 semaphore.Release();
             });
             tasks[count] = task;
-            
             count++;
         }
         Console.WriteLine(tasks.Length+" Task count");
         await Task.WhenAll(tasks);
         Console.WriteLine("End in RunInParallel");
+        return list;
     }
 }
