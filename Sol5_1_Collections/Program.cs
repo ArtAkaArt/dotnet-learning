@@ -34,15 +34,16 @@ public class Program {
         }
         var list = await funcs.RunInParallel(5);
         Console.WriteLine("Main - после RunInParallel");
-
+        var isListsEqual = true;
         //дааа... очень топорная сверка
         for (int i = 1; i <= 100; i++)
         {
             var post1 = listInThread.FirstOrDefault(x => x.Id == i);
             var post2 = list.FirstOrDefault(x => x.Id == i);
-            var isEqual = post1.Id == post2.Id && post1.Body == post2.Body && post1.Title == post2.Title && post1.UserId == post2.UserId;
-            Console.WriteLine(isEqual);
+            var isPostsEqual = post1.Id == post2.Id && post1.Body == post2.Body && post1.Title == post2.Title && post1.UserId == post2.UserId;
+            isListsEqual = isListsEqual && isPostsEqual;   
         }
+        Console.WriteLine(isListsEqual);
         Console.ReadKey();
     }
     static async Task<Post> GetPostAsync(int number)
@@ -66,8 +67,6 @@ public class Program {
         Thread.Sleep(2500);
         Console.WriteLine("Task ended_" +post.Id);
         return post;
-        
-
     }
 }
 public static class MyTaskListExtention
@@ -80,7 +79,7 @@ public static class MyTaskListExtention
         var count = 0;
         foreach (var func in functs)
         {
-             var task = await Task.Factory.StartNew(async() => {
+            var task = await Task.Factory.StartNew(async() => {
                 await semaphore.WaitAsync();
                 list.Add(await func.Invoke());
                 semaphore.Release();
@@ -88,7 +87,7 @@ public static class MyTaskListExtention
             tasks[count] = task;
             count++;
         }
-        Console.WriteLine(tasks.Length+" Task count");
+        Console.WriteLine(tasks.Count(t => t != null) +" Task count");
         await Task.WhenAll(tasks);
         Console.WriteLine("End in RunInParallel");
         return list;
