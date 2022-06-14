@@ -1,0 +1,58 @@
+4 группировка и сортировка строк (GroupBy, OrderBy, OrderByDesc)
+
+'DbSet<Tank>()
+          .GroupBy(x => x.UnitId)
+          .Select(x => new { 
+              Id = x
+                  .First().Id, 
+              Name = x
+                  .First().Name
+           })'
+
+SELECT (
+          SELECT t0."Id"
+          FROM "Tanks" AS t0
+          WHERE t."UnitId" = t0."UnitId"
+          LIMIT 1) AS "Id", (
+          SELECT t1."Name"
+          FROM "Tanks" AS t1
+          WHERE t."UnitId" = t1."UnitId"
+          LIMIT 1) AS "Name"
+      FROM "Tanks" AS t
+      GROUP BY t."UnitId"
+
+HashAggregate  (cost=1.10..3.33 rows=3 width=126) //Hash группировка
+  Group Key: t."UnitId"
+  ->  Seq Scan on "Tanks" t  (cost=0.00..1.08 rows=8 width=4)
+  SubPlan 1 //подзапрос группировки для нахождения значений первого условия 
+    ->  Limit  (cost=0.00..0.37 rows=1 width=4)
+          ->  Seq Scan on "Tanks" t0  (cost=0.00..1.10 rows=3 width=4)
+                Filter: (t."UnitId" = "UnitId") // фильтр выборки
+  SubPlan 2
+    ->  Limit  (cost=0.00..0.37 rows=1 width=22)
+          ->  Seq Scan on "Tanks" t1  (cost=0.00..1.10 rows=3 width=22)
+                Filter: (t."UnitId" = "UnitId")
+
+
+'DbSet<Unit>()
+          .OrderBy(x => x.Id)'
+
+SELECT u."Id", u."Description", u."FactoryId", u."Name"
+              FROM "Units" AS u
+              ORDER BY u.Id ASC
+
+Sort  (cost=1.11..1.12 rows=5 width=244) // cost возрос до 1.11 от сортировки
+  Sort Key: "Id" //сортировка по ид
+  ->  Seq Scan on "Units" u  (cost=0.00..1.05 rows=5 width=244)
+
+'DbSet<Unit>()
+          .OrderByDescending(x => x.Id)'
+
+SELECT u."Id", u."Description", u."FactoryId", u."Name"
+              FROM "Units" AS u
+              ORDER BY u.Id DESC
+
+Sort  (cost=1.11..1.12 rows=5 width=244)
+  Sort Key: "Id" DESC
+  ->  Seq Scan on "Units" u  (cost=0.00..1.05 rows=5 width=244)
+
