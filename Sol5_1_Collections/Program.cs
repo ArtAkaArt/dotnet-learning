@@ -58,13 +58,13 @@ public class Program {
             PropertyNameCaseInsensitive = true
         };
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
-        Thread.Sleep(2500);
+        await Task.Delay(1500);
         Console.WriteLine(111);
-        Thread.Sleep(2500);
+        await Task.Delay(1500);
         Console.WriteLine(222);
-        Thread.Sleep(2500);
+        await Task.Delay(1500);
         Console.WriteLine(333);
-        Thread.Sleep(2500);
+        await Task.Delay(1500);
         Console.WriteLine("Task ended_" +post.Id);
         return post;
     }
