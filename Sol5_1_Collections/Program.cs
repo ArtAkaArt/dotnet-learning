@@ -36,7 +36,7 @@ public class Program {
         var isListsEqual = true;
         try
         {
-            var list = await funcs.RunInParallel(5);
+            var list = await funcs.RunInParallel(5, true);
 
             Console.WriteLine("Main - после RunInParallel");
             
@@ -50,15 +50,17 @@ public class Program {
             }
             Console.WriteLine(isListsEqual);
         }
-        catch (Exception ex)
+        catch (AggregateException ex)
         {
-            Console.WriteLine(ex.Message);
+            foreach (Exception innerException in ex.InnerExceptions)
+            {
+                Console.WriteLine(innerException.Message);
+            }
         }
         Console.ReadKey();
     }
     static async Task<Post> GetPostAsync(int number)
     {
-        
         Console.WriteLine($"Task started");
         // генерация нескольких ошибок
         if (number % 10 == 0) { Console.WriteLine("ex"); throw new Exception("Ошибка номер "+number); }
@@ -73,7 +75,6 @@ public class Program {
         Console.WriteLine("Task ended_" +post.Id);
         return post;
     }
-
 }
 public static class MyTaskListExtention
 {
@@ -109,16 +110,10 @@ public static class MyTaskListExtention
             {
                 var exceptions = tasks.Where(t => t.Exception != null)
                                       .Select(t => t.Exception);
-                StringBuilder sb = new();
-                foreach (var exception in exceptions)
-                {
-                    sb.AppendLine(exception?.Message);
-                }
-                throw new Exception(sb.ToString());
+                throw new AggregateException(exceptions);
             }
         }
         Console.WriteLine("End in RunInParallel");
         return list;
     }
-    
 }
