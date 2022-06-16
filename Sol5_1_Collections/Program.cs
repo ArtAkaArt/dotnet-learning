@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Text;
 using System.Text.Json;
 
 namespace Sol5_1_Collections;
@@ -59,6 +60,7 @@ public class Program {
     {
         
         Console.WriteLine($"Task started");
+        // генерация нескольких ошибок
         if (number % 10 == 0) { Console.WriteLine("ex"); throw new Exception("Ошибка номер "+number); }
         var response = await client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{number}");
         response.EnsureSuccessStatusCode();
@@ -68,16 +70,10 @@ public class Program {
             PropertyNameCaseInsensitive = true
         };
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
-        await Task.Delay(500);
-        Console.WriteLine(111);
-        await Task.Delay(500);
-        Console.WriteLine(222);
-        await Task.Delay(500);
-        Console.WriteLine(333);
-        await Task.Delay(500);
         Console.WriteLine("Task ended_" +post.Id);
         return post;
     }
+
 }
 public static class MyTaskListExtention
 {
@@ -86,8 +82,6 @@ public static class MyTaskListExtention
         ConcurrentBag<Post> list = new ();
         var semaphore = new SemaphoreSlim(vol);
         var tasks = new List<Task>();
-        try
-        {
         foreach (var func in functs)
         {
             var task = await Task.Factory.StartNew(async () => {
@@ -95,27 +89,36 @@ public static class MyTaskListExtention
                 try
                 {
                     list.Add(await func.Invoke());
-                    semaphore.Release();
-
-                } catch (Exception ex)
+                }
+                finally
                 {
                     semaphore.Release();
-                    if (throwException)
-                    {
-                        throw;
-                    }
                 }
+                
             });
             tasks.Add(task);
         }
         Console.WriteLine(tasks.Count(t => t != null) +" Task count");
-        await Task.WhenAll(tasks);
+        try
+        {
+            await Task.WhenAll(tasks);
         }
         catch (Exception ex)
         {
-            throw;
+            if (throwException)
+            {
+                var exceptions = tasks.Where(t => t.Exception != null)
+                                      .Select(t => t.Exception);
+                StringBuilder sb = new();
+                foreach (var exception in exceptions)
+                {
+                    sb.AppendLine(exception?.Message);
+                }
+                throw new Exception(sb.ToString());
+            }
         }
         Console.WriteLine("End in RunInParallel");
         return list;
     }
+    
 }
