@@ -85,8 +85,7 @@ public static class MyTaskListExtention
     {
         ConcurrentBag<Post> list = new ();
         var semaphore = new SemaphoreSlim(vol);
-        var tasks = new Task[functs.Count()];
-        var count = 0;
+        var tasks = new List<Task>();
         try
         {
         foreach (var func in functs)
@@ -107,8 +106,7 @@ public static class MyTaskListExtention
                     }
                 }
             });
-            tasks[count] = task;
-            count++;
+            tasks.Add(task);
         }
         Console.WriteLine(tasks.Count(t => t != null) +" Task count");
         await Task.WhenAll(tasks);
