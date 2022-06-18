@@ -78,7 +78,7 @@ namespace Sol5_1_Collections
             {
                 if (task.Exception != null && throwException) { tokenSource.Cancel(); throw new AggregateException(task.Exception); }
                 else if (task.Exception != null) exList.Add(task.Exception);
-                else yield return task.Result;
+                else yield return await task;
             }
             if (exList.Count > 0) throw new AggregateException(exList);// возвращения списка ошибок, если они возникли
         }
