@@ -34,6 +34,7 @@ public class Program {
             funcs.Add(new( async () => await GetPostAsync(count)));
         }
         var isListsEqual = true;
+        /*
         try
         {
             var list = await funcs.RunInParallel(5, true);
@@ -57,13 +58,39 @@ public class Program {
                 Console.WriteLine(innerException.Message);
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Ex "+ex.Message);
+        }
+        */
+        var asyncEnumList = funcs.RunInParallelAlt(5);
+        var postsList = new List<Post>();
+        try
+        {
+            await foreach (var post2 in asyncEnumList)
+            {
+                var post1 = listInThread.FirstOrDefault(x => x.Id == post2.Id);
+                var isPostsEqual = post1?.Id == post2?.Id && post1?.Body == post2?.Body && post1?.Title == post2?.Title && post1?.UserId == post2?.UserId;
+                isListsEqual = isListsEqual && isPostsEqual;//тут конечно, неверное сравнение листов происходит, т к listInThread может быть больше, чем asyncEnumList
+                postsList.Add(post2);
+            }
+            Console.WriteLine(isListsEqual);
+        }
+        catch (AggregateException ex)
+        {
+            foreach (Exception innerException in ex.InnerExceptions)
+            {
+                Console.WriteLine(innerException.Message);
+            }
+            Console.WriteLine(postsList.Count); // получение и проверка списка постов из IAsyncEnum
+        }
         Console.ReadKey();
     }
     static async Task<Post> GetPostAsync(int number)
     {
         Console.WriteLine($"Task started");
         // генерация нескольких ошибок
-        if (number % 10 == 0) { Console.WriteLine("ex"); throw new Exception("Ошибка номер "+number); }
+        if (number % 10 == 0)  throw new Exception("Ошибка при получении поста номер: "+number);
         var response = await client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{number}");
         response.EnsureSuccessStatusCode();
         var responseText = await response.Content.ReadAsStringAsync();
@@ -95,7 +122,6 @@ public static class MyTaskListExtention
                 {
                     semaphore.Release();
                 }
-                
             });
             tasks.Add(task);
         }
@@ -115,5 +141,37 @@ public static class MyTaskListExtention
         }
         Console.WriteLine("End in RunInParallel");
         return list;
+    }
+    public static async IAsyncEnumerable<Post> RunInParallelAlt(this IEnumerable<Func<Task<Post>>> functs, int vol = 4, bool throwException = false)
+    {
+        List<Exception> exList =new();
+        var semaphore = new SemaphoreSlim(vol);
+        foreach (var func in functs)
+        {
+            var post = new Post();
+            var hadResult = true;
+            try
+            {
+                post = await Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        return await func.Invoke();
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+            }catch (Exception ex)
+            {
+                if(throwException) throw new AggregateException (ex);
+                exList.Add(ex);
+                hadResult = false;
+            }
+            if (hadResult) yield return post;
+        };
+        if (exList.Count>0)throw new AggregateException(exList);// возвращения списка ошибок, если они возникли
     }
 }
