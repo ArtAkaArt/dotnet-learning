@@ -22,7 +22,7 @@ namespace Sol5_1_Collections
             var tasks = new List<Task>();
             foreach (var func in functs)
             {
-                var task = await Task.Factory.StartNew(async () => {
+                var task = Task.Run(async () => {
                     await semaphore.WaitAsync();
                     try
                     {
@@ -60,7 +60,7 @@ namespace Sol5_1_Collections
             var tasks = new List<Task<T>>();
             foreach (var func in functs)
             {
-                var task = await Task.Factory.StartNew(async () => {
+                var task = Task.Run(async () => {
                     await semaphore.WaitAsync();
                     try
                     {

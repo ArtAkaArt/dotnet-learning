@@ -64,7 +64,7 @@ public class Program {
             Console.WriteLine("Ex "+ex.Message);
         }
         */
-        var asyncEnumList = funcs.RunInParallelAlt(tokenSource, 5);
+        var asyncEnumList = funcs.RunInParallelAlt(tokenSource, 5,true);
         var postsList = new List<Post>();
         try
         {
