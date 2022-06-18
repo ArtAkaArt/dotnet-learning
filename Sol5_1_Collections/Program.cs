@@ -25,16 +25,17 @@ public class Program {
         {
             Console.WriteLine(e);
         }
-
+        var tokenSource = new CancellationTokenSource();
+        var token = tokenSource.Token;
         List<Func<Task<Post>>> funcs = new();
         
         for (int i = 1; i <= 100; i++)
         {
             var count = i; // !!!! крайневажная переменная без нее все работает неправильно
-            funcs.Add(new( async () => await GetPostAsync(count)));
+            funcs.Add(new( async () => await GetPostAsync(count, token)));
         }
         var isListsEqual = true;
-        
+        /*
         try
         {
             var list = await funcs.RunInParallel(5, true);
@@ -62,8 +63,8 @@ public class Program {
         {
             Console.WriteLine("Ex "+ex.Message);
         }
-        /*
-        var asyncEnumList = funcs.RunInParallelAlt(5);
+        */
+        var asyncEnumList = funcs.RunInParallelAlt(tokenSource, 5);
         var postsList = new List<Post>();
         try
         {
@@ -73,6 +74,7 @@ public class Program {
                 var isPostsEqual = post1?.Id == post2?.Id && post1?.Body == post2?.Body && post1?.Title == post2?.Title && post1?.UserId == post2?.UserId;
                 isListsEqual = isListsEqual && isPostsEqual;//тут конечно, неверное сравнение листов происходит, т к listInThread может быть больше, чем asyncEnumList
                 postsList.Add(post2);
+                Console.WriteLine(post2.Id+ " In main");
             }
             Console.WriteLine(isListsEqual);
         }
@@ -84,14 +86,15 @@ public class Program {
             }
             Console.WriteLine(postsList.Count); // получение и проверка списка постов из IAsyncEnum
         }
-        */
+        
         Console.ReadKey();
     }
-    static async Task<Post> GetPostAsync(int number)
+    static async Task<Post> GetPostAsync(int number, CancellationToken ct)
     {
+        if (ct.IsCancellationRequested) ct.ThrowIfCancellationRequested();
         Console.WriteLine($"Task started");
         // генерация нескольких ошибок
-        //if (number % 10 == 0)  throw new Exception("Ошибка при получении поста номер: "+number);
+        if (number % 10 == 0)  throw new Exception("Ошибка при получении поста номер: "+number);
         var response = await client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{number}");
         response.EnsureSuccessStatusCode();
         var responseText = await response.Content.ReadAsStringAsync();

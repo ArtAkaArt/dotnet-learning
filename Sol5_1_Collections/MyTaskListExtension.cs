@@ -14,8 +14,9 @@ namespace Sol5_1_Collections
         /// В режиме false будут переданы все объекты, которые удалось получить и все полученные ошибки через AggregateException</param>
         /// <returns></returns>
         /// <exception cref="AggregateException"></exception>
-        public static async Task<IReadOnlyCollection<T>> RunInParallel<T>(this IEnumerable<Func<Task<T>>> functs, int maxTasks = 4, bool throwException = false)
+        public static async Task<IReadOnlyCollection<T>> RunInParallel<T>(this IEnumerable<Func<Task<T>>> functs, CancellationTokenSource tokenSource, int maxTasks = 4, bool throwException = false)
         {
+            var token = tokenSource.Token;
             ConcurrentBag<T> list = new();
             var semaphore = new SemaphoreSlim(maxTasks);
             var tasks = new List<Task>();
@@ -51,38 +52,34 @@ namespace Sol5_1_Collections
             Console.WriteLine("End in RunInParallel");
             return list;
         }
-        public static async IAsyncEnumerable<Post> RunInParallelAlt(this IEnumerable<Func<Task<Post>>> functs, int maxTasks = 4, bool throwException = false)
+        public static async IAsyncEnumerable<Post> RunInParallelAlt(this IEnumerable<Func<Task<Post>>> functs, CancellationTokenSource tokenSource, int maxTasks = 4, bool throwException = false)
         {
+            var token = tokenSource.Token;
             List<Exception> exList = new();
             var semaphore = new SemaphoreSlim(maxTasks);
+            var tasks = new List<Task<Post>>();
             foreach (var func in functs)
             {
-                var post = new Post();
-                var hadResult = true;
-                try
-                {
-                    post = await Task.Run(async () =>
+                var task = await Task.Factory.StartNew(async () => {
+                    await semaphore.WaitAsync();
+                    try
                     {
-                        await semaphore.WaitAsync();
-                        try
-                        {
-                            return await func.Invoke();
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    });
-
-                }
-                catch (Exception ex)
-                {
-                    if (throwException) throw new AggregateException(ex);
-                    exList.Add(ex);
-                    hadResult = false;
-                }
-                if (hadResult) yield return post;
-            };
+                        return await func.Invoke();
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }, token);
+                tasks.Add(task);
+            }
+            await Task.WhenAny(tasks);
+            foreach (var task in tasks) //я не знаю почему оно работает)
+            {
+                if (task.Exception != null && throwException) { tokenSource.Cancel(); throw new AggregateException(task.Exception); }
+                else if (task.Exception != null) exList.Add(task.Exception);
+                else yield return task.Result;
+            }
             if (exList.Count > 0) throw new AggregateException(exList);// возвращения списка ошибок, если они возникли
         }
     }
