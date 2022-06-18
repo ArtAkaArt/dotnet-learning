@@ -52,12 +52,12 @@ namespace Sol5_1_Collections
             Console.WriteLine("End in RunInParallel");
             return list;
         }
-        public static async IAsyncEnumerable<Post> RunInParallelAlt(this IEnumerable<Func<Task<Post>>> functs, CancellationTokenSource tokenSource, int maxTasks = 4, bool throwException = false)
+        public static async IAsyncEnumerable<T> RunInParallelAlt<T>(this IEnumerable<Func<Task<T>>> functs, CancellationTokenSource tokenSource, int maxTasks = 4, bool throwException = false)
         {
             var token = tokenSource.Token;
             List<Exception> exList = new();
             var semaphore = new SemaphoreSlim(maxTasks);
-            var tasks = new List<Task<Post>>();
+            var tasks = new List<Task<T>>();
             foreach (var func in functs)
             {
                 var task = await Task.Factory.StartNew(async () => {

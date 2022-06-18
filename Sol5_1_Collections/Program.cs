@@ -74,7 +74,7 @@ public class Program {
                 var isPostsEqual = post1?.Id == post2?.Id && post1?.Body == post2?.Body && post1?.Title == post2?.Title && post1?.UserId == post2?.UserId;
                 isListsEqual = isListsEqual && isPostsEqual;//тут конечно, неверное сравнение листов происходит, т к listInThread может быть больше, чем asyncEnumList
                 postsList.Add(post2);
-                Console.WriteLine(post2.Id+ " In main");
+                Console.WriteLine(post2.Id+ " In main, isPostsEqual = " + isPostsEqual);
             }
             Console.WriteLine(isListsEqual);
         }
