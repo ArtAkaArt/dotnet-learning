@@ -102,7 +102,7 @@ namespace Sol5_1_Collections
                         }
                         if (task.IsCompletedSuccessfully && !taskIds.Contains(task.Id))
                         {
-                            yield return task.Result; // если я правильно понимаю, то тут таки result можно получать, т к идет вначале проверка, что таска завершилась как надо
+                            yield return await task;
                             taskIds.Add(task.Id);
                         };
                     }
