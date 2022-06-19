@@ -64,7 +64,7 @@ public class Program {
             Console.WriteLine("Ex "+ex.Message);
         }
         */
-        var asyncEnumList = funcs.RunInParallelAlt(tokenSource, 5,true);
+        var asyncEnumList = funcs.RunInParallelAlt(tokenSource, 5, true);
         var postsList = new List<Post>();
         try
         {
@@ -94,7 +94,7 @@ public class Program {
         if (ct.IsCancellationRequested) ct.ThrowIfCancellationRequested();
         Console.WriteLine($"Task started");
         // генерация нескольких ошибок
-        if (number % 10 == 0)  throw new Exception("Ошибка при получении поста номер: "+number);
+        
         var response = await client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{number}");
         response.EnsureSuccessStatusCode();
         var responseText = await response.Content.ReadAsStringAsync();
@@ -103,7 +103,8 @@ public class Program {
             PropertyNameCaseInsensitive = true
         };
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
-        await Task.Delay(1500);
+        await Task.Delay(3500);
+        if (number % 10 == 0) throw new Exception("Ошибка при получении поста номер: " + number);
         Console.WriteLine("Task ended_" +post.Id);
         return post;
     }

@@ -1,17 +1,18 @@
 ﻿using System.Collections.Concurrent;
-using System.Text;
 
 namespace Sol5_1_Collections
 {
     public static class MyTaskListExtention
     {
         /// <summary>
-        /// Асинхронный метод возвращающий коллекцию объектов, хранящихся в IReadOnlyCollection. Может принимать параметры int maxTasks и bool throwException, имеющие
-        /// значения по умолчанию 4 и false.</summary>
+        /// Метод запускает переданный набор функций Func<Task<T>>, помещая каждую из них в отдельный объект Task, и возвращает результаты их выполнения T в виде набора объектов IReadOnlyCollection<T>.
+        /// Метод так же ограничивает одновременное количество исполняемых Task, по умолчанию - 4.
+        /// </summary>
         /// <typeparam name="T"></typeparam> Тип возвращаемого объекта.
         /// <param name="maxTasks"> Определяет количество одновременно исполняемых потоков для получения объектов</param>
-        /// <param name="throwException">Определяет будет ли выброшена первая ошибка при получении объектов и остановлен метод.
-        /// В режиме false будут переданы все объекты, которые удалось получить и все полученные ошибки через AggregateException</param>
+        /// <param name="throwException">Опциональный параметр, определяет будет ли выброшена первая ошибка при исполнении Task, остановлен метод и вызвана остановка оставшихся Task
+        /// или метод вернет все полученные объекты вместе со всеми возникшими ошибками AggregateException. По умолчанию ошибка выброшена не будет.</param>
+        /// <param name="tokenSource"> CancellationTokenSource на основе, которого были созданы CancellationToken'ы в переданных Task<T></param>
         /// <returns></returns>
         /// <exception cref="AggregateException"></exception>
         public static async Task<IReadOnlyCollection<T>> RunInParallel<T>(this IEnumerable<Func<Task<T>>> functs, CancellationTokenSource tokenSource, int maxTasks = 4, bool throwException = false)
@@ -52,6 +53,17 @@ namespace Sol5_1_Collections
             Console.WriteLine("End in RunInParallel");
             return list;
         }
+        /// <summary>
+        /// Метод запускает переданный набор функций Func<Task<T>>, помещая каждую из них в отдельный объект Task, и возвращает результаты их выполнения T по мере их получения.
+        /// Метод так же ограничивает одновременное количество исполняемых Task, по умолчанию - 4.
+        /// </summary>
+        /// <typeparam name="T"></typeparam> Тип возвращаемого объекта.
+        /// <param name="maxTasks"> Определяет количество одновременно исполняемых потоков для получения объектов</param>
+        /// <param name="throwException">Опциональный параметр, определяет будет ли выброшена первая ошибка при исполнении Task, остановлен метод и вызвана остановка оставшихся Task
+        /// или метод вернет все полученные объекты вместе со всеми возникшими ошибками AggregateException. По умолчанию ошибка выброшена не будет.</param>
+        /// <param name="tokenSource"> CancellationTokenSource на основе, которого были созданы CancellationToken'ы в переданных Task<T></param>
+        /// <returns></returns>
+        /// <exception cref="AggregateException"></exception>
         public static async IAsyncEnumerable<T> RunInParallelAlt<T>(this IEnumerable<Func<Task<T>>> functs, CancellationTokenSource tokenSource, int maxTasks = 4, bool throwException = false)
         {
             var token = tokenSource.Token;
@@ -73,12 +85,41 @@ namespace Sol5_1_Collections
                 }, token);
                 tasks.Add(task);
             }
-            await Task.WhenAny(tasks);
-            foreach (var task in tasks) //я не знаю почему оно работает)
+            var taskIds = new List<int>(tasks.Capacity);
+            while (tasks.Where(x => x.Status == TaskStatus.Running || x.Status == TaskStatus.WaitingForActivation).Count()>0)
             {
-                if (task.Exception != null && throwException) { tokenSource.Cancel(); throw new AggregateException(task.Exception); }
-                else if (task.Exception != null) exList.Add(task.Exception);
-                else yield return await task;
+                foreach (var task in tasks)
+                {
+                        if (task.IsFaulted && !taskIds.Contains(task.Id))
+                        {
+                            if (throwException)
+                            {
+                                tokenSource.Cancel();
+                                throw new AggregateException(task.Exception);
+                            }
+                            exList.Add(task.Exception);
+                            taskIds.Add(task.Id);
+                        }
+                        if (task.IsCompletedSuccessfully && !taskIds.Contains(task.Id))
+                        {
+                            yield return task.Result; // если я правильно понимаю, то тут таки result можно получать, т к идет вначале проверка, что таска завершилась как надо
+                            taskIds.Add(task.Id);
+                        };
+                    }
+                }
+            //финальный проход, на случай пропуска, который может возникнуть при прекращении while и неполном проходе foreach
+            foreach (var task in tasks)
+            {
+                if (task.IsFaulted && !taskIds.Contains(task.Id))
+                {
+                    exList.Add(task.Exception);
+                    taskIds.Add(task.Id);
+                }
+                if (task.IsCompletedSuccessfully && !taskIds.Contains(task.Id))
+                {
+                    yield return task.Result;
+                    taskIds.Add(task.Id);
+                };
             }
             if (exList.Count > 0) throw new AggregateException(exList);// возвращения списка ошибок, если они возникли
         }
