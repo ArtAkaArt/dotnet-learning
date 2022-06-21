@@ -85,41 +85,43 @@ namespace Sol5_1_Collections
                 }, token);
                 tasks.Add(task);
             }
-            var taskIds = new List<int>(tasks.Capacity);
+            var taskIds = new List<int>(tasks.ToArray().Length);
             while (tasks.Where(x => x.Status == TaskStatus.Running || x.Status == TaskStatus.WaitingForActivation).Count()>0)
             {
                 foreach (var task in tasks)
                 {
-                        if (task.IsFaulted && !taskIds.Contains(task.Id))
+                    if (taskIds.Contains(task.Id)) continue;
+                    if (task.IsFaulted)
+                    {
+                        if (throwException)
                         {
-                            if (throwException)
-                            {
-                                tokenSource.Cancel();
-                                throw new AggregateException(task.Exception);
-                            }
-                            exList.Add(task.Exception);
-                            taskIds.Add(task.Id);
+                            tokenSource.Cancel();
+                            throw new AggregateException(task.Exception);
                         }
-                        if (task.IsCompletedSuccessfully && !taskIds.Contains(task.Id))
-                        {
-                            yield return await task;
-                            taskIds.Add(task.Id);
-                        };
+                        exList.Add(task.Exception);
+                        taskIds.Add(task.Id);
+                    }
+                    if (task.IsCompletedSuccessfully)
+                    {
+                        yield return await task;
+                        taskIds.Add(task.Id);
                     }
                 }
+            }
             //финальный проход, на случай пропуска, который может возникнуть при прекращении while и неполном проходе foreach
             foreach (var task in tasks)
             {
-                if (task.IsFaulted && !taskIds.Contains(task.Id))
+                if (taskIds.Contains(task.Id)) continue;
+                if (task.IsFaulted)
                 {
                     exList.Add(task.Exception);
                     taskIds.Add(task.Id);
                 }
-                if (task.IsCompletedSuccessfully && !taskIds.Contains(task.Id))
+                if (task.IsCompletedSuccessfully)
                 {
                     yield return task.Result;
                     taskIds.Add(task.Id);
-                };
+                }
             }
             if (exList.Count > 0) throw new AggregateException(exList);// возвращения списка ошибок, если они возникли
         }
