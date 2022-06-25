@@ -5,7 +5,7 @@ namespace Sol5_1_Collections
     public static class MyTaskListExtention
     {
         /// <summary>
-        /// Метод запускает переданный набор функций Func<Task<T>>, помещая каждую из них в отдельный объект Task, и возвращает результаты их выполнения T в виде набора объектов IReadOnlyCollection<T>.
+        /// Метод асинхронно запускает переданный набор функций Func<Task<T>>, и возвращает результаты их выполнения T в виде набора объектов IReadOnlyCollection<T>.
         /// Метод так же ограничивает одновременное количество исполняемых Task, по умолчанию - 4.
         /// </summary>
         /// <typeparam name="T"></typeparam> Тип возвращаемого объекта.
@@ -54,7 +54,7 @@ namespace Sol5_1_Collections
             return list;
         }
         /// <summary>
-        /// Метод запускает переданный набор функций Func<Task<T>>, помещая каждую из них в отдельный объект Task, и возвращает результаты их выполнения T по мере их получения.
+        /// Метод асинхронно запускает переданный набор функций Func<Task<T>>, и возвращает результаты их выполнения T по мере их получения.
         /// Метод так же ограничивает одновременное количество исполняемых Task, по умолчанию - 4.
         /// </summary>
         /// <typeparam name="T"></typeparam> Тип возвращаемого объекта.
@@ -85,8 +85,8 @@ namespace Sol5_1_Collections
                 }, token);
                 tasks.Add(task);
             }
-            var taskIds = new List<int>(tasks.ToArray().Length);
-            while (tasks.Where(x => x.Status == TaskStatus.Running || x.Status == TaskStatus.WaitingForActivation).Count()>0)
+            var taskIds = new List<int>(functs.ToList().Count);
+            while (tasks.Any(x => x.Status == TaskStatus.Running || x.Status == TaskStatus.WaitingForActivation))
             {
                 foreach (var task in tasks)
                 {
@@ -115,12 +115,10 @@ namespace Sol5_1_Collections
                 if (task.IsFaulted)
                 {
                     exList.Add(task.Exception);
-                    taskIds.Add(task.Id);
                 }
                 if (task.IsCompletedSuccessfully)
                 {
                     yield return task.Result;
-                    taskIds.Add(task.Id);
                 }
             }
             if (exList.Count > 0) throw new AggregateException(exList);// возвращения списка ошибок, если они возникли
