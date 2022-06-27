@@ -15,25 +15,26 @@ namespace Sol5_1_Collections
         /// <param name="tokenSource"> CancellationTokenSource на основе, которого были созданы CancellationToken'ы в переданных Task<T></param>
         /// <returns></returns>
         /// <exception cref="AggregateException"></exception>
-        public static async Task<IReadOnlyCollection<T>> RunInParallel<T>(this IEnumerable<Func<Task<T>>> functs, CancellationTokenSource tokenSource, int maxTasks = 4, bool throwException = false)
+        public static async Task<IReadOnlyCollection<T>> RunInParallel<T>(this IEnumerable<Func<CancellationToken, Task<T>>> functs, int maxTasks = 4, bool throwException = false)
         {
-            var token = tokenSource.Token;
+            var tokenSrc = new CancellationTokenSource();
+            var token = tokenSrc.Token;
             ConcurrentBag<T> list = new();
             var semaphore = new SemaphoreSlim(maxTasks);
             var tasks = new List<Task>();
             foreach (var func in functs)
             {
                 var task = Task.Run(async () => {
-                    await semaphore.WaitAsync();
+                    await semaphore.WaitAsync(token);
                     try
                     {
-                        list.Add(await func.Invoke());
+                        list.Add(await func.Invoke(token));
                     }
                     finally
                     {
                         semaphore.Release();
                     }
-                });
+                }, token);
                 tasks.Add(task);
             }
             Console.WriteLine(tasks.Count(t => t != null) + " Task count");
@@ -47,6 +48,7 @@ namespace Sol5_1_Collections
                 {
                     var exceptions = tasks.Where(t => t.Exception != null)
                                           .Select(t => t.Exception);
+                    tokenSrc.Cancel();
                     throw new AggregateException(exceptions);
                 }
             }
@@ -64,19 +66,19 @@ namespace Sol5_1_Collections
         /// <param name="tokenSource"> CancellationTokenSource на основе, которого были созданы CancellationToken'ы в переданных Task<T></param>
         /// <returns></returns>
         /// <exception cref="AggregateException"></exception>
-        public static async IAsyncEnumerable<T> RunInParallelAlt<T>(this IEnumerable<Func<Task<T>>> functs, CancellationTokenSource tokenSource, int maxTasks = 4, bool throwException = false)
+        public static async IAsyncEnumerable<T> RunInParallelAlt<T>(this IEnumerable<Func<CancellationToken,Task<T>>> functs, int maxTasks = 4, bool throwException = false)
         {
+            var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
-            List<Exception> exList = new();
             var semaphore = new SemaphoreSlim(maxTasks);
             var tasks = new List<Task<T>>();
             foreach (var func in functs)
             {
                 var task = Task.Run(async () => {
-                    await semaphore.WaitAsync();
+                    await semaphore.WaitAsync(); //не стал добавлять токен, иначе семафор начинает себя странно вести
                     try
                     {
-                        return await func.Invoke();
+                        return await func.Invoke(token);
                     }
                     finally
                     {
@@ -85,7 +87,8 @@ namespace Sol5_1_Collections
                 }, token);
                 tasks.Add(task);
             }
-            var taskIds = new List<int>(functs.ToList().Count);
+            var exList = new List<Exception>(tasks.Count);
+            var taskIds = new HashSet<int>(tasks.Count);
             while (tasks.Any(x => x.Status == TaskStatus.Running || x.Status == TaskStatus.WaitingForActivation))
             {
                 foreach (var task in tasks)

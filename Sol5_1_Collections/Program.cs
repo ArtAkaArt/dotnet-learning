@@ -25,14 +25,13 @@ public class Program {
         {
             Console.WriteLine(e);
         }
-        var tokenSource = new CancellationTokenSource();
-        var token = tokenSource.Token;
-        List<Func<Task<Post>>> funcs = new();
+
+        List<Func<CancellationToken, Task<Post>>> funcs = new();
         
         for (int i = 1; i <= 100; i++)
         {
             var count = i; // !!!! крайневажная переменная без нее все работает неправильно
-            funcs.Add(new( async () => await GetPostAsync(count, token)));
+            funcs.Add(async (CancellationToken token) => await GetPostAsync(count, token));
         }
         var isListsEqual = true;
         /*
@@ -64,7 +63,7 @@ public class Program {
             Console.WriteLine("Ex "+ex.Message);
         }
         */
-        var asyncEnumList = funcs.RunInParallelAlt(tokenSource, 5, true);
+        var asyncEnumList = funcs.RunInParallelAlt(5);
         var postsList = new List<Post>();
         try
         {
