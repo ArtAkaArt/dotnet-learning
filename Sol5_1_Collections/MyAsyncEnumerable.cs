@@ -6,17 +6,20 @@ using System.Threading.Tasks;
 
 namespace Sol5_1_Collections
 {
-    internal class MyAsyncEnumerable : IAsyncEnumerable<Post>
+    internal class MyAsyncEnumerable<T> : IAsyncEnumerable<T>
     {
-        private readonly List<Func<CancellationToken, Task<Post>>> _posts;
+        private readonly IEnumerable<Func<CancellationToken, Task<T>>> posts;
+        private int maxTasks;
 
-        public MyAsyncEnumerable(IEnumerable<Func<CancellationToken, Task<Post>>> list) {
-            _posts = (List<Func<CancellationToken, Task<Post>>>?)list;
-                }
-
-        public IAsyncEnumerator<Post> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public MyAsyncEnumerable(IEnumerable<Func<CancellationToken, Task<T>>> list, int maxTasks = 4) 
         {
-             return new MyAsyncEnumerator(_posts);
+            posts = list;
+            this.maxTasks = maxTasks;
+        }
+
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+             return new MyAsyncEnumerator<T>(posts, maxTasks);
         }
     }
 }

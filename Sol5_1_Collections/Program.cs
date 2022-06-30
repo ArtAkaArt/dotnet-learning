@@ -64,7 +64,7 @@ public class Program {
         }
         
         var asyncEnumList = funcs.RunInParallelAlt(5);
-        var postsList = new List<Post>();
+        
         try
         {
             await foreach (var post2 in asyncEnumList)
@@ -86,18 +86,24 @@ public class Program {
             Console.WriteLine(postsList.Count); // получение и проверка списка постов из IAsyncEnum
         }
         */
-        var test = new MyAsyncEnumerable(funcs);
-        await foreach (var test2 in test)
+        var count2 = 0;
+        var postsList = new List<Post>();
+        var myEmumerable = new MyAsyncEnumerable<Post>(funcs, 5);
+        await foreach (var post2 in myEmumerable)
         {
-            Console.WriteLine(test2.Id);
+            var post1 = listInThread.FirstOrDefault(x => x.Id == post2.Id);
+            var isPostsEqual = post1?.Id == post2?.Id && post1?.Body == post2?.Body && post1?.Title == post2?.Title && post1?.UserId == post2?.UserId;
+            postsList.Add(post2);
+            Console.WriteLine(post2.Id + " In main, isPostsEqual = " + isPostsEqual);
         }
+        Console.WriteLine(count2);
         
     }
     static async Task<Post> GetPostAsync(int number, CancellationToken ct)
     {
         if (ct.IsCancellationRequested) ct.ThrowIfCancellationRequested();
-        Console.WriteLine($"Task started");
-        // генерация нескольких ошибок
+        Console.WriteLine($"Task started "+number);
+        
         var rnd = new Random();
         var response = await client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{number}");
         response.EnsureSuccessStatusCode();
@@ -107,7 +113,8 @@ public class Program {
             PropertyNameCaseInsensitive = true
         };
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
-        await Task.Delay(rnd.Next(100, 1000));
+        await Task.Delay(rnd.Next(1000, 2000), ct);
+        // генерация нескольких ошибок
         //if (number % 10 == 0) throw new Exception("Ошибка при получении поста номер: " + number);
         Console.WriteLine("Task ended_" +post.Id);
         return post;
