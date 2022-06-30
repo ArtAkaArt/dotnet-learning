@@ -62,7 +62,7 @@ public class Program {
         {
             Console.WriteLine("Ex "+ex.Message);
         }
-        */
+        
         var asyncEnumList = funcs.RunInParallelAlt(5);
         var postsList = new List<Post>();
         try
@@ -85,15 +85,20 @@ public class Program {
             }
             Console.WriteLine(postsList.Count); // получение и проверка списка постов из IAsyncEnum
         }
+        */
+        var test = new MyAsyncEnumerable(funcs);
+        await foreach (var test2 in test)
+        {
+            Console.WriteLine(test2.Id);
+        }
         
-        Console.ReadKey();
     }
     static async Task<Post> GetPostAsync(int number, CancellationToken ct)
     {
         if (ct.IsCancellationRequested) ct.ThrowIfCancellationRequested();
         Console.WriteLine($"Task started");
         // генерация нескольких ошибок
-        
+        var rnd = new Random();
         var response = await client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{number}");
         response.EnsureSuccessStatusCode();
         var responseText = await response.Content.ReadAsStringAsync();
@@ -102,8 +107,8 @@ public class Program {
             PropertyNameCaseInsensitive = true
         };
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
-        await Task.Delay(3500);
-        if (number % 10 == 0) throw new Exception("Ошибка при получении поста номер: " + number);
+        await Task.Delay(rnd.Next(100, 1000));
+        //if (number % 10 == 0) throw new Exception("Ошибка при получении поста номер: " + number);
         Console.WriteLine("Task ended_" +post.Id);
         return post;
     }
