@@ -86,17 +86,26 @@ public class Program {
             Console.WriteLine(postsList.Count); // получение и проверка списка постов из IAsyncEnum
         }
         */
-        var count2 = 0;
         var postsList = new List<Post>();
         var myEmumerable = new MyAsyncEnumerable<Post>(funcs, 5);
-        await foreach (var post2 in myEmumerable)
+        try
         {
-            var post1 = listInThread.FirstOrDefault(x => x.Id == post2.Id);
-            var isPostsEqual = post1?.Id == post2?.Id && post1?.Body == post2?.Body && post1?.Title == post2?.Title && post1?.UserId == post2?.UserId;
-            postsList.Add(post2);
-            Console.WriteLine(post2.Id + " In main, isPostsEqual = " + isPostsEqual);
+            await foreach (var post2 in myEmumerable)
+            {
+                var post1 = listInThread.FirstOrDefault(x => x.Id == post2.Id);
+                var isPostsEqual = post1?.Id == post2?.Id && post1?.Body == post2?.Body && post1?.Title == post2?.Title && post1?.UserId == post2?.UserId;
+                postsList.Add(post2);
+                Console.WriteLine(post2.Id + " In main, isPostsEqual = " + isPostsEqual);
+            }
         }
-        Console.WriteLine(count2);
+        catch (AggregateException ex)
+        {
+            foreach (Exception innerException in ex.InnerExceptions)
+            {
+                Console.WriteLine(innerException.Message);
+            }
+        }
+        Console.WriteLine(postsList.Count);
         
     }
     static async Task<Post> GetPostAsync(int number, CancellationToken ct)
@@ -115,7 +124,7 @@ public class Program {
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
         await Task.Delay(rnd.Next(1000, 2000), ct);
         // генерация нескольких ошибок
-        //if (number % 10 == 0) throw new Exception("Ошибка при получении поста номер: " + number);
+        if (number % 10 == 0) throw new Exception("Ошибка при получении поста номер: " + number);
         Console.WriteLine("Task ended_" +post.Id);
         return post;
     }
