@@ -46,7 +46,6 @@ namespace Sol5_1_Collections
 
             while (taskCollection.Count != 0)
             {
-
                 position++;
                 endedTask = await Task.WhenAny(taskCollection);
                 taskCollection.Remove(endedTask);
@@ -61,27 +60,28 @@ namespace Sol5_1_Collections
                     if (throwEx) throw endedTask.Exception;
                 }
             }
-                return false;
-            }
+            if (taskCollection.Count == 0 && exList.Count > 0) throw new AggregateException(exList);
+            return false;
+        }
 
-            private void StrartAllTasks()
+    private void StrartAllTasks()
+    {
+        foreach (var func in funcList)
+        {
+            var task = Task.Run(async () =>
             {
-                foreach (var func in funcList)
+                await semaphore.WaitAsync();
+                try
                 {
-                    var task = Task.Run(async () =>
-                    {
-                        await semaphore.WaitAsync();
-                        try
-                        {
-                            return await func.Invoke(token);
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    }, token);
-                    taskCollection.Add(task);
+                    return await func.Invoke(token);
                 }
-            }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }, token);
+            taskCollection.Add(task);
         }
     }
+}
+}
