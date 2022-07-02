@@ -40,15 +40,13 @@ namespace Sol5_1_Collections
 
         public async ValueTask<bool> MoveNextAsync()
         {
+            if (taskCollection.Count == 0 && exList.Count > 0) throw new AggregateException(exList);
             if (position >= size || size == 0) return false;
-
-            if (position == 0)
-            {
-                StrartAllTasks();
-            }
+            if (position == 0) StrartAllTasks();
 
             while (taskCollection.Count != 0)
             {
+
                 position++;
                 endedTask = await Task.WhenAny(taskCollection);
                 taskCollection.Remove(endedTask);
@@ -63,28 +61,27 @@ namespace Sol5_1_Collections
                     if (throwEx) throw endedTask.Exception;
                 }
             }
-            if (taskCollection.Count == 0 && exList.Count > 0) throw new AggregateException(exList);
-            return false;
-        }
+                return false;
+            }
 
-        private void StrartAllTasks()
-        {
-            foreach (var func in funcList)
+            private void StrartAllTasks()
             {
-                var task = Task.Run(async () =>
+                foreach (var func in funcList)
                 {
-                    await semaphore.WaitAsync();
-                    try
+                    var task = Task.Run(async () =>
                     {
-                        return await func.Invoke(token);
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                }, token);
-                taskCollection.Add(task);
+                        await semaphore.WaitAsync();
+                        try
+                        {
+                            return await func.Invoke(token);
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    }, token);
+                    taskCollection.Add(task);
+                }
             }
         }
     }
-}
