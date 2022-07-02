@@ -124,7 +124,7 @@ public class Program {
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
         await Task.Delay(rnd.Next(1000, 2000), ct);
         // генерация нескольких ошибок
-        if (number % 10 == 0) throw new Exception("Ошибка при получении поста номер: " + number);
+        //if (number % 10 == 0) throw new Exception("Ошибка при получении поста номер: " + number);
         Console.WriteLine("Task ended_" +post.Id);
         return post;
     }

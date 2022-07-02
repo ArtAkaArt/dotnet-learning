@@ -5,8 +5,9 @@ namespace Sol5_1_Collections
 {
     internal class MyAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
-        private readonly List<Func<CancellationToken, Task<T>>> funcList;
+        private readonly IEnumerable<Func<CancellationToken, Task<T>>> funcList;
         private int position;
+        private readonly int size;
         private readonly CancellationTokenSource cts;
         private readonly CancellationToken token;
         private List<Task<T>> taskCollection;
@@ -14,20 +15,19 @@ namespace Sol5_1_Collections
         private readonly SemaphoreSlim semaphore;
         public T? Current { get; private set; }
         private readonly List<Exception> exList;
-        private static object syncObject;
-        private bool throwEx;
+        private readonly bool throwEx;
 
         T IAsyncEnumerator<T>.Current => Current;
 
         public MyAsyncEnumerator(IEnumerable<Func<CancellationToken, Task<T>>> list, int maxTasks, bool throwEx)
         {
-            funcList = (List<Func<CancellationToken, Task<T>>>?)list;
-            position = -1;
+            funcList = list;
+            position = 0;
+            size = list.Count(); // чтобы оставить IEnumerable и не перебирать каждый раз, записал в отдельное поле
             cts = new CancellationTokenSource();
             token = cts.Token;
-            taskCollection = new(funcList.Count);
+            taskCollection = new(size);
             semaphore = new SemaphoreSlim(maxTasks);
-            syncObject = new();
             exList = new();
             this.throwEx = throwEx;
         }
@@ -40,51 +40,50 @@ namespace Sol5_1_Collections
 
         public async ValueTask<bool> MoveNextAsync()
         {
-            if (position >= funcList.Count -1 || funcList.Count == 0) return false;
+            if (position >= size || size == 0) return false;
 
-            if (position == -1)
+            if (position == 0)
             {
-                foreach (var func in funcList)
-                {
-                    var task = Task.Run(async () =>
-                    {
-                        await semaphore.WaitAsync();
-                        try
-                        {
-                            return await func.Invoke(token);
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    }, token);
-                    taskCollection.Add(task);
-                }
+                StrartAllTasks();
             }
 
-            while (true)
+            while (taskCollection.Count != 0)
             {
-                try
+                position++;
+                endedTask = await Task.WhenAny(taskCollection);
+                taskCollection.Remove(endedTask);
+                if (endedTask.Status == TaskStatus.RanToCompletion)
                 {
-                    endedTask = await Task.WhenAny(taskCollection);
-                    taskCollection.Remove(endedTask);
-                    Current = await endedTask;
+                    Current = endedTask.Result;
                     return true;
-                    
                 }
-                catch (Exception ex)
+                else if (endedTask.Status == TaskStatus.Faulted)
                 {
-                    exList.Add(ex);
-                    taskCollection.Remove(endedTask);
-                    if (throwEx) throw new AggregateException(ex);
-                    if (taskCollection.Count == 0 && exList.Count > 0) throw new AggregateException(exList);
-                    continue;
+                    exList.Add(endedTask.Exception);
+                    if (throwEx) throw endedTask.Exception;
                 }
-                finally
+            }
+            if (taskCollection.Count == 0 && exList.Count > 0) throw new AggregateException(exList);
+            return false;
+        }
+
+        private void StrartAllTasks()
+        {
+            foreach (var func in funcList)
+            {
+                var task = Task.Run(async () =>
                 {
-                    position++;
-                    Console.WriteLine(position+" позиция");
-                }
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        return await func.Invoke(token);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }, token);
+                taskCollection.Add(task);
             }
         }
     }
