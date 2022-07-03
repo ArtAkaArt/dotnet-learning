@@ -1,7 +1,4 @@
-﻿using System.Collections.Concurrent;
-
-
-namespace Sol5_1_Collections
+﻿namespace Sol5_1_Collections
 {
     internal class MyAsyncEnumerator<T> : IAsyncEnumerator<T>
     {

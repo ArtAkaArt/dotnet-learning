@@ -150,7 +150,7 @@ public class Program
     static async Task<Post> GetPostAsync(int number, CancellationToken ct)
     {
         if (ct.IsCancellationRequested) ct.ThrowIfCancellationRequested();
-        //Console.WriteLine($"Task started " + number);
+        Console.WriteLine($"Task started " + number);
 
         var rnd = new Random();
         var response = await client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{number}");
@@ -161,10 +161,10 @@ public class Program
             PropertyNameCaseInsensitive = true
         };
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
-        // Task.Delay(rnd.Next(1000, 2000), ct);
+        Task.Delay(rnd.Next(1000, 2000), ct);
         // генерация нескольких ошибок
         if (number  == 1) throw new Exception("Ошибка при получении поста номер: " + number);
-        //Console.WriteLine("Task ended_" + post.Id);
+        Console.WriteLine("Task ended_" + post.Id);
         return post;
     }
 }
