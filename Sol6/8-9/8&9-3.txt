@@ -1,0 +1,24 @@
+3 выбор первых N значений, пропуск N значений (Take, Skip)
+
+'DbSet<Unit>()
+          .Take(__p_0)'
+
+SELECT u."Id", u."Description", u."FactoryId", u."Name"
+        FROM "Units" AS u
+	LIMIT @__p_0
+
+Limit  (cost=0.00..0.63 rows=3 width=244)
+  ->  Seq Scan on "Units" u  (cost=0.00..1.05 rows=5 width=244)
+
+'DbSet<Tank>()
+          .Skip(__p_0)'
+
+SELECT t."Id", t."Description", t."Maxvolume", t."Name", t."UnitId", t."Volume"
+              FROM "Tanks" AS t
+              ORDER BY (SELECT 1)
+              OFFSET @__p_0 ROWS
+
+Limit  (cost=0.42..1.09 rows=5 width=47)
+  InitPlan 1 (returns $0) // пред скановые вычисления (сколько вернуть)
+    ->  Result  (cost=0.00..0.01 rows=1 width=4)
+  ->  Seq Scan on "Tanks" t  (cost=0.00..1.08 rows=8 width=47)

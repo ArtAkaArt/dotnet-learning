@@ -1,0 +1,9 @@
+1 выбор множества значений (ToListAsync)
+
+Compiling query expression: 
+      'DbSet<Unit>()'
+
+SELECT u."Id", u."Description", u."FactoryId", u."Name"
+              FROM "Units" AS u 
+
+Seq Scan on "Units" u  (cost=0.00..1.05 rows=5 width=244) // скан таблицы

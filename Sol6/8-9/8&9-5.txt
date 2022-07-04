@@ -1,0 +1,12 @@
+5 выбор нескольких значений из строки с использованием анонимного типа (Select(x => new { x.Id, x.Name }))
+
+'DbSet<Tank>()
+          .Select(x => new { 
+              Id = x.Id, 
+              Name = x.Name
+           })'
+
+SELECT t."Id", t."Name"
+      FROM "Tanks" AS t
+
+Seq Scan on "Tanks" t  (cost=0.00..1.08 rows=8 width=26) // так же скан всей таблицы, даже при возвращении не всех стобцов

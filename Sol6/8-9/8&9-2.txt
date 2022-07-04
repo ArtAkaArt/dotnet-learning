@@ -1,0 +1,11 @@
+2 выбор одного значения (FirstOrDefaultAsync)
+
+'DbSet<Unit>()
+          .FirstOrDefault()' //так был преобразован FirstOrDefaultAsync()
+
+SELECT u."Id", u."Description", u."FactoryId", u."Name"
+      FROM "Units" AS u
+      LIMIT 1
+
+Limit  (cost=0.00..0.21 rows=1 width=244)
+  ->  Seq Scan on "Units" u  (cost=0.00..1.05 rows=5 width=244)
