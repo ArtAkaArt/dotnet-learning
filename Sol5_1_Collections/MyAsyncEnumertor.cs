@@ -3,32 +3,27 @@
     internal class MyAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
         private readonly IEnumerable<Func<CancellationToken, Task<T>>> funcList;
-        private int position;
-        private readonly int size;
+        private int position = 0;
+        private int size = 0;
         private readonly CancellationTokenSource cts;
-        private readonly CancellationToken token;
         private List<Task<T>> taskCollection;
         private Task<T> endedTask;
         private readonly SemaphoreSlim semaphore;
         public T? Current { get; private set; }
         private readonly List<Exception> exList;
-        private readonly bool throwEx;
+        private readonly ErrorsHandleMode mode;
 
         T IAsyncEnumerator<T>.Current => Current;
 
-        public MyAsyncEnumerator(IEnumerable<Func<CancellationToken, Task<T>>> list, int maxTasks, bool throwEx)
+        public MyAsyncEnumerator(IEnumerable<Func<CancellationToken, Task<T>>> list, int maxTasks, ErrorsHandleMode mode, int initialSize = 10)
         {
             funcList = list;
-            position = 0;
-            size = list.Count(); // чтобы оставить IEnumerable и не перебирать каждый раз, записал в отдельное поле
             cts = new CancellationTokenSource();
-            token = cts.Token;
-            taskCollection = new(size);
+            taskCollection = new(initialSize);
             semaphore = new SemaphoreSlim(maxTasks);
             exList = new();
-            this.throwEx = throwEx;
+            this.mode = mode;
         }
-
         public ValueTask DisposeAsync()
         {
             cts.Cancel();
@@ -37,8 +32,6 @@
 
         public async ValueTask<bool> MoveNextAsync()
         {
-            if (taskCollection.Count == 0 && exList.Count > 0) throw new AggregateException(exList);
-            if (position >= size || size == 0) return false;
             if (position == 0) StrartAllTasks();
 
             while (taskCollection.Count != 0)
@@ -53,32 +46,50 @@
                 }
                 else if (endedTask.Status == TaskStatus.Faulted)
                 {
-                    exList.Add(endedTask.Exception);
-                    if (throwEx) throw endedTask.Exception;
+                    switch (mode)
+                    {
+                        case ErrorsHandleMode.IgnoreErrors:
+                            break;
+                        case ErrorsHandleMode.ReturnAllErrors:
+                            exList.Add(endedTask.Exception);
+                            break;
+                        case ErrorsHandleMode.EndAtFirstError:
+                            throw endedTask.Exception;
+                    }
+                }
+                else if (endedTask.Status == TaskStatus.Canceled)
+                {
+                    //не делаю проверку mode, т к если уж юзер явно вызвал отмену тасок, то наверно надо просто все отменить, иначе зачем он ее вызывал?
+                    cts.Cancel(); // да  и надо ли это, он же уже вызван
+                    throw new AggregateException(new Exception("Вызван cancelation token"));
                 }
             }
             if (taskCollection.Count == 0 && exList.Count > 0) throw new AggregateException(exList);
+            if (position >= size || size == 0) return false;
+            
             return false;
         }
 
-    private void StrartAllTasks()
-    {
-        foreach (var func in funcList)
+        private void StrartAllTasks()
         {
-            var task = Task.Run(async () =>
+            var token = cts.Token;
+            foreach (var func in funcList)
             {
-                await semaphore.WaitAsync();
-                try
+                var task = Task.Run(async () =>
                 {
-                    return await func.Invoke(token);
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            }, token);
-            taskCollection.Add(task);
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        return await func.Invoke(token);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }, token);
+                taskCollection.Add(task);
+                size++;
+            }
         }
     }
-}
 }

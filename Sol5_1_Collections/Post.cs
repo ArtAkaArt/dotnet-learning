@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Sol5_1_Collections
+﻿namespace Sol5_1_Collections
 {
     public class Post
     {

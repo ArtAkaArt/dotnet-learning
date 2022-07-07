@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 
 namespace Sol5_1_Collections;
 public class Program
@@ -7,14 +8,12 @@ public class Program
     static HttpClient client = new HttpClient();
     static async Task Main()
     {
-
-        //List<Post> listInThread = await GetAllPosts();
+        List<Post> listInThread = await GetAllPosts();
         IEnumerable<Func<CancellationToken, Task<Post>>> funcs = ConstructList();
-        Console.WriteLine(await CompareLists3(funcs));
     }
+
     public static async Task<bool> CompareLists3(IEnumerable<Func<CancellationToken, Task<Post>>> funcs)
     {
-        var isListsEqual = true;
         var myExtPosts = new List<Post>();
         var myExtEx = new List<Exception>();
         var myEnumPosts = new List<Post>();
@@ -49,8 +48,11 @@ public class Program
                 myExtEx.Add(innerException);
             }
         }
-        if (myEnumPosts.Count   != myExtPosts.Count) return false;
-        if (myEnumEx.Count      != myExtEx.Count) return false;
+        var isListsEqual = true;
+        Console.WriteLine($"myEnumPosts.Count {myEnumPosts.Count}   != myExtPosts.Count {myExtPosts.Count}");
+        if (myEnumPosts.Count != myExtPosts.Count) return false;
+        Console.WriteLine($"myEnumEx.Count {myEnumEx.Count}   != myExtEx.Count {myExtEx.Count}");
+        if (myEnumEx.Count != myExtEx.Count) return false;
         foreach (var post1 in myEnumPosts)
         {
             var post2 = myExtPosts.FirstOrDefault(x => x.Id == post1.Id);
@@ -97,7 +99,7 @@ public class Program
         var funcs = ConstructList();
         try
         {
-            var list = await funcs.RunInParallel(5, true);
+            var list = await funcs.RunInParallel(5);
             for (int i = 1; i <= 100; i++)
             {
                 var post1 = listInThread.FirstOrDefault(x => x.Id == i);
@@ -161,9 +163,9 @@ public class Program
             PropertyNameCaseInsensitive = true
         };
         var post = JsonSerializer.Deserialize<Post>(responseText, options);
-        Task.Delay(rnd.Next(1000, 2000), ct);
+        await Task.Delay(rnd.Next(1000, 2000), ct);
         // генерация нескольких ошибок
-        if (number  == 1) throw new Exception("Ошибка при получении поста номер: " + number);
+        if (number == 1) throw new Exception("Ошибка при получении поста номер: " + number);
         Console.WriteLine("Task ended_" + post.Id);
         return post;
     }
