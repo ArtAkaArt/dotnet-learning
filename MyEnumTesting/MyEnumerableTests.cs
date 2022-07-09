@@ -161,7 +161,7 @@ namespace MyEnumTesting
         {
             var funcs = Enumerable.Range(1, 25)
             .Select(i => (Func<CancellationToken, Task<int>>)(async (CancellationToken cs) => await GetResultWithoutExceptions(i, cs))).ToList();
-            funcs.Add(async (CancellationToken cs) => await GetResultIn10Sec(cs));
+            funcs.Insert(0, async (CancellationToken cs) => await GetResultIn10Sec(cs));
             var myEnum = new MyAsyncEnumerable<int>(funcs, 4, ErrorsHandleMode.IgnoreErrors);
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
