@@ -22,7 +22,7 @@ namespace MyEnumTesting
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
 
             Assert.True(CompareResultsLists(results, Enumerable.Range(1, 50).ToList()));
-            Assert.True(exceptions.InnerExceptions.Count == 0);
+            Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 0);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace MyEnumTesting
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
 
-            Assert.True(results.Count == 0);
+            Assert.Equal(actual: results.Count, expected: 0);
             Assert.True(CompareAggregateEx(exceptions, arificialAggEx));
         }
 
@@ -81,7 +81,7 @@ namespace MyEnumTesting
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
 
             Assert.True(CompareResultsLists(results, Enumerable.Range(1, 1).ToList()));
-            Assert.True(exceptions.InnerExceptions.Count == 0);
+            Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 0);
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace MyEnumTesting
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
 
-            Assert.True(results.Count == 0);
+            Assert.Equal(actual: results.Count, expected: 0);
             Assert.True(CompareAggregateEx(exceptions, arificialAggEx));
         }
 
@@ -106,8 +106,8 @@ namespace MyEnumTesting
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
 
-            Assert.True(results.Count == 0);
-            Assert.True(exceptions.InnerExceptions.Count == 0);
+            Assert.Equal(actual: results.Count, expected: 0);
+            Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 0);
         }
 
         //тестирование семафора
@@ -123,7 +123,7 @@ namespace MyEnumTesting
             var time = stopWatch.Elapsed.Seconds;
 
             Assert.True(CompareResultsLists(results, Enumerable.Range(1, 10).ToList()));
-            Assert.True(exceptions.InnerExceptions.Count == 0);
+            Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 0);
             Assert.True(time >= 10);
         }
 
@@ -137,7 +137,7 @@ namespace MyEnumTesting
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
 
             Assert.True(results.Count < 8);
-            Assert.True(exceptions.InnerExceptions.Count == 1);
+            Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 1);
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace MyEnumTesting
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
 
             Assert.True(CompareResultsLists(results, Enumerable.Range(2, 49).ToList()));
-            Assert.True(exceptions.InnerExceptions.Count == 0);
+            Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 0);
         }
         [Fact]
         public async void Run_MyEnumerable_PredictableLastValue_Expected()
@@ -162,7 +162,7 @@ namespace MyEnumTesting
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
 
-            Assert.True(results.Last() == 1010101);
+            Assert.Equal(actual: results.Last(), expected: 1010101);
         }
 
         private bool CompareAggregateEx(AggregateException aggEx, AggregateException imitation)
