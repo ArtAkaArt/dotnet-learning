@@ -20,9 +20,9 @@ namespace MyEnumTesting
             var myEnum = new MyAsyncEnumerable<int>(funcs);
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
-
-            Assert.True(CompareResultsLists(results, Enumerable.Range(1, 50).ToList()));
+            results.Sort();
             Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 0);
+            Assert.Equal(actual: results, expected: Enumerable.Range(1, 50).ToList());
         }
 
         [Fact]
@@ -36,8 +36,9 @@ namespace MyEnumTesting
             var arificialAggEx = new AggregateException(new Exception("Ошибка при получении поста номер: 1"));
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
+            results.Sort();
 
-            Assert.True(CompareResultsLists(results, artificialResult));
+            Assert.Equal(actual: results, expected: artificialResult);
             Assert.True(CompareAggregateEx(exceptions, arificialAggEx));
         }
 
@@ -52,8 +53,9 @@ namespace MyEnumTesting
             var arificialAggEx = ConstructAggEx(initialList.Where(i => i % 5 == 0).ToList());
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
+            results.Sort();
 
-            Assert.True(CompareResultsLists(results, artificialResult));
+            Assert.Equal(actual: results, expected: artificialResult);
             Assert.True(CompareAggregateEx(exceptions, arificialAggEx));
         }
 
@@ -80,7 +82,7 @@ namespace MyEnumTesting
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
 
-            Assert.True(CompareResultsLists(results, Enumerable.Range(1, 1).ToList()));
+            Assert.Equal(actual: results, expected: Enumerable.Range(1, 1).ToList());
             Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 0);
         }
 
@@ -121,8 +123,9 @@ namespace MyEnumTesting
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
             var time = stopWatch.Elapsed.Seconds;
+            results.Sort();
 
-            Assert.True(CompareResultsLists(results, Enumerable.Range(1, 10).ToList()));
+            Assert.Equal(actual: results, expected: Enumerable.Range(1, 10).ToList());
             Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 0);
             Assert.True(time >= 10);
         }
@@ -148,8 +151,9 @@ namespace MyEnumTesting
             var myEnum = new MyAsyncEnumerable<int>(funcs, 4, ErrorsHandleMode.IgnoreErrors);
 
             var (results, exceptions) = await GetResult_From_RunAwaitForeach(myEnum);
+            results.Sort();
 
-            Assert.True(CompareResultsLists(results, Enumerable.Range(2, 49).ToList()));
+            Assert.Equal(actual: results, expected: Enumerable.Range(2, 49).ToList());
             Assert.Equal(actual: exceptions.InnerExceptions.Count, expected: 0);
         }
         [Fact]
