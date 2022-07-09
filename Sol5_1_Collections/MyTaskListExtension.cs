@@ -24,7 +24,8 @@ namespace Sol5_1_Collections
             var tasks = new List<Task>();
             foreach (var func in functs)
             {
-                var task = Task.Run(async () => {
+                var task = Task.Run(async () =>
+                {
                     await semaphore.WaitAsync(token);
                     try
                     {
@@ -66,7 +67,7 @@ namespace Sol5_1_Collections
         /// <param name="tokenSource"> CancellationTokenSource на основе, которого были созданы CancellationToken'ы в переданных Task<T></param>
         /// <returns></returns>
         /// <exception cref="AggregateException"></exception>
-        public static async IAsyncEnumerable<T> RunInParallelAlt<T>(this IEnumerable<Func<CancellationToken,Task<T>>> functs, int maxTasks = 4, bool throwException = false)
+        public static async IAsyncEnumerable<T> RunInParallelAlt<T>(this IEnumerable<Func<CancellationToken, Task<T>>> functs, int maxTasks = 4, bool throwException = false)
         {
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
@@ -74,7 +75,8 @@ namespace Sol5_1_Collections
             var tasks = new List<Task<T>>();
             foreach (var func in functs)
             {
-                var task = Task.Run(async () => {
+                var task = Task.Run(async () =>
+                {
                     await semaphore.WaitAsync(); //не стал добавлять токен, иначе семафор начинает себя странно вести
                     try
                     {
@@ -125,6 +127,15 @@ namespace Sol5_1_Collections
                 }
             }
             if (exList.Count > 0) throw new AggregateException(exList);// возвращения списка ошибок, если они возникли
+        }
+        public static async IAsyncEnumerable<T> UseIterator<T>(this IEnumerable<Func<CancellationToken, Task<T>>> functs, int maxTasks = 4, ErrorsHandleMode mode = ErrorsHandleMode.ReturnAllErrors, int capacity = 10)
+        {
+            var iterator = new MyAsyncEnumerator<T>(functs, maxTasks, mode, capacity);
+
+            while (await iterator.MoveNextAsync())
+            {
+                yield return iterator.Current;
+            }
         }
     }
 }

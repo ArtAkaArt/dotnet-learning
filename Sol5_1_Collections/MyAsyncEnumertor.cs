@@ -1,27 +1,25 @@
-﻿namespace Sol5_1_Collections
+﻿using System.Diagnostics;
+
+namespace Sol5_1_Collections
 {
     internal class MyAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
-        private readonly IEnumerable<Func<CancellationToken, Task<T>>> funcList;
-        private int position = 0;
-        private int size = 0;
-        private readonly CancellationTokenSource cts;
-        private List<Task<T>> taskCollection;
-        private Task<T> endedTask;
-        private readonly SemaphoreSlim semaphore;
-        public T? Current { get; private set; }
-        private readonly List<Exception> exList;
+        private bool isStarted = true;
         private readonly ErrorsHandleMode mode;
+        private readonly IEnumerable<Func<CancellationToken, Task<T>>> funcList;
+        private readonly CancellationTokenSource cts = new();
+        private readonly SemaphoreSlim semaphore;
+        private List<Task<T>> taskCollection;
+        private readonly List<Exception> exceptions = new();
+        public T? Current { get; private set; }
 
         T IAsyncEnumerator<T>.Current => Current;
 
-        public MyAsyncEnumerator(IEnumerable<Func<CancellationToken, Task<T>>> list, int maxTasks, ErrorsHandleMode mode, int initialSize = 10)
+        public MyAsyncEnumerator(IEnumerable<Func<CancellationToken, Task<T>>> list, int maxTasks, ErrorsHandleMode mode, int capacity)
         {
             funcList = list;
-            cts = new CancellationTokenSource();
-            taskCollection = new(initialSize);
+            taskCollection = new(capacity);
             semaphore = new SemaphoreSlim(maxTasks);
-            exList = new();
             this.mode = mode;
         }
         public ValueTask DisposeAsync()
@@ -32,12 +30,13 @@
 
         public async ValueTask<bool> MoveNextAsync()
         {
-            if (position == 0) StrartAllTasks();
+            if (isStarted) 
+                StrartAllTasks();
 
+            isStarted = false;
             while (taskCollection.Count != 0)
             {
-                position++;
-                endedTask = await Task.WhenAny(taskCollection);
+                var endedTask = await Task.WhenAny(taskCollection);
                 taskCollection.Remove(endedTask);
                 if (endedTask.Status == TaskStatus.RanToCompletion)
                 {
@@ -51,7 +50,7 @@
                         case ErrorsHandleMode.IgnoreErrors:
                             break;
                         case ErrorsHandleMode.ReturnAllErrors:
-                            exList.Add(endedTask.Exception);
+                            exceptions.Add(endedTask.Exception);
                             break;
                         case ErrorsHandleMode.EndAtFirstError:
                             throw endedTask.Exception;
@@ -61,11 +60,11 @@
                 {
                     //не делаю проверку mode, т к если уж юзер явно вызвал отмену тасок, то наверно надо просто все отменить, иначе зачем он ее вызывал?
                     cts.Cancel(); // да  и надо ли это, он же уже вызван
-                    throw new AggregateException(new Exception("Вызван cancelation token"));
+                    throw new AggregateException(new TaskCanceledException("Вызван cancelation token"));
                 }
+                else Debug.Assert(false);
             }
-            if (taskCollection.Count == 0 && exList.Count > 0) throw new AggregateException(exList);
-            if (position >= size || size == 0) return false;
+            if (exceptions.Count > 0) throw new AggregateException(exceptions);
             
             return false;
         }
@@ -88,7 +87,6 @@
                     }
                 }, token);
                 taskCollection.Add(task);
-                size++;
             }
         }
     }
