@@ -6,19 +6,19 @@
     /// </summary>
     public enum ErrorsHandleMode
     {
-        /// <param name="IgnoreErrors">
+        /// <value name="IgnoreErrors">
         /// Режим в котором при перечислении енумератора все поучаемые ошибки будут проигнорированы
         /// без прекращения процесса перечисления получаемых данных.
-        /// </param>
+        /// </value>
         IgnoreErrors,
-        /// <param name="ReturnAllErrors">
+        /// <value name="ReturnAllErrors">
         /// Режим в котором все получаемые ошибки будут собраны в AggregateException, который 
         /// будет выброшен в конце перечисления всех полученныех данных.
-        /// </param>
+        /// </value>
         ReturnAllErrors,
-        /// <param name="EndAtFirstError">
+        /// <value name="EndAtFirstError">
         /// Режим в котором перечисление остановливается, при получении первой ошибки. И она будет проброшена в вызывающий метод.
-        /// </param>
+        /// </value>
         EndAtFirstError,
     }
 }
