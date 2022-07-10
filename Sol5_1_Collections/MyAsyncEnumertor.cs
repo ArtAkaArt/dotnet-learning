@@ -6,7 +6,8 @@ namespace Sol5_1_Collections
     {
         private bool isStarted = true;
         private readonly ErrorsHandleMode mode;
-        private readonly IEnumerable<Func<CancellationToken, Task<T>>> funcList;
+        private readonly IEnumerable<Func<CancellationToken, Task<T>>>? funcListWithToken;
+        private readonly IEnumerable<Func<Task<T>>>? funcList;
         private readonly CancellationTokenSource cts = new();
         private readonly SemaphoreSlim semaphore;
         private readonly List<Task<T>> taskCollection;
@@ -16,6 +17,13 @@ namespace Sol5_1_Collections
         T IAsyncEnumerator<T>.Current => Current;
 
         public MyAsyncEnumerator(IEnumerable<Func<CancellationToken, Task<T>>> list, int maxTasks, ErrorsHandleMode mode, int capacity)
+        {
+            funcListWithToken = list;
+            taskCollection = new(capacity);
+            semaphore = new SemaphoreSlim(maxTasks);
+            this.mode = mode;
+        }
+        public MyAsyncEnumerator(IEnumerable<Func<Task<T>>> list, int maxTasks, ErrorsHandleMode mode, int capacity)
         {
             funcList = list;
             taskCollection = new(capacity);
@@ -30,7 +38,9 @@ namespace Sol5_1_Collections
 
         public async ValueTask<bool> MoveNextAsync()
         {
-            if (isStarted) 
+            if (isStarted && funcListWithToken is not null)
+                StrartAllTasksWithToken();
+            if (isStarted && funcList is not null)
                 StrartAllTasks();
 
             isStarted = false;
@@ -69,10 +79,10 @@ namespace Sol5_1_Collections
             return false;
         }
 
-        private void StrartAllTasks()
+        private void StrartAllTasksWithToken()
         {
             var token = cts.Token;
-            foreach (var func in funcList)
+            foreach (var func in funcListWithToken!)
             {
                 var task = Task.Run(async () =>
                 {
@@ -80,6 +90,26 @@ namespace Sol5_1_Collections
                     try
                     {
                         return await func.Invoke(token);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }, token);
+                taskCollection.Add(task);
+            }
+        }
+        private void StrartAllTasks()
+        {
+            var token = cts.Token;
+            foreach (var func in funcList!)
+            {
+                var task = Task.Run(async () =>
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        return await func.Invoke();
                     }
                     finally
                     {
