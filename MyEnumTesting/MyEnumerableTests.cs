@@ -7,6 +7,7 @@ using Sol5_1_Collections;
 using System.Linq;
 using System.Diagnostics;
 
+
 namespace MyEnumTesting
 {
     public class MyEnumerableTests
@@ -48,7 +49,7 @@ namespace MyEnumTesting
             var funcs = Enumerable.Range(1, 50)
             .Select(i => (Func<CancellationToken, Task<int>>)(async (CancellationToken cs) => await GetResultWithMultipleExceptions(i, cs)));
             var myEnum = new MyAsyncEnumerable<int>(funcs);
-            var initialList = Enumerable.Range(1, 50).ToList();
+            var initialList = Enumerable.Range(1, 50);
             var artificialResult = initialList.Where(i => i % 5 != 0).ToList();
             var arificialAggEx = ConstructAggEx(initialList.Where(i => i % 5 == 0).ToList());
 

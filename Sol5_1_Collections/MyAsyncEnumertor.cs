@@ -9,9 +9,9 @@ namespace Sol5_1_Collections
         private readonly IEnumerable<Func<CancellationToken, Task<T>>> funcList;
         private readonly CancellationTokenSource cts = new();
         private readonly SemaphoreSlim semaphore;
-        private List<Task<T>> taskCollection;
+        private readonly List<Task<T>> taskCollection;
         private readonly List<Exception> exceptions = new();
-        public T? Current { get; private set; }
+        public T Current { get; private set; }
 
         T IAsyncEnumerator<T>.Current => Current;
 
@@ -62,7 +62,7 @@ namespace Sol5_1_Collections
                     cts.Cancel(); // да  и надо ли это, он же уже вызван
                     throw new AggregateException(new TaskCanceledException("Вызван cancelation token"));
                 }
-                else Debug.Assert(false);
+                else Debug.Assert(false,"Awaited task has unexpected status");
             }
             if (exceptions.Count > 0) throw new AggregateException(exceptions);
             
