@@ -119,7 +119,7 @@ namespace Sol5_1_Collections
                 if (taskIds.Contains(task.Id)) continue;
                 if (task.IsFaulted)
                 {
-                    exList.Add(task.Exception);
+                    exList.Add(task.Exception!);
                 }
                 if (task.IsCompletedSuccessfully)
                 {
@@ -128,13 +128,22 @@ namespace Sol5_1_Collections
             }
             if (exList.Count > 0) throw new AggregateException(exList);// возвращения списка ошибок, если они возникли
         }
-        public static async IAsyncEnumerable<T> UseIterator<T>(this IEnumerable<Func<CancellationToken, Task<T>>> functs, int maxTasks = 4, ErrorsHandleMode mode = ErrorsHandleMode.ReturnAllErrors, int capacity = 10)
+        public static async IAsyncEnumerable<T> AsAsyncEumerable<T>(this IEnumerable<Func<CancellationToken, Task<T>>> functs, int maxTasks = 4, ErrorsHandleMode mode = ErrorsHandleMode.ReturnAllErrors, int capacity = 10)
         {
             var iterator = new MyAsyncEnumerator<T>(functs, maxTasks, mode, capacity);
 
             while (await iterator.MoveNextAsync())
             {
-                yield return iterator.Current;
+                yield return iterator.Current!;
+            }
+        }
+        public static async IAsyncEnumerable<T> AsAsyncEumerable<T>(this IEnumerable<Func<Task<T>>> functs, int maxTasks = 4, ErrorsHandleMode mode = ErrorsHandleMode.ReturnAllErrors, int capacity = 10)
+        {
+            var iterator = new MyAsyncEnumerator<T>(functs, maxTasks, mode, capacity);
+
+            while (await iterator.MoveNextAsync())
+            {
+                yield return iterator.Current!;
             }
         }
     }

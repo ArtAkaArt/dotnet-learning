@@ -4,9 +4,9 @@
     {
         private readonly IEnumerable<Func<CancellationToken, Task<T>>>? listWithToken;
         private readonly IEnumerable<Func<Task<T>>>? list;
-        private int maxTasks;
-        private ErrorsHandleMode mode;
-        private int capacity;
+        private readonly int maxTasks;
+        private readonly ErrorsHandleMode mode;
+        private readonly int capacity;
 
         public MyAsyncEnumerable(IEnumerable<Func<CancellationToken, Task<T>>> list, int maxTasks = 4, ErrorsHandleMode mode = ErrorsHandleMode.ReturnAllErrors, int capacity = 10) 
         {

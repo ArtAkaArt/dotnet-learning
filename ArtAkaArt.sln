@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserContextLib", "UserConte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sol5_1_Collections", "Sol5_1_Collections\Sol5_1_Collections.csproj", "{5159F4E6-1C65-460B-BB03-04F5D535FB4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEnumTesting", "MyEnumTesting\MyEnumTesting.csproj", "{6BF17B09-F16C-42B9-9DE0-8815FCC5ED4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyEnumTesting", "MyEnumTesting\MyEnumTesting.csproj", "{6BF17B09-F16C-42B9-9DE0-8815FCC5ED4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

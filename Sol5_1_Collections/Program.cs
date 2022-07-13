@@ -8,8 +8,12 @@ public class Program
     static HttpClient client = new HttpClient();
     static async Task Main()
     {
-        List<Post> listInThread = await GetAllPosts();
         IEnumerable<Func<CancellationToken, Task<Post>>> funcs = ConstructList();
+        var test = funcs.AsAsyncEumerable();
+        await foreach (var func in test)
+        {
+            Console.WriteLine(func.Id);
+        }
     }
 
     public static async Task<bool> CompareLists3(IEnumerable<Func<CancellationToken, Task<Post>>> funcs)

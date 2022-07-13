@@ -6,26 +6,25 @@ namespace Sol5_1_Collections
     {
         private bool isStarted = true;
         private readonly ErrorsHandleMode mode;
-        private readonly IEnumerable<Func<CancellationToken, Task<T>>>? funcListWithToken;
-        private readonly IEnumerable<Func<Task<T>>>? funcList;
+        private readonly IEnumerable<Func<CancellationToken, Task<T>>>? tasksWithToken;
+        private readonly IEnumerable<Func<Task<T>>>? tasks;
         private readonly CancellationTokenSource cts = new();
         private readonly SemaphoreSlim semaphore;
         private readonly List<Task<T>> taskCollection;
         private readonly List<Exception> exceptions = new();
-        public T Current { get; private set; }
+        public T? Current { get; private set; }
 
-        T IAsyncEnumerator<T>.Current => Current;
-
+        T IAsyncEnumerator<T>.Current => Current!;
         public MyAsyncEnumerator(IEnumerable<Func<CancellationToken, Task<T>>> list, int maxTasks, ErrorsHandleMode mode, int capacity)
         {
-            funcListWithToken = list;
+            tasksWithToken = list;
             taskCollection = new(capacity);
             semaphore = new SemaphoreSlim(maxTasks);
             this.mode = mode;
         }
         public MyAsyncEnumerator(IEnumerable<Func<Task<T>>> list, int maxTasks, ErrorsHandleMode mode, int capacity)
         {
-            funcList = list;
+            tasks = list;
             taskCollection = new(capacity);
             semaphore = new SemaphoreSlim(maxTasks);
             this.mode = mode;
@@ -38,9 +37,9 @@ namespace Sol5_1_Collections
 
         public async ValueTask<bool> MoveNextAsync()
         {
-            if (isStarted && funcListWithToken is not null)
+            if (isStarted && tasksWithToken is not null)
                 StrartAllTasksWithToken();
-            if (isStarted && funcList is not null)
+            if (isStarted && tasks is not null)
                 StrartAllTasks();
 
             isStarted = false;
@@ -60,16 +59,15 @@ namespace Sol5_1_Collections
                         case ErrorsHandleMode.IgnoreErrors:
                             break;
                         case ErrorsHandleMode.ReturnAllErrors:
-                            exceptions.Add(endedTask.Exception);
+                            exceptions.Add(endedTask.Exception!);
                             break;
                         case ErrorsHandleMode.EndAtFirstError:
-                            throw endedTask.Exception;
+                            throw endedTask.Exception!;
                     }
                 }
                 else if (endedTask.Status == TaskStatus.Canceled)
                 {
-                    //не делаю проверку mode, т к если уж юзер явно вызвал отмену тасок, то наверно надо просто все отменить, иначе зачем он ее вызывал?
-                    cts.Cancel(); // да  и надо ли это, он же уже вызван
+                    cts.Cancel();
                     throw new AggregateException(new TaskCanceledException("Вызван cancelation token"));
                 }
                 else Debug.Assert(false,"Awaited task has unexpected status");
@@ -82,7 +80,7 @@ namespace Sol5_1_Collections
         private void StrartAllTasksWithToken()
         {
             var token = cts.Token;
-            foreach (var func in funcListWithToken!)
+            foreach (var func in tasksWithToken!)
             {
                 var task = Task.Run(async () =>
                 {
@@ -102,7 +100,7 @@ namespace Sol5_1_Collections
         private void StrartAllTasks()
         {
             var token = cts.Token;
-            foreach (var func in funcList!)
+            foreach (var func in tasks!)
             {
                 var task = Task.Run(async () =>
                 {
