@@ -14,40 +14,45 @@ namespace MyEnumTesting
     public class MyExtensionTests
     {
         [Fact]
-        public async void Run_MyExtension_FiftyValidTasks_ResultExpected()
+        public async void Run_FiftyFuncsAsAsyncEnumerable_FiftyResultExpected()
         {
-            var funcs = Enumerable.Range(1, 50).
-                Select(i => (Func<Task<int>>)(async () => await GetResult(i))).AsAsyncEumerable();
+            var funcs = Enumerable.Range(1, 50)
+                        .Select(i => (Func<Task<int>>)(async () => await GetResult(i)))
+                        .AsAsyncEumerable();
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs);
-            results!.Sort();
 
+            Assert.NotNull(results);
+            results.Sort();
             Assert.Null(exceptions);
             Assert.Equal(actual: results, expected: Enumerable.Range(1, 50).ToList());
         }
 
         [Fact]
-        public async void Run_MyExtension_OneException_ResultExpected()
+        public async void Run_FiftyFuncsAsAsyncEnumerable_OneExceptionExpected()
         {
-            var funcs = Enumerable.Range(2, 49).
-                Select(i => (Func<Task<int>>)(async () => await GetResult(i))).ToList();
+            var funcs = Enumerable.Range(2, 49)
+                        .Select(i => (Func<Task<int>>)(async () => await GetResult(i)))
+                        .ToList();
             funcs.Insert(0, async () => await GetException(1));
 
             var artificialResult = Enumerable.Range(2, 49).ToList();
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable());
-            results!.Sort();
 
+            Assert.NotNull(results);
+            results.Sort();
             Assert.Equal(actual: results, expected: artificialResult);
             Assert.Contains("Ошибка при получении поста номер: 1", exceptions!.InnerExceptions.FirstOrDefault()!.Message);
             Assert.True(exceptions!.InnerExceptions.Count == 1);
         }
 
         [Fact]
-        public async void Run_MyExtension_MultipleExceptions_ResultExpected()
+        public async void Run_FiftyFuncsAsAsyncEnumerable_TenExceptionsExpected()
         {
-            var funcs = Enumerable.Range(1, 40).
-                Select(i => (Func<Task<int>>)(async () => await GetResult(i))).ToList();
+            var funcs = Enumerable.Range(1, 40)
+                        .Select(i => (Func<Task<int>>)(async () => await GetResult(i)))
+                        .ToList();
             var initialList = Enumerable.Range(1, 50);
             funcs.AddRange(Enumerable.Range(41, 10).
                 Select(i => (Func<Task<int>>)(async () => await GetException(i))));
@@ -55,17 +60,18 @@ namespace MyEnumTesting
             var arificialAggEx = ConstructAggEx(initialList.Where(i => i > 40).ToList());
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable());
-            results!.Sort();
 
+            Assert.NotNull(results);
+            results.Sort();
             Assert.Equal(actual: results, expected: artificialResult);
             Assert.True(CompareAggregateEx(exceptions!, arificialAggEx));
         }
 
         [Fact]
-        public async void Run_MyExtension_AllExceptions_ResultExpected()
+        public async void Run_FiftyFuncsAsAsyncEnumerable_FiftyExceptionsExpected()
         {
-            var funcs = Enumerable.Range(1, 50).
-                Select(i => (Func< Task<int>>)(async () => await GetException(i)));
+            var funcs = Enumerable.Range(1, 50)
+                        .Select(i => (Func< Task<int>>)(async () => await GetException(i)));
             var arificialAggEx = ConstructAggEx(Enumerable.Range(1, 50).ToList());
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable());
@@ -75,10 +81,10 @@ namespace MyEnumTesting
         }
 
         [Fact]
-        public async void Run_MyExtension_OneValid_ResultExpected()
+        public async void Run_OneFuncAsAsyncEnumerable_OneResultExpected()
         {
-            var funcs = Enumerable.Range(1, 1).
-                Select(i => (Func<Task<int>>)(async () => await GetResult(i)));
+            var funcs = Enumerable.Range(1, 1)
+                        .Select(i => (Func<Task<int>>)(async () => await GetResult(i)));
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable());
 
@@ -87,10 +93,10 @@ namespace MyEnumTesting
         }
 
         [Fact]
-        public async void Run_MyExtension_OnlyOneException_ResultExpected()
+        public async void Run_OneFuncAsAsyncEnumerable_OneExceptionExpected()
         {
-            var funcs = Enumerable.Range(1, 1).
-                Select(i => (Func<Task<int>>)(async () => await GetException(i)));
+            var funcs = Enumerable.Range(1, 1)
+                        .Select(i => (Func<Task<int>>)(async () => await GetException(i)));
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable());
 
@@ -100,7 +106,7 @@ namespace MyEnumTesting
         }
 
         [Fact]
-        public async void Run_MyExtension_EmptyList_ResultExpected()
+        public async void Run_EmptyListAsAsyncEnumerable_NoResultExpected()
         {
             var funcs = new List<Func<Task<int>>>();
 
@@ -110,42 +116,44 @@ namespace MyEnumTesting
             Assert.Null(exceptions);
         }
 
-        //тестирование семафора
         [Fact]
-        public async void Run_MyExtension_RuntimeLongerOrEqualThan10s_ResultExpected()
+        public async void Run_TenFuncAsAsyncEnumerable_RuntimeLongerOrEqualThan10sExpected()
         {
-            var funcs = Enumerable.Range(1, 10).
-                Select(i => (Func<Task<int>>)(async () => await GetResultIn1Sec(i)));
+            var funcs = Enumerable.Range(1, 10)
+                        .Select(i => (Func<Task<int>>)(async () => await GetResultIn1Sec(i)));
             var stopWatch = Stopwatch.StartNew();
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable(1));
             var time = stopWatch.Elapsed.Seconds;
-            results!.Sort();
 
+            Assert.NotNull(results);
+            results.Sort();
             Assert.Equal(actual: results, expected: Enumerable.Range(1, 10).ToList());
             Assert.Null(exceptions);
             Assert.True(time >= 10);
         }
         [Fact]
-        public async void Run_MyExtension_RuntimeLongerOrEqualThan5s_ResultExpected()
+        public async void Run_TenFuncAsAsyncEnumerable_RuntimeLongerOrEqualThan5sExpected()
         {
-            var funcs = Enumerable.Range(1, 10).
-                Select(i => (Func< Task<int>>)(async () => await GetResultIn1Sec(i)));
+            var funcs = Enumerable.Range(1, 10)
+                        .Select(i => (Func< Task<int>>)(async () => await GetResultIn1Sec(i)));
             var stopWatch = Stopwatch.StartNew();
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable(2));
             var time = stopWatch.Elapsed.Seconds;
-            results!.Sort();
 
+            Assert.NotNull(results);
+            results.Sort();
             Assert.Equal(actual: results, expected: Enumerable.Range(1, 10).ToList());
             Assert.Null(exceptions);
             Assert.True(time >= 5);
         }
         [Fact]
-        public async void Run_MyExtension_PredictableLastValue_Expected()
+        public async void Run_TwentyFiveFuncsAsAsyncEnumerable_PredictableLastValueExpected()
         {
             var funcs = Enumerable.Range(1, 25)
-            .Select(i => (Func<Task<int>>)(async () => await GetResult(i))).ToList();
+                        .Select(i => (Func<Task<int>>)(async () => await GetResult(i)))
+                        .ToList();
             funcs.Insert(0, async () => await GetResultIn10Sec(1));
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable());
@@ -153,10 +161,11 @@ namespace MyEnumTesting
             Assert.Equal(actual: results!.Last(), expected: 1010101);
         }
         [Fact]
-        public async void Run_MyExtension_OneExceptionAndLessThanEight_ResultsExpected()
+        public async void Run_TenFuncAsAsyncEnumerable_OneExceptionAndLessThanEightResultsExpected()
         {
-            var funcs = Enumerable.Range(1, 10).
-                Select(i => (Func<Task<int>>)(async () => await GetResult(i))).ToList();
+            var funcs = Enumerable.Range(1, 10)
+                        .Select(i => (Func<Task<int>>)(async () => await GetResult(i)))
+                        .ToList();
             funcs.Insert(1, (async () => await GetException(1)));
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable(4, ErrorsHandleMode.EndAtFirstError));
@@ -167,23 +176,25 @@ namespace MyEnumTesting
         }
 
         [Fact]
-        public async void Run_MyExtension_IgnoreThrowedExceptions_Expected()
+        public async void Run_FiftyFuncsAsAsyncEnumerable_FortyNineResultsAndNoExceptionsExpected()
         {
-            var funcs = Enumerable.Range(2, 49).
-                Select(i => (Func<Task<int>>)(async () => await GetResult(i))).ToList();
+            var funcs = Enumerable.Range(2, 49)
+                        .Select(i => (Func<Task<int>>)(async () => await GetResult(i)))
+                        .ToList();
             funcs.Insert(1, (async () => await GetException(1)));
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable(4, ErrorsHandleMode.IgnoreErrors));
-            results!.Sort();
 
+            Assert.NotNull(results);
+            results.Sort();
             Assert.Equal(actual: results, expected: Enumerable.Range(2, 49).ToList());
             Assert.Null(exceptions);
         }
         [Fact]
-        public async void Run_MyExtension_ReturnNoResult_Expected()
+        public async void Run_FiftyFuncsAsAsyncEnumerable_ReturnNoResultsExpected()
         {
-            var funcs = Enumerable.Range(1, 50).
-                Select(i => (Func<Task<int>>)(async () => await GetException(i)));
+            var funcs = Enumerable.Range(1, 50)
+                        .Select(i => (Func<Task<int>>)(async () => await GetException(i)));
 
             var (results, exceptions) = await GetResultFromRunAwaitForeach(funcs.AsAsyncEumerable(4, ErrorsHandleMode.IgnoreErrors));
 
