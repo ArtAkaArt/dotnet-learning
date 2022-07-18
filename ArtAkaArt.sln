@@ -31,6 +31,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityContextLib", "Facil
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserContextLib", "UserContextLib\UserContextLib.csproj", "{D7A18817-122B-4064-8F7A-273C6375F11D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sol5_1_Collections", "Sol5_1_Collections\Sol5_1_Collections.csproj", "{5159F4E6-1C65-460B-BB03-04F5D535FB4D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyEnumTesting", "MyEnumTesting\MyEnumTesting.csproj", "{6BF17B09-F16C-42B9-9DE0-8815FCC5ED4F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +97,14 @@ Global
 		{D7A18817-122B-4064-8F7A-273C6375F11D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7A18817-122B-4064-8F7A-273C6375F11D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7A18817-122B-4064-8F7A-273C6375F11D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5159F4E6-1C65-460B-BB03-04F5D535FB4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5159F4E6-1C65-460B-BB03-04F5D535FB4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5159F4E6-1C65-460B-BB03-04F5D535FB4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5159F4E6-1C65-460B-BB03-04F5D535FB4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BF17B09-F16C-42B9-9DE0-8815FCC5ED4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BF17B09-F16C-42B9-9DE0-8815FCC5ED4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BF17B09-F16C-42B9-9DE0-8815FCC5ED4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BF17B09-F16C-42B9-9DE0-8815FCC5ED4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

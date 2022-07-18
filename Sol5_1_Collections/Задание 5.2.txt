@@ -1,0 +1,36 @@
+﻿>Как связан интерфейс IEnumerable и цикл foreach. Можно ли использовать в цикле foreach коллекцию, которая не наследует этот интерфейс?
+    IEnumerable предполагает наличие итератора, который производит перебор коллекции
+
+
+>Чем отличается IEnumerable и IQueryable? Для чего используется IQueryable?
+    IQueryable : IEnumerable
+    определяет где будет происходить обработка дерева запросов, на стороне базы(IQueryable) или программы(IEnumerable)
+    в случае с IEnumerable запросом будет получена вся таблица
+
+Предполагая, что dbContext является контекстом БД, какой SQL-запрос будет выполнен в каждом из случаев:
+
+var result1 = dbContext.Tanks
+    .Where(x => x.MaxVolume > 100)
+    .ToList();
+
+    SELECT t."Id", t."Description", t."Maxvolume", t."Name", t."UnitId", t."Volume"
+      FROM "Tanks" AS t
+      WHERE t."Maxvolume" > 100
+
+var result2 = dbContext.Tanks
+    .AsEnumerable()
+    .Where(x => x.MaxVolume > 100)
+    .ToList();
+
+    SELECT t."Id", t."Description", t."Maxvolume", t."Name", t."UnitId", t."Volume"
+      FROM "Tanks" AS t
+
+var result3 = dbContext.Tanks
+    .FirstOrDefault(x => x.MaxVolume > 100);
+
+    SELECT t."Id", t."Description", t."Maxvolume", t."Name", t."UnitId", t."Volume"
+      FROM "Tanks" AS t
+      WHERE t."Maxvolume" > 100
+      LIMIT 1
+Какое ключевое слово используется в методе-итераторе, чтобы вернуть очередной элемент? Какое слово используется для окончания итерации?
+yield return для возвращения элемента последовательности, yield break для выхода из перебора
