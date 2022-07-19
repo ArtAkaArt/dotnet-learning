@@ -4,21 +4,15 @@ namespace Enumerable
 {
     public class MyEnumerable : IEnumerable<int>
     {
-        public IEnumerator<int> GetEnumerator()
-        {
-            return new MyEnumerator();
-        }
+        public IEnumerator<int> GetEnumerator() => new MyEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return new MyEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => new MyEnumerator();
     }
     public class MyEnumerator : IEnumerator<int>
     {
         private int index = -1;
         private bool doReverse = false;
-        public int Current { get { return index; } }
+        public int Current => index;
 
         object IEnumerator.Current => Current;
 
