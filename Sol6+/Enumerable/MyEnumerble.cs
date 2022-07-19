@@ -6,14 +6,13 @@ namespace Enumerable
     {
         public IEnumerator<int> GetEnumerator() => new MyEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => new MyEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
     public class MyEnumerator : IEnumerator<int>
     {
         private int index = -1;
         private bool doReverse = false;
         public int Current => index;
-
         object IEnumerator.Current => Current;
 
         public void Dispose()
