@@ -35,7 +35,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sol5_1_Collections", "Sol5_
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyEnumTesting", "MyEnumTesting\MyEnumTesting.csproj", "{6BF17B09-F16C-42B9-9DE0-8815FCC5ED4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enumerable", "Sol6+\Enumerable\Enumerable.csproj", "{50594673-F510-4D0D-83E9-DF9BBFF90768}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enumerable", "Sol6+\Enumerable\Enumerable.csproj", "{50594673-F510-4D0D-83E9-DF9BBFF90768}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Attributes", "Sol6+\Attributes\Attributes.csproj", "{7699B15B-5642-4A9B-8A28-D4B1E4B5F14A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +113,10 @@ Global
 		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7699B15B-5642-4A9B-8A28-D4B1E4B5F14A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7699B15B-5642-4A9B-8A28-D4B1E4B5F14A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7699B15B-5642-4A9B-8A28-D4B1E4B5F14A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7699B15B-5642-4A9B-8A28-D4B1E4B5F14A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
