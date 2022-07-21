@@ -11,6 +11,7 @@
         }
         static bool VerifyVolume(Type t, Tank tank)
         {
+            if (tank is null) return false;
             var vol = t.GetProperty("Volume");
             var mVol = t.GetProperty("Maxvolume");
             var volAttr = (AllowedRangeAttribute?) Attribute.GetCustomAttribute(vol!, typeof(AllowedRangeAttribute));

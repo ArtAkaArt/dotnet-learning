@@ -4,9 +4,9 @@
     public class CustomDescriptionAttribute : Attribute
     {
         public string Description { get; set; }
-        public CustomDescriptionAttribute(string desc)
+        public CustomDescriptionAttribute(string description)
         {
-            Description = desc;
+            Description = description;
         }
     }
 }

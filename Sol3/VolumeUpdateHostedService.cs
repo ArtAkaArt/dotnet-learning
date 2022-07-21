@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Sol3.Profiles;
+using FluentValidation;
+using System.Text;
 
 namespace Sol3
 {
@@ -10,14 +12,16 @@ namespace Sol3
         private Random rnd;
         private readonly IMapper mapper;
         private readonly IHostApplicationLifetime lifetime;
+        private readonly IValidator<TankDTO> validator;
 
-        public VolumeUpdateHostedService(ILogger<VolumeUpdateHostedService> logger, IServiceScopeFactory scopeFactory, IMapper mapper, IHostApplicationLifetime lifetime)
+        public VolumeUpdateHostedService(ILogger<VolumeUpdateHostedService> logger, IServiceScopeFactory scopeFactory, IMapper mapper, IHostApplicationLifetime lifetime, IValidator<TankDTO> validator)
         {
             this.logger = logger;
             this.scopeFactory = scopeFactory;
             rnd = new();
             this.mapper = mapper;
             this.lifetime = lifetime;
+            this.validator = validator;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -37,7 +41,14 @@ namespace Sol3
                         //logger.LogInformation($"Volume до изменения = {tankUpd.Volume} 10% = {modification}");
                         tankUpd.Volume += (int)(tankUpd.Volume / 100.0 * modification);
                         //logger.LogInformation($"Измененный Volume = {tankUpd.Volume} 10% = {modification}");
-                        if (tankUpd.Volume > tankUpd.Maxvolume || tankUpd.Volume < 0)
+                        var errorMsg = new StringBuilder() ;
+                        var validationResult = validator.Validate(tankUpd);
+                        if (!validationResult.IsValid)
+                        {
+                            validationResult.Errors.ForEach(x => errorMsg.Append($"{x.ErrorMessage} "));
+                            logger.LogError(errorMsg.ToString());
+                        }
+                        else if(tankUpd.Volume > tankUpd.Maxvolume || tankUpd.Volume < 0)
                             logger.LogError($"Првевышение предела Volume {tankUpd.Volume} больше чем MaxVolume {tankUpd.Maxvolume} или меньше нуля");
                         else await repo.UpdateTank(tank, tankUpd);
                     }
