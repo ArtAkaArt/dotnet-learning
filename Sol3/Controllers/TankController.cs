@@ -50,6 +50,7 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> AddTank([FromBody] CreateTankDTO tankS, [FromRoute] int unitId)
         {
+            if (!ModelState.IsValid) return BadRequest("Модель не валидна");
             var logMsg = new StringBuilder("Post: ");
             if (tankS is null)
             {
@@ -75,12 +76,13 @@ namespace Sol3.Controllers
         /// <param name="tankId">id резервуара для изменения</param>
         /// <param name="tank">DTO Json резервуара</param>
         /// <returns></returns>
-        [HttpPut("tank/{tankId}"), Authorize]
+        [HttpPut("tank/{tankId}"), Authorize]  
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> UpdateTank([FromRoute] int tankId, [FromBody] TankDTO tank)
         {
+            if (!ModelState.IsValid) return BadRequest("Модель не валидна");
             var logMsg = new StringBuilder("Put: ");
             if (tank is null)
             {

@@ -1,5 +1,6 @@
 ﻿using FacilityContextLib;
 using AutoMapper;
+using Attributes;
 
 namespace Sol3.Profiles
 {
@@ -8,7 +9,7 @@ namespace Sol3.Profiles
         public FacilityProfiles()
         {
             CreateMap<Unit, UnitDTO>();
-            CreateMap<Tank, TankDTO>();
+            CreateMap<FacilityContextLib.Tank, TankDTO>();
             CreateMap<CreateTankDTO, TankDTO>();
             CreateMap<CreateUnitDTO, UnitDTO>();
         }
@@ -30,7 +31,9 @@ namespace Sol3.Profiles
     {
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
+        [AllowedRange(0, 1000)]
         public int Volume { get; set; }
+        [AllowedRange(200, 1000)]
         public int Maxvolume { get; set; }
     }
     public class TankDTO
@@ -38,7 +41,9 @@ namespace Sol3.Profiles
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
+        [AllowedRange(0, 1000)]
         public int Volume { get; set; }
+        [AllowedRange(200, 1000)]
         public int Maxvolume { get; set; }
         public int Unitid { get; set; }
     }
