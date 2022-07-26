@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
+using Sol3.Binder;
 using FluentValidation;
 using System.Text;
 using FacilityContextLib;
@@ -44,13 +45,13 @@ namespace Sol3.Controllers
         /// <param name="tankS">Short Json резервуара</param>
         /// <param name="unitId">id юнита</param>
         /// <returns></returns>
-        [HttpPost("tank/unit/{unitId}"), Authorize]
+        [HttpPost("tank/unit/{unitId}")] // , Authorize
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TankDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> AddTank([FromBody] CreateTankDTO tankS, [FromRoute] int unitId)
         {
-            if (!ModelState.IsValid) return BadRequest("Модель не валидна");
+            //if (!ModelState.IsValid) return BadRequest("Модель не валидна");
             var logMsg = new StringBuilder("Post: ");
             if (tankS is null)
             {

@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using Sol3.Binder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +69,13 @@ builder.Services.AddDbContext<UserContext>(o => o.UseNpgsql(builder.Configuratio
 builder.Services.AddTransient<Sol3.FacilityRepo>();
 builder.Services.AddTransient<Sol3.UserDBRepo>();
 builder.Services.AddHostedService<VolumeUpdateHostedService>();
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.AllowSynchronousIO = true;
+});
+builder.Services.AddMvc(
+        config => config.ModelBinderProviders.Insert(0, new CustomBinderProvider())
+    );
 
 var app = builder.Build();
 
