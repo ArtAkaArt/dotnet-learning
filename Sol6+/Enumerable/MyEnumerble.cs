@@ -23,17 +23,21 @@ namespace Enumerable
         {
             if (doReverse)
             {
-                if (index == 0) return false;
+                if (index == 0) 
+                    return false;
                 index--;
                 return true;
             }
             index++;
-            if (index == 100) doReverse = true;
+            if (index == 100) 
+                doReverse = true;
             return true;
         }
 
         public void Reset()
         {
+            doReverse = false;
+            index = -1;
         }
     }
 }

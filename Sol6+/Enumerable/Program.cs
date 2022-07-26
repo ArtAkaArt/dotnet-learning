@@ -5,10 +5,12 @@
         public static void Main()
         {
             var tst = new MyEnumerable();
-            foreach (var item in tst) { Console.WriteLine(item); }
+            foreach (var item in tst) 
+                Console.WriteLine(item);
             Console.WriteLine("====================");
             var test2 = new MyIterator();
-            foreach (var item in test2) { Console.WriteLine(item); }
+            foreach (var item in test2) 
+                Console.WriteLine(item);
         }
     }
 }
