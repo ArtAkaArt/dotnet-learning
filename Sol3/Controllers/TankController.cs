@@ -52,7 +52,12 @@ namespace Sol3.Controllers
         {
             //Проверка аттрибутов
             if (!ModelState.IsValid)
-                return BadRequest($"Модель не прошла валидацию");
+            {
+                var message = string.Join(" | ", ModelState.Values
+                                    .SelectMany(v => v.Errors)
+                                    .Select(e => e.ErrorMessage));
+                return BadRequest($"Модель не прошла валидацию {message}");
+            }
             var logMsg = new StringBuilder("Post: ");
             if (tankS is null)
             {
