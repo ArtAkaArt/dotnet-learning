@@ -50,6 +50,9 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> AddTank([FromBody] CreateTankDTO tankS, [FromRoute] int unitId)
         {
+            //Проверка аттрибутов
+            if (!ModelState.IsValid)
+                return BadRequest($"Модель не прошла валидацию");
             var logMsg = new StringBuilder("Post: ");
             if (tankS is null)
             {

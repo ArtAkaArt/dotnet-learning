@@ -2,6 +2,10 @@
 
 namespace Attributes
 {
+    /// <summary>
+    /// Позволяет проверять поля типов Int на попдание их значений в заданный Range значений.
+    /// При применении аттрибута к другим типам полей, проверка не будет пройдена.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class AllowedRangeAttribute : ValidationAttribute
     {
@@ -18,19 +22,15 @@ namespace Attributes
         {
             if (value is null)
                 return false;
+
             var typeName = value.GetType().Name.ToString();
-            switch (typeName)
+            if (typeName == "Int32" || typeName == "UInt32")
             {
-                case "Int32":
-                        if ((int)value < Min || (int)value > Max)
-                            return false;
-                        return true;
-                case "String":
-                    if (((string)value).Length < Min || ((string)value).Length > Max)
-                        return false;
-                    return true;
-                default: return false;
+                if ((int)value < Min || (int)value > Max)
+                    return false;
+                return true;
             }
+            return false;
         }
     }
 }
