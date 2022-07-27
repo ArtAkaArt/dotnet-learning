@@ -22,11 +22,9 @@ namespace Attributes
         {
             if (value is null)
                 return false;
-
-            var typeName = value.GetType().Name.ToString();
-            if (typeName == "Int32" || typeName == "UInt32")
+            if (value is int @int)
             {
-                if ((int)value < Min || (int)value > Max)
+                if (@int < Min || @int > Max)
                     return false;
                 return true;
             }
