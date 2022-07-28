@@ -37,6 +37,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyEnumTesting", "MyEnumTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Attributes", "Attributes\Attributes.csproj", "{40A1046C-FAF5-47C7-BE10-F389A6F8C730}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enumerable", "Sol6+\Enumerable\Enumerable.csproj", "{50594673-F510-4D0D-83E9-DF9BBFF90768}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,11 @@ Global
 		{40A1046C-FAF5-47C7-BE10-F389A6F8C730}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40A1046C-FAF5-47C7-BE10-F389A6F8C730}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40A1046C-FAF5-47C7-BE10-F389A6F8C730}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Release|Any CPU.Build.0 = Release|Any CPU
+
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
