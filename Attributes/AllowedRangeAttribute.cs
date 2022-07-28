@@ -25,7 +25,7 @@ namespace Attributes
             if (value is int @int)
             {
                 //if (@int < Min || @int > Max)
-                if ((@int - Min) * (Max - @int) > 0) // можно так
+                if ((@int - Min+1) * (Max - @int+1) > 0) // можно так
                 //if (Enumerable.Range(Min, (Max - Min + 1)).Contains(@int)) или так, но тут же целый Range надо инициализировать
                     return false;
                 return true;
