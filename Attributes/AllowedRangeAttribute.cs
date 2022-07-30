@@ -19,15 +19,9 @@ namespace Attributes
         }
         public override bool IsValid(object? value)
         {
-            if (value is null)
-                return false;
             if (value is int @int)
             {
-                if (@int < Min || @int > Max)
-                //if ((@int - Min) * (Max - @int) > 0) // можно так, тут что-то не то, седня уже не думается
-                //if (Enumerable.Range(Min, (Max - Min + 1)).Contains(@int)) или так, но тут же целый Range надо инициализировать
-                    return false;
-                return true;
+                return !(@int < Min || @int > Max);
             }
             return false;
         }

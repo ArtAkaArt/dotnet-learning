@@ -61,8 +61,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddControllersWithViews(options =>
 {
-    options.Filters.Add(new AttributeFilter());    // подключение по объекту
-    options.Filters.Add(typeof(AttributeFilter));  // подключение по типу
+    options.Filters.Add(new AttributeFilter());
 });
 builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
