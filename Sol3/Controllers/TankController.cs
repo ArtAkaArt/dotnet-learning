@@ -44,7 +44,7 @@ namespace Sol3.Controllers
         /// <param name="tankS">Short Json резервуара</param>
         /// <param name="unitId">id юнита</param>
         /// <returns></returns>
-        [HttpPost("tank/unit/{unitId}"), Authorize]
+        [HttpPost("tank/unit/{unitId}")] // , Authorize
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TankDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

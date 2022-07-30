@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using Attributes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,7 +59,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AttributeFilter());    // подключение по объекту
+    options.Filters.Add(typeof(AttributeFilter));  // подключение по типу
+});
 builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();

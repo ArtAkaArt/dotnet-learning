@@ -9,7 +9,6 @@ namespace Attributes
     [AttributeUsage(AttributeTargets.Property)]
     public class AllowedRangeAttribute : ValidationAttribute
     {
-
         public int Min { get; set; }
         public int Max { get; set; }
 
