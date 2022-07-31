@@ -7,43 +7,40 @@ namespace Attributes
 {
     public class AttributeFilter : IAsyncActionFilter
     {
-        public async Task OnActionExecutionAsync(ActionExecutingContext context,
-                                    ActionExecutionDelegate next)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (context.ModelState.IsValid)
                 await next();
             else
             {
                 var objectsWithMyAttr = context.ActionArguments
-                    .Select(x => x.Value)
-                    .Where(x => x.GetType()
-                        .GetProperties()
-                        .Where(x => x.GetCustomAttributes(typeof(AllowedRangeAttribute)) is not null)
-                    .Any());
-                var errorsCount = 0;
+                    .Select(x => new { dto = x.Value, propoperties = x.Value
+                                                            .GetType()
+                                                            .GetProperties()})
+//не будет ли читабельнее .Select(x => new { obj = x.Value, prop = x.Value.GetType().GetProperties()}) ?
+                    .Where(x => x.propoperties
+                                 .Where(x => x.GetCustomAttributes(typeof(AllowedRangeAttribute)) is not null)
+                                     .Any());
                 var errorsMessage = new StringBuilder();
                 foreach (var obj in objectsWithMyAttr)
                 {
-                    var properties = obj.GetType().GetProperties();
-                    foreach (var property in properties)
+                    foreach (var property in obj.propoperties)
                     {
                         var attr = (AllowedRangeAttribute?)property.GetCustomAttribute(typeof(AllowedRangeAttribute));
                         if (attr is null)
                             continue;
-                        var value = property.GetValue(obj);
+                        var value = property.GetValue(obj.dto);
                         if (value is not int @int) // модель будет не валидна (строка  13), если аттрибут будет не на int
                         {
-                            errorsCount++;
-                            errorsMessage.Append($"{property.Name} is not Int in object {obj.GetType().Name} \n");
+                            errorsMessage.Append($"{property.Name} is not an Int in object {obj.dto.GetType().Name} \n");
                         }
                         else if (@int < attr.Min || @int > attr.Max)
                         {
-                            errorsCount++;
-                            errorsMessage.Append($"Invalid value of property {property.Name} in object {obj.GetType().Name} \n");
+                            errorsMessage.Append($"Invalid value of property {property.Name} in object {obj.dto.GetType().Name} \n");
                         }
                     }
                 }
-                if (errorsCount <= 0)
+                if (errorsMessage.Length == 0)
                     await next();
                 else
                 {
