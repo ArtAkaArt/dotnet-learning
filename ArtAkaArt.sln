@@ -35,9 +35,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sol5_1_Collections", "Sol5_
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyEnumTesting", "MyEnumTesting\MyEnumTesting.csproj", "{6BF17B09-F16C-42B9-9DE0-8815FCC5ED4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Attributes", "Attributes\Attributes.csproj", "{40A1046C-FAF5-47C7-BE10-F389A6F8C730}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Attributes", "Attributes\Attributes.csproj", "{40A1046C-FAF5-47C7-BE10-F389A6F8C730}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enumerable", "Sol6+\Enumerable\Enumerable.csproj", "{50594673-F510-4D0D-83E9-DF9BBFF90768}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enumerable", "Sol6+\Enumerable\Enumerable.csproj", "{50594673-F510-4D0D-83E9-DF9BBFF90768}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BenchmarkAttributeExtensionTest", "BenchmarkAttributeExtensionTest\BenchmarkAttributeExtensionTest.csproj", "{ED81C1C2-383C-470D-8D97-65BF52EAB782}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,7 +119,10 @@ Global
 		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50594673-F510-4D0D-83E9-DF9BBFF90768}.Release|Any CPU.Build.0 = Release|Any CPU
-
+		{ED81C1C2-383C-470D-8D97-65BF52EAB782}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED81C1C2-383C-470D-8D97-65BF52EAB782}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED81C1C2-383C-470D-8D97-65BF52EAB782}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED81C1C2-383C-470D-8D97-65BF52EAB782}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
