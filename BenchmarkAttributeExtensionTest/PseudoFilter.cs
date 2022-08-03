@@ -13,21 +13,17 @@ namespace Test
         {
             this.bag = bag;
         }
-        public int OnActionExecutionAsync(PseudoContext context)
+        public void OnActionExecutionAsync(PseudoContext context)
         {
-
             var objectsWithMyAttr = context.ActionArguments
-                .Select(x => new
-                {
+                .Select(x => new {
                     dto = x.Value,
                     propoperties = x.Value
-                                                        .GetType()
-                                                        .GetProperties()
-                })
-                //не будет ли читабельнее .Select(x => new { obj = x.Value, prop = x.Value.GetType().GetProperties()}) ?
+                                    .GetType()
+                                    .GetProperties()})
                 .Where(x => x.propoperties
                              .Where(x => x.GetCustomAttributes(typeof(AllowedRangeAttribute)) is not null)
-                                 .Any());
+                             .Any());
             var errorsMessage = new StringBuilder();
             foreach (var obj in objectsWithMyAttr)
             {
@@ -38,28 +34,14 @@ namespace Test
                         continue;
                     var value = property.GetValue(obj.dto);
                     if (value is not int @int) // модель будет не валидна (строка  13), если аттрибут будет не на int
-                    {
                         errorsMessage.Append($"{property.Name} is not an Int in object {obj.dto.GetType().Name} \n");
-                    }
                     else if (@int < attr.Min || @int > attr.Max)
-                    {
                         errorsMessage.Append($"Invalid value of property {property.Name} in object {obj.dto.GetType().Name} \n");
-                    }
                 }
             }
-            if (errorsMessage.Length == 0)
-                return 0;
-            else
-            {
-                var result = new ContentResult { Content = errorsMessage.ToString() };
-                result.StatusCode = 477;
-                return 1;
-            }
-
         }
-        public int OnActionExecutionAltAsync(PseudoContext context)
+        public void OnActionExecutionAltAsync(PseudoContext context)
         {
-
             var argsCopy = context.ActionArguments.Select(x => x.Value).ToList();
             var objectsWithMyAttr = new Dictionary<object, PropertyInfo[]>();
             foreach (var obj in context.ActionArguments.Select(x => x.Value).ToList())
@@ -94,22 +76,10 @@ namespace Test
                     bag.TryAdd(obj.Key, obj.Value);
                     var value = property.GetValue(obj.Key);
                     if (value is not int @int) // модель будет не валидна (строка  13), если аттрибут будет не на int
-                    {
                         errorsMessage.Append($"{property.Name} is not an Int in object {obj.Key.GetType().Name} \n");
-                    }
                     else if (@int < attr.Min || @int > attr.Max)
-                    {
                         errorsMessage.Append($"Invalid value of property {property.Name} in object {obj.Key.GetType().Name} \n");
-                    }
                 }
-            }
-            if (errorsMessage.Length == 0)
-                return 0;
-            else
-            {
-                var result = new ContentResult { Content = errorsMessage.ToString() };
-                result.StatusCode = 477;
-                return 1;
             }
         }
     }
