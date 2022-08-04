@@ -8,7 +8,7 @@ namespace Attributes
 {
     public class AttributeFilter : IAsyncActionFilter
     {
-        ConcurrentDictionary<object, PropertyInfo[]> bag = new();
+        ConcurrentDictionary<Type, PropertyInfo[]> bag = new();
         public async Task OnActionExecutionAltAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (context.ModelState.IsValid)
@@ -35,9 +35,9 @@ namespace Attributes
                         continue;
                     var value = property.GetValue(obj.dto);
                     if (value is not int @int) // модель будет не валидна (строка  13), если аттрибут будет не на int
-                        errorsMessage.Append($"{property.Name} is not an Int in object {obj.dto!.GetType().Name} \n");
+                        errorsMessage.Append($"{property.Name} is not an Int in object {obj.dto!} \n");
                     else if (@int < attr.Min || @int > attr.Max)
-                        errorsMessage.Append($"Invalid value of property {property.Name} in object {obj.dto!.GetType().Name} \n");
+                        errorsMessage.Append($"Invalid value of property {property.Name} in object {obj.dto!} \n");
                 }
             }
             if (errorsMessage.Length == 0)
@@ -57,42 +57,37 @@ namespace Attributes
                 return;
             }
             var argsCopy = context.ActionArguments.Select(x => x.Value).ToList();
-            var objectsWithMyAttr = new Dictionary<object, PropertyInfo[]>();
-            foreach (var obj in context.ActionArguments.Select(x => x.Value).ToList())
+            var objectsWithMyAttr = new List<object[]>();
+            foreach (var obj in context.ActionArguments.Select(x => x.Value))
             {
-                foreach (var arg in bag)
-                {
-                    if (arg.Key.GetType() == obj?.GetType())
-                    {
-                        argsCopy.Remove(obj);
-                        objectsWithMyAttr.Add(arg.Key, arg.Value);
-                    }
-                }
+                if (!bag.TryGetValue(obj!.GetType(), out var attrs))
+                    continue;
+                argsCopy.Remove(obj);
+                objectsWithMyAttr.Add(new object[] { obj, attrs });
             }
 
             var restObjesctsWithAttr =
-                argsCopy.Select(x => new { dto = x, propoperties = x!.GetType().GetProperties() })
-                        .Where(x => x.propoperties
+                argsCopy.Select(x =>  new object[] { x, x.GetType().GetProperties()})
+                        .Where(x => ((PropertyInfo[])x[1])
                                      .Where(x => x.GetCustomAttributes(typeof(AllowedRangeAttribute)) is not null)
-                        .Any())
-                        .ToDictionary(x => x.dto!, x => x.propoperties);
+                        .Any());
 
-            restObjesctsWithAttr.ToList().ForEach(x => objectsWithMyAttr.Add(x.Key, x.Value));
+            objectsWithMyAttr.AddRange(restObjesctsWithAttr);
 
             var errorsMessage = new StringBuilder();
             foreach (var obj in objectsWithMyAttr)
             {
-                foreach (var property in obj.Value)
+                foreach (var property in ((PropertyInfo[]) obj[1]))
                 {
                     var attr = (AllowedRangeAttribute?)property.GetCustomAttribute(typeof(AllowedRangeAttribute));
                     if (attr is null)
                         continue;
-                    bag.TryAdd(obj.Key, obj.Value);
-                    var value = property.GetValue(obj.Key);
+                    bag.TryAdd(obj[0].GetType(), (PropertyInfo[])obj[1]);
+                    var value = property.GetValue(obj[0]);
                     if (value is not int @int) // модель будет не валидна (строка  13), если аттрибут будет не на int
-                        errorsMessage.Append($"{property.Name} is not an Int in object {obj.Key.GetType().Name} \n");
+                        errorsMessage.Append($"{property.Name} is not an Int in object {obj[0]} \n");
                     else if (@int < attr.Min || @int > attr.Max)
-                        errorsMessage.Append($"Invalid value of property {property.Name} in object {obj.Key.GetType().Name} \n");
+                        errorsMessage.Append($"Invalid value of property {property.Name} in object {obj[0]} \n");
                 }
             }
             if (errorsMessage.Length == 0)
