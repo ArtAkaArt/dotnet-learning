@@ -9,7 +9,7 @@ namespace Attributes
     public class AttributeFilter : IAsyncActionFilter
     {
         ConcurrentDictionary<Type, PropertyInfo[]> bag = new();
-        public async Task OnActionExecutionAltAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (context.ModelState.IsValid)
             {
@@ -49,7 +49,7 @@ namespace Attributes
             result.StatusCode = 477;
             context.Result = result;
         }
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public async Task OnActionExecutionAltAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (context.ModelState.IsValid)
             {
