@@ -1,6 +1,6 @@
 ﻿using FacilityContextLib;
 using AutoMapper;
-using Attributes;
+using CustomAttributes;
 
 namespace Sol3.Profiles
 {

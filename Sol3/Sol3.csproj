@@ -31,7 +31,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Attributes\Attributes.csproj" />
+    <ProjectReference Include="..\Attributes\CustomAttributes.csproj" />
     <ProjectReference Include="..\FacilityRepoEF\FacilityContextLib.csproj" />
     <ProjectReference Include="..\UserContextLib\UserContextLib.csproj" />
   </ItemGroup>

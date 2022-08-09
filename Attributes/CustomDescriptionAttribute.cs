@@ -1,4 +1,4 @@
-﻿namespace Attributes
+﻿namespace CustomAttributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class CustomDescriptionAttribute : Attribute

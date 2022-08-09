@@ -1,4 +1,4 @@
-﻿using Attributes;
+﻿using CustomAttributes;
 namespace Sol3.Profiles
 {
     public class Obj1

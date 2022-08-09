@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using Attributes;
+using CustomAttributes;
 
 var builder = WebApplication.CreateBuilder(args);
 

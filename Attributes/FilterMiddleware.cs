@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Attributes
+namespace CustomAttributes
 {
     public static class ServiceExtension
     {
@@ -8,7 +8,7 @@ namespace Attributes
         {
             Services.AddControllersWithViews(options =>
             {
-                options.Filters.Add(new AttributeFilter());
+                options.Filters.Add(new AlternativeCustomFilter());
             });
         }
     }

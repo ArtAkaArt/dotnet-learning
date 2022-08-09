@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Attributes
+namespace CustomAttributes
 {
     /// <summary>
     /// Позволяет проверять поля типов Int на попдание их значений в заданный Range значений.
