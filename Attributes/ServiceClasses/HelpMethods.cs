@@ -22,9 +22,5 @@ namespace CustomAttributes
             }
             return ErrorMsg.Length > 0;
         }
-        internal static Type GetRealType(object argument)
-        {
-            return argument.GetType();
-        }
     }
 }

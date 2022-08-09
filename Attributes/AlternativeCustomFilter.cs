@@ -8,14 +8,18 @@ using CustomAttributes.ServiceClasses;
 
 namespace CustomAttributes
 {
-    public class AlternativeCustomFilter : IAsyncActionFilter
+    public class AlternativeCustomFilter : IActionFilter
     {
         ConcurrentDictionary<Type, PropertyInfo[]> cache = new();
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+
+        public void OnActionExecuted(ActionExecutedContext context)
+        {
+        }
+
+        public void OnActionExecuting(ActionExecutingContext context)
         {
             if (context.ModelState.IsValid)
             {
-                await next();
                 return;
             }
 
@@ -30,7 +34,6 @@ namespace CustomAttributes
 
             if (!errorsFromMyAttributesValidation.Any())
             {
-                await next();
                 return;
             }
             var jsonResult = JsonSerializer.Serialize(new MyError { ErrorCode = 477, ErrprMessages = errorsFromMyAttributesValidation });
