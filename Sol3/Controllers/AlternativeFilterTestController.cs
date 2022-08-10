@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
+using CustomAttributes;
 
 namespace Sol3.Controllers
 {
-    public class ATestController : ControllerBase
+    [AlternativeCustomFilter]
+    public class AlternativeFilterTestController : ControllerBase
     {
         /// <summary>
         /// отправка 5 аргументов, 1 с моим атрибутом (0 не валидных)

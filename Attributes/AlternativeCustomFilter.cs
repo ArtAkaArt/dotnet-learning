@@ -8,15 +8,15 @@ using CustomAttributes.ServiceClasses;
 
 namespace CustomAttributes
 {
-    public class AlternativeCustomFilter : IActionFilter
+    public class AlternativeCustomFilter : ActionFilterAttribute, IActionFilter
     {
         ConcurrentDictionary<Type, PropertyInfo[]> cache = new();
 
-        public void OnActionExecuted(ActionExecutedContext context)
+        public override void  OnActionExecuted(ActionExecutedContext context)
         {
         }
 
-        public void OnActionExecuting(ActionExecutingContext context)
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
             if (context.ModelState.IsValid)
             {

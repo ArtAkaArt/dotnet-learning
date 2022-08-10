@@ -2,7 +2,7 @@
 
 namespace CustomAttributes.ServiceClasses
 {
-    internal record struct ObjectAndType
+    internal record ObjectAndType
     {
         internal object Value { get; set; }
         internal Type MyType { get; set; }
@@ -12,7 +12,7 @@ namespace CustomAttributes.ServiceClasses
             MyType = Type;
         }
     }
-    internal record struct ObjectAndTypeWithProp
+    internal record ObjectAndTypeWithProp
     {
         internal object Value { get; set; }
         internal Type MyType { get; set; }
