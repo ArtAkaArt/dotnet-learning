@@ -1,5 +1,5 @@
-﻿namespace Test 
-{ 
+﻿namespace CustomAttributes
+{
     public class PseudoContext
     {
         public IDictionary<string, object> ActionArguments;

@@ -43,5 +43,21 @@ namespace CustomAttributes
             result.StatusCode = 477;
             context.Result = result;
         }
+        public void OnActionExecuting(PseudoContext context)
+        {
+            var errorsFromMyAttributesValidation = context.ActionArguments
+                    .Select(x => new ObjectAndType(x.Value!, x.Value!.GetType()))
+                    .Select(x => new ObjectAndTypeWithProp(x.Value, x.MyType, cache.GetOrAdd(
+                                                                        x.MyType, k => (GetPropsWithCustomAttributes(x.MyType)))))
+                    .Where(x => x.PropertyInfos.Any())
+                    .Select(x => new ValidationResult(Validate(x.Value, x.PropertyInfos, out string Msg), Msg))
+                    .Where(x => x.IsInvalid)
+                    .Select(x => x.ErrMsg);
+
+            if (!errorsFromMyAttributesValidation.Any())
+            {
+                return;
+            }
+        }
     }
 }

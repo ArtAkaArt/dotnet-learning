@@ -1,47 +1,45 @@
-﻿using Attributes;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 using System.Collections.Concurrent;
 using Sol3;
 using Sol3.Profiles;
 using System.Reflection;
+using CustomAttributes;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Test
 {
+    [MemoryDiagnoser]
     public class FilterSpeedTest
     {
-
-        private readonly AttributeFilter filter;
-        ConcurrentDictionary<Type, PropertyInfo[]> bag = new();
-        private readonly PseudoContext context;
-
+        PseudoContext context1;
+        CustomAttributeFilter filter1 = new();
+        AlternativeCustomFilter filter2 = new();
         public FilterSpeedTest()
         {
-            var tank1 = new CreateTankDTO {Name = "string", Description = "string", Volume = 0, Maxvolume = 0 };
+            var tank1 = new CreateTankDTO { Name = "string", Description = "string", Volume = 0, Maxvolume = 0 };
             var tank2 = new TankDTO { Name = "string", Description = "string", Volume = 0, Maxvolume = 0, Id = 0, Unitid = 0 };
             var unit = new UnitDTO { Name = "string", Description = "string", };
             var unit2 = new CreateUnitDTO { Name = "string", Description = "string", };
-            bag.TryAdd(new CreateTankDTO().GetType(), tank1.GetType().GetProperties());
-            bag.TryAdd(new TankDTO().GetType(), tank2.GetType().GetProperties());
             var dictionary = new Dictionary<string, object>();
-            dictionary.Add("CreateTank1", tank1);
-            dictionary.Add("Tank32", unit);
-            dictionary.Add("Tank42", unit);
-            dictionary.Add("Tank52", unit);
-            dictionary.Add("Tank62", unit);
-            dictionary.Add("Tank72", unit);
-            dictionary.Add("Tank3", unit2);
-            context = new PseudoContext(dictionary);
-            filter = new AttributeFilter(bag);
+            //dictionary.Add("CreateTank1", tank1);
+            dictionary.Add("asd",new Obj9());
+            dictionary.Add("asd2", new Obj8());
+            dictionary.Add("asd33", new Obj7());
+            dictionary.Add("as2d", new Obj10());
+            dictionary.Add("as3d", new Obj9());
+            context1 = new PseudoContext(dictionary);
 
         }
 
-        [Benchmark]
-        public void Filter() => filter.OnActionExecutionAsync(context);
+        [Benchmark, WarmupCount(5)]
+        public void Filter() => filter1.OnActionExecuting(context1);
 
-        [Benchmark]
-        public void FilterAlt() => filter.OnActionExecutionAltAsync(context);
+
+        [Benchmark, WarmupCount(5)]
+        public void FilterAlt() => filter2.OnActionExecuting(context1);
     }
     public class Program
     {
