@@ -5,17 +5,18 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using static CustomAttributes.HelpMethods;
 using System.Text.Json;
 using CustomAttributes.ServiceClasses;
+using System.Text;
 
 namespace CustomAttributes
 {
-    public class AlternativeCustomFilter : ActionFilterAttribute, IActionFilter
+    public class CacheCustomFilter : ActionFilterAttribute, IActionFilter
     {
         ConcurrentDictionary<Type, PropertyInfo[]> cache = new();
 
         public override void  OnActionExecuted(ActionExecutedContext context)
         {
         }
-
+        
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             if (context.ModelState.IsValid)
@@ -28,7 +29,7 @@ namespace CustomAttributes
                     .Select(x => new ObjectAndTypeWithProp(x.Value, x.MyType, cache.GetOrAdd(
                                                                         x.MyType, k => (GetPropsWithCustomAttributes(x.MyType)))))
                     .Where(x => x.PropertyInfos.Any())
-                    .Select(x => new ValidationResult(Validate(x.Value, x.PropertyInfos, out string Msg), Msg))
+                    .Select(x => new ValidationResult(Validate(x.Value, x.PropertyInfos, out string[] Msg), Msg))
                     .Where(x => x.IsInvalid)
                     .Select(x => x.ErrMsg);
 
@@ -36,13 +37,14 @@ namespace CustomAttributes
             {
                 return;
             }
-            var jsonResult = JsonSerializer.Serialize(new MyError { ErrorCode = 477, ErrprMessages = errorsFromMyAttributesValidation });
+            var jsonResult = JsonSerializer.Serialize(new MyError { ErrorCode = 477, ErrorMessages = errorsFromMyAttributesValidation });
 
             var result = new ContentResult { Content = jsonResult };
             result.ContentType = "text/json";
             result.StatusCode = 477;
             context.Result = result;
         }
+        /*
         public void OnActionExecuting(PseudoContext context)
         {
             var errorsFromMyAttributesValidation = context.ActionArguments
@@ -59,5 +61,7 @@ namespace CustomAttributes
                 return;
             }
         }
+        */
+
     }
 }

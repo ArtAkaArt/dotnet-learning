@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text;
 
 namespace CustomAttributes.ServiceClasses
 {
@@ -28,8 +29,8 @@ namespace CustomAttributes.ServiceClasses
     internal record struct ValidationResult
     {
         internal bool IsInvalid { get; set; }
-        internal string ErrMsg { get; set; }
-        internal ValidationResult(bool isInvalid, string errMsg)
+        internal string[] ErrMsg { get; set; }
+        internal ValidationResult(bool isInvalid, string[] errMsg)
         {
             IsInvalid = isInvalid;
             ErrMsg = errMsg;
@@ -38,6 +39,6 @@ namespace CustomAttributes.ServiceClasses
     internal record struct MyError
     {
         public int ErrorCode { get; set; }
-        public IEnumerable<string> ErrprMessages { get; set; }
+        public IEnumerable<string[]> ErrorMessages { get; set; }
     }
 }

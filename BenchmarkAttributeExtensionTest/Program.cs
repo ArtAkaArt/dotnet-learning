@@ -1,13 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
-using System.Collections.Concurrent;
-using Sol3;
 using Sol3.Profiles;
-using System.Reflection;
 using CustomAttributes;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Test
 {
@@ -16,7 +11,8 @@ namespace Test
     {
         PseudoContext context1;
         CustomAttributeFilter filter1 = new();
-        AlternativeCustomFilter filter2 = new();
+        CacheCustomFilter filter2 = new();
+
         public FilterSpeedTest()
         {
             var tank1 = new CreateTankDTO { Name = "string", Description = "string", Volume = 0, Maxvolume = 0 };

@@ -4,8 +4,9 @@ using CustomAttributes;
 
 namespace Sol3.Controllers
 {
-    [AlternativeCustomFilter]
-    public class AlternativeFilterTestController : ControllerBase
+    [Route("CacheFilter")]
+    [CacheCustomFilter]
+    public class CacheFilterTestController : ControllerBase
     {
         /// <summary>
         /// отправка 5 аргументов, 1 с моим атрибутом (0 не валидных)
@@ -160,6 +161,50 @@ namespace Sol3.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> Test14
                         (Obj1 o1)
+        {
+            return Ok();
+        }
+        /// <summary>
+        /// отправка 1 сложного аргумента(0.1 не валидный)
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Test15")] // , Authorize
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> Test15
+                        ([FromBody] Obj7 o7)
+        {
+            return Ok();
+        }
+        /// <summary>
+        /// отправка 1 сложного аргумента(1 не валидный)
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Test16")] // , Authorize
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> Test16
+                        ([FromBody] Obj8 o8)
+        {
+            return Ok();
+        }
+        /// <summary>
+        /// отправка 1 сложного аргумента(1 не валидный)
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Test17")] // , Authorize
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> Test17
+                        ([FromBody] Obj9 o9)
+        {
+            return Ok();
+        }
+        /// <summary>
+        /// отправка 1 сложного аргумента(0.1 не валидный)
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Test18")] // , Authorize
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> Test18
+                        ([FromBody] Obj10 o10)
         {
             return Ok();
         }

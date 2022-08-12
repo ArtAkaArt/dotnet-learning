@@ -8,7 +8,7 @@ namespace CustomAttributes
         {
             Services.AddControllersWithViews(options =>
             {
-                options.Filters.Add(new AlternativeCustomFilter());
+                options.Filters.Add(new CacheCustomFilter());
             });
         }
     }
