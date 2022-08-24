@@ -16,7 +16,6 @@ namespace Test
     [MemoryDiagnoser]
     public class FilterSpeedTest
     {
-        PseudoContext context1;
         CustomAttributeFilter filter1 = new();
         CacheCustomFilter filter2 = new();
         ActionExecutingContext actExecutingContext;
