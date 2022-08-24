@@ -3,6 +3,13 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 using Sol3.Profiles;
 using CustomAttributes;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Moq;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Test
 {
@@ -12,30 +19,36 @@ namespace Test
         PseudoContext context1;
         CustomAttributeFilter filter1 = new();
         CacheCustomFilter filter2 = new();
-
+        ActionExecutingContext actExecutingContext;
         public FilterSpeedTest()
         {
-            var tank1 = new CreateTankDTO { Name = "string", Description = "string", Volume = 0, Maxvolume = 0 };
-            var tank2 = new TankDTO { Name = "string", Description = "string", Volume = 0, Maxvolume = 0, Id = 0, Unitid = 0 };
-            var unit = new UnitDTO { Name = "string", Description = "string", };
-            var unit2 = new CreateUnitDTO { Name = "string", Description = "string", };
             var dictionary = new Dictionary<string, object>();
-            //dictionary.Add("CreateTank1", tank1);
             dictionary.Add("asd",new Obj9());
             dictionary.Add("asd2", new Obj8());
             dictionary.Add("asd33", new Obj7());
             dictionary.Add("as2d", new Obj10());
             dictionary.Add("as3d", new Obj9());
-            context1 = new PseudoContext(dictionary);
 
+            var actContext = new ActionContext(
+               Mock.Of<HttpContext>(),
+               Mock.Of<RouteData>(),
+               Mock.Of<ActionDescriptor>(),
+               Mock.Of<ModelStateDictionary>()
+           );
+            actExecutingContext = new ActionExecutingContext(
+                actContext,
+                new List<IFilterMetadata>(),
+                dictionary,
+                Mock.Of<Controller>()
+            );
         }
 
         [Benchmark, WarmupCount(5)]
-        public void Filter() => filter1.OnActionExecuting(context1);
+        public void Filter() => filter1.OnActionExecuting(actExecutingContext);
 
 
         [Benchmark, WarmupCount(5)]
-        public void FilterAlt() => filter2.OnActionExecuting(context1);
+        public void FilterAlt() => filter2.OnActionExecuting(actExecutingContext);
     }
     public class Program
     {

@@ -9,7 +9,7 @@ namespace CustomAttributes
         {
             return type.GetProperties().Where(x => x.GetCustomAttributes(typeof(AllowedRangeAttribute)).Any()).ToArray();
         }
-        internal static bool Validate(object argument, PropertyInfo[] props, out string[] ErrorMsg)
+        internal static bool Validate(object argument, PropertyInfo[] props, out string[] errorMsg)
         {
             var errors = new StringBuilder();
             foreach (var prop in props)
@@ -21,8 +21,8 @@ namespace CustomAttributes
                 else if (!attr.IsValid(@int))
                     errors.Append($"Invalid value of property {prop.Name} in object {argument}.\n");
             }
-            ErrorMsg = errors.ToString().Split("\n", StringSplitOptions.RemoveEmptyEntries);
-            return ErrorMsg.Length > 0;
+            errorMsg = errors.ToString().Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            return errorMsg.Length > 0;
         }
     }
 }

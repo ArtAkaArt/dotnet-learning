@@ -4,9 +4,9 @@ namespace CustomAttributes
 {
     public static class ServiceExtension
     {
-        public static void AddMyAttribute(this IServiceCollection Services)
+        public static void AddMyAttribute(this IServiceCollection services)
         {
-            Services.AddControllersWithViews(options =>
+            services.AddControllersWithViews(options =>
             {
                 options.Filters.Add(new CacheCustomFilter());
             });
