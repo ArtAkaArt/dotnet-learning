@@ -19,11 +19,7 @@ namespace CustomAttributes
         }
         public override bool IsValid(object? value)
         {
-            if (value is int @int)
-            {
-                return !(@int < Min || @int > Max);
-            }
-            return false;
+            return value is int intValue && intValue >= Min && intValue <= Max;
         }
     }
 }
