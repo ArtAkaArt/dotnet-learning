@@ -44,12 +44,20 @@ namespace Sol3.Controllers
         /// <param name="tankS">Short Json резервуара</param>
         /// <param name="unitId">id юнита</param>
         /// <returns></returns>
-        [HttpPost("tank/unit/{unitId}"), Authorize]
+        [HttpPost("tank/unit/{unitId}")] // , Authorize
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TankDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TankDTO>> AddTank([FromBody] CreateTankDTO tankS, [FromRoute] int unitId)
         {
+            //Проверка аттрибутов
+            if (!ModelState.IsValid)
+            {
+                var message = string.Join(" | ", ModelState.Values
+                                    .SelectMany(v => v.Errors)
+                                    .Select(e => e.ErrorMessage));
+                return BadRequest($"Модель не прошла валидацию {message}");
+            }
             var logMsg = new StringBuilder("Post: ");
             if (tankS is null)
             {
