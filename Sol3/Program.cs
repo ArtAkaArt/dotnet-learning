@@ -42,7 +42,7 @@ builder.Services.AddSwaggerGen(options =>
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey
     });
-    options.OperationFilter<SecurityRequirementsOperationFilter>(); 
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 KeysConfiguration keyConfig = new();
 builder.Configuration.GetSection(KeysConfiguration.Configuration).Bind(keyConfig);
@@ -55,7 +55,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyConfig.Key1)),
-            ValidateIssuer  = false,
+            ValidateIssuer = false,
             ValidateAudience = false,
         };
     });
@@ -64,11 +64,14 @@ builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
 builder.Services.AddTransient<IValidator<UnitDTO>, UnitDTOValidator>();
-builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
+//builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddDbContext<UserContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials2")));
-if(repoType == "EF")
+if (repoType == "EF")
+{
+    builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
     builder.Services.AddTransient<IMyRepo, FacilityRepo>();
-else builder.Services.AddTransient<IMyRepo, AdoFacilityRepo>(x => 
+}
+else builder.Services.AddTransient<IMyRepo, AdoFacilityRepo>(x =>
                                         new AdoFacilityRepo(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddTransient<UserDBRepo>();
 builder.Services.AddHostedService<VolumeUpdateHostedService>();
