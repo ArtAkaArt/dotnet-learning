@@ -64,7 +64,6 @@ builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
 builder.Services.AddTransient<IValidator<UnitDTO>, UnitDTOValidator>();
-//builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddDbContext<UserContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials2")));
 if (repoType == "EF")
 {

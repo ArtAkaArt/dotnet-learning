@@ -11,7 +11,7 @@ namespace Sol3.Controllers
 {
     public class TankController : ControllerBase
     {
-        private IMyRepo repo;
+        private readonly IMyRepo repo;
         private readonly IMapper mapper;
         private readonly IValidator<TankDTO> validator;
         private readonly ILogger<TankController> logger;
