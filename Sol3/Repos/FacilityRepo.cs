@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Sol3.Profiles;
 
-namespace Sol3
+namespace Sol3.Repos
 {
-    public class FacilityRepo
+    public class FacilityRepo : IMyRepo
     {
         private readonly FacilityContext context;
         public FacilityRepo(FacilityContext context)

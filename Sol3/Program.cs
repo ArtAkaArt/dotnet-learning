@@ -5,6 +5,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Sol3.Profiles;
+using Sol3.Repos;
 using Sol3;
 using UserContextLib;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using CustomAttributes;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,8 +66,8 @@ builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
 builder.Services.AddTransient<IValidator<UnitDTO>, UnitDTOValidator>();
 builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddDbContext<UserContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials2")));
-builder.Services.AddTransient<Sol3.FacilityRepo>();
-builder.Services.AddTransient<Sol3.UserDBRepo>();
+builder.Services.AddTransient<IMyRepo, FacilityRepo>();
+builder.Services.AddTransient<UserDBRepo>();
 builder.Services.AddHostedService<VolumeUpdateHostedService>();
 
 var app = builder.Build();

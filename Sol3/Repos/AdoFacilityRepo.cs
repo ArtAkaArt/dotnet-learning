@@ -4,9 +4,9 @@ using System.Data;
 using FacilityContextLib;
 using Sol3.Profiles;
 
-namespace Sol3
+namespace Sol3.Repos
 {
-    public class AdoFacilityRepo
+    public class AdoFacilityRepo : IMyRepo
     {
         //private IDbConnection connection;
         private string connectionString;
@@ -70,16 +70,16 @@ namespace Sol3
                 await connection.ExecuteAsync(sqlQuery);
             }
         }
-        public async Task<List<Unit>> GetAllTanks()
+        public async Task<List<Tank>> GetAllTanks()
         {
             using IDbConnection connection = new NpgsqlConnection(connectionString);
-            return (await connection.QueryAsync<Unit>("SELECT * FROM \"Tanks\"")).ToList();
+            return (await connection.QueryAsync<Tank>("SELECT * FROM \"Tanks\"")).ToList();
         }
-        public async Task<Unit> GetTankById(int id)
+        public async Task<Tank> GetTankById(int id)
         {
             using IDbConnection connection = new NpgsqlConnection(connectionString);
 #pragma warning disable CS8603 // Possible null reference return.
-            return (await connection.QueryAsync<Unit>($"SELECT * FROM \"Tanks\" " +
+            return (await connection.QueryAsync<Tank>($"SELECT * FROM \"Tanks\" " +
                                                       $"WHERE \"Id\" = {id}"))
                                                       .FirstOrDefault();
 #pragma warning restore CS8603 // Possible null reference return.

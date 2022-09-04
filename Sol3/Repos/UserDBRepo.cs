@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Sol3.Profiles;
 using System.Security.Cryptography;
 
-namespace Sol3
+namespace Sol3.Repos
 {
     public class UserDBRepo
     {
