@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
+using Sol3.Repos;
 using FluentValidation;
 using System.Text;
 using FacilityContextLib;
@@ -10,11 +11,11 @@ namespace Sol3.Controllers
 {
     public class UnitController : ControllerBase
     {
-        private readonly FacilityRepo repo;
+        private readonly IMyRepo repo;
         private readonly IMapper mapper;
         ILogger<UnitController> logger;
         private readonly IValidator<UnitDTO> validator;
-        public UnitController(FacilityRepo repo, IMapper mapper, ILogger<UnitController> logger, IValidator<UnitDTO> validator)
+        public UnitController(IMyRepo repo, IMapper mapper, ILogger<UnitController> logger, IValidator<UnitDTO> validator)
         {
             this.mapper = mapper;
             this.repo = repo;
@@ -25,7 +26,7 @@ namespace Sol3.Controllers
         /// получение всех юнитов
         /// </summary>
         /// <returns></returns>
-        [HttpGet("unit/all"), Authorize(Roles = "User")] //тестовый метод с ограничением прав
+        [HttpGet("unit/all"), Authorize(Roles = "Admin")] //тестовый метод с ограничением прав
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UnitDTO>))]
         public async Task<ActionResult<List<UnitDTO>>> GetAllUnits()
         {

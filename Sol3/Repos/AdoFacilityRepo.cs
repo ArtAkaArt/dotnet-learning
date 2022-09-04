@@ -8,7 +8,6 @@ namespace Sol3.Repos
 {
     public class AdoFacilityRepo : IMyRepo
     {
-        //private IDbConnection connection;
         private string connectionString;
         public AdoFacilityRepo(string connectionString) => this.connectionString = connectionString;
         public async Task<List<Unit>> GetAllUnits()

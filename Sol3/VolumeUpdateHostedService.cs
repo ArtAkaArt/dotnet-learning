@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Sol3.Profiles;
+using Sol3.Repos;
 
 namespace Sol3
 {
@@ -27,7 +28,7 @@ namespace Sol3
             {
                 using (var scope = scopeFactory.CreateScope())
                 {
-                    var repo = scope.ServiceProvider.GetRequiredService<FacilityRepo>();
+                    var repo = scope.ServiceProvider.GetRequiredService<IMyRepo>();
                     var tanks = await repo.GetAllTanks();
                     //logger.LogInformation("Начало foreach---------------------------------------");
                     foreach (var tank in tanks)

@@ -59,14 +59,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
         };
     });
-
+var repoType = builder.Configuration.GetSection("RepoType").Value;
 builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
 builder.Services.AddTransient<IValidator<UnitDTO>, UnitDTOValidator>();
 builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddDbContext<UserContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials2")));
-builder.Services.AddTransient<IMyRepo, FacilityRepo>();
+if(repoType == "EF")
+    builder.Services.AddTransient<IMyRepo, FacilityRepo>();
+else builder.Services.AddTransient<IMyRepo, AdoFacilityRepo>(x => 
+                                        new AdoFacilityRepo(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddTransient<UserDBRepo>();
 builder.Services.AddHostedService<VolumeUpdateHostedService>();
 
