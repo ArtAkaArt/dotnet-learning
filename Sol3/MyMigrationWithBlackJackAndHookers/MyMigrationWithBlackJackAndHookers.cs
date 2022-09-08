@@ -8,16 +8,16 @@
 
         internal async Task CheckDB()
         {
-            var cheker = new TableChecker(connectionString);
-            var isFactoriesCreated = await cheker.ValidateTable("Factories");
-            var isUnitsCreated =  await cheker.ValidateTable("Units");
-            var isTanksCreated = await cheker.ValidateTable("Tanks");
+            var checker = new TableChecker(connectionString);
+            var isFactoriesCreated = await checker.ValidateTable("Factories");
+            var isUnitsCreated =  await checker.ValidateTable("Units");
+            var isTanksCreated = await checker.ValidateTable("Tanks");
             if (!isFactoriesCreated)
-                await cheker.CheckColums("Factories", new string[] { "Id", "Name", "Description" });
+                await checker.CheckColums("Factories", new string[] { "Id", "Name", "Description" });
             if (!isUnitsCreated)
-                await cheker.CheckColums("Units", new string[] { "Id", "Name", "Description", "FactoryId" });
+                await checker.CheckColums("Units", new string[] { "Id", "Name", "Description", "FactoryId" });
             if (!isTanksCreated)
-                await cheker.CheckColums("Tanks", new string[] { "Id", "Name", "Description", "Volume", "Maxvolume", "UnitId" });
+                await checker.CheckColums("Tanks", new string[] { "Id", "Name", "Description", "Volume", "Maxvolume", "UnitId" });
         }
     }
 }

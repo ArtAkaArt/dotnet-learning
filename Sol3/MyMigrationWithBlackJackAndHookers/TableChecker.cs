@@ -44,13 +44,13 @@ namespace MyMigration
                                .ToList();
             if (columnNames.Contains(tableName))
                 return false;
-            var repo = new TableCreator(connectionString);
+            var tableCreator = new TableCreator(connectionString);
             if (tableName == "Factories")
-                await repo.CreateFactories(factories);
+                await tableCreator.CreateFactories(factories);
             if (tableName == "Units")
-                await repo.CreateUnits(units);
+                await tableCreator.CreateUnits(units);
             if (tableName == "Tanks")
-                await repo.CreateTanks(tanks);
+                await tableCreator.CreateTanks(tanks);
             return true;
         }
         public async Task CheckColums(string tableName, string[] columnsExpected)
