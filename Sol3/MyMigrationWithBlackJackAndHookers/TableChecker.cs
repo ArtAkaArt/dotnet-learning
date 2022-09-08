@@ -31,7 +31,7 @@ namespace MyMigration
             tanks = new Tank[] { tank1, tank2, tank3, tank4, tank5, tank6 };
             fixer = new ColumnFixer(connectionString);
         }
-        public async Task<bool> ValidateTable(string tableName)
+        public async Task<bool> ValidateOrCreateTable(string tableName)
         {
             DataTable table;
             using (var connection = new NpgsqlConnection(connectionString))

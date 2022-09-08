@@ -9,9 +9,9 @@
         internal async Task CheckDB()
         {
             var checker = new TableChecker(connectionString);
-            var isFactoriesCreated = await checker.ValidateTable("Factories");
-            var isUnitsCreated =  await checker.ValidateTable("Units");
-            var isTanksCreated = await checker.ValidateTable("Tanks");
+            var isFactoriesCreated = await checker.ValidateOrCreateTable("Factories");
+            var isUnitsCreated =  await checker.ValidateOrCreateTable("Units");
+            var isTanksCreated = await checker.ValidateOrCreateTable("Tanks");
             if (!isFactoriesCreated)
                 await checker.CheckColums("Factories", new string[] { "Id", "Name", "Description" });
             if (!isUnitsCreated)
