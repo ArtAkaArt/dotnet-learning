@@ -41,7 +41,7 @@ namespace MyMigration
             }
             var columnNames = table.AsEnumerable()
                                .Select(x => x.Field<string>("TABLE_NAME"))
-                               .ToList();
+                               .ToHashSet();
             if (columnNames.Contains(tableName))
                 return false;
             var tableCreator = new TableCreator(connectionString);
@@ -63,7 +63,7 @@ namespace MyMigration
             }
             var columnNames = table.AsEnumerable()
                                .Select(x => x.Field<string>("COLUMN_NAME"))
-                               .ToList();
+                               .ToHashSet();
 
             foreach (var column in columnsExpected)
             {
