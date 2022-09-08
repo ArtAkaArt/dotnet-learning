@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using MyMigration;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +60,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
         };
     });
+var myMigration = new MyMigrationWithBlackJackAndHookers(builder.Configuration.GetConnectionString("Credentials"));
+await myMigration.CheckDB();
 var repoType = builder.Configuration.GetSection("RepoType").Value;
 builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
