@@ -1,6 +1,6 @@
 ﻿namespace FacilityContextLib
 {
-    public class Factory
+    public class Factory : IFacility
     {
         public int Id { get; set; }
         public string? Name { get; set; }
