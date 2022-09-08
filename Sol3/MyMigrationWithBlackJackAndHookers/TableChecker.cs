@@ -20,7 +20,7 @@ namespace MyMigration
             factories = new Factory[] { factory1, factory2 };
             var unit1 = new Unit { Id = 1, Name = "ГФУ-2", Description = "Газофракционирующая установка", FactoryId = 1 };
             var unit2 = new Unit { Id = 2, Name = "АВТ-6", Description = "Атмосферно-вакуумная трубчатка", FactoryId = 1 };
-            var unit3 = new Unit { Id = 3, Name = "АВТ-10", Description = "Атмосферно-вакуумная трубчатка	", FactoryId = 2 };
+            var unit3 = new Unit { Id = 3, Name = "АВТ-10", Description = "Атмосферно-вакуумная трубчатка", FactoryId = 2 };
             units = new Unit[] { unit1, unit2, unit3 };
             var tank1 = new Tank { Id = 1, Name = "Резервуар 1", Description = "Надземный - вертикальный", Volume = 1500, Maxvolume = 2000, UnitId = 1 };
             var tank2 = new Tank { Id = 2, Name = "Резервуар 2", Description = "Надземный - горизонтальный", Volume = 2500, Maxvolume = 3000, UnitId = 1 };

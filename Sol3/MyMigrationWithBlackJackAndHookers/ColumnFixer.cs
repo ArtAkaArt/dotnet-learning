@@ -9,9 +9,9 @@ namespace MyMigration
         internal ColumnFixer(string connectionString) => this.connectionString = connectionString;
         internal async Task AddColumn(string tableName, string columnName, IFacility[] facilities)
         {
-            var alterStringTable = $"ALTER TABLE \"{tableName}\"" +
+            var alterStringColumn = $"ALTER TABLE \"{tableName}\"" +
                                    $"ADD COLUMN \"{columnName}\" varchar(50);";
-            var alterIntTable = $"ALTER TABLE \"{tableName}\"" +
+            var alterIntColumn = $"ALTER TABLE \"{tableName}\"" +
                                 $"ADD COLUMN \"{columnName}\" INT;";
             switch (columnName)
             {
@@ -19,7 +19,7 @@ namespace MyMigration
                     using (var connection = new NpgsqlConnection(connectionString))
                     {
                         await connection.OpenAsync();
-                        var command = new NpgsqlCommand(alterStringTable, connection);
+                        var command = new NpgsqlCommand(alterStringColumn, connection);
                         await command.ExecuteNonQueryAsync();
                     }
                     foreach (var facility in facilities)
@@ -31,7 +31,7 @@ namespace MyMigration
                     using (var connection = new NpgsqlConnection(connectionString))
                     {
                         await connection.OpenAsync();
-                        var command = new NpgsqlCommand(alterStringTable, connection);
+                        var command = new NpgsqlCommand(alterStringColumn, connection);
                         await command.ExecuteNonQueryAsync();
                     }
                     foreach (var facility in facilities)
@@ -43,7 +43,7 @@ namespace MyMigration
                     using (var connection = new NpgsqlConnection(connectionString))
                     {
                         await connection.OpenAsync();
-                        var command = new NpgsqlCommand(alterIntTable, connection);
+                        var command = new NpgsqlCommand(alterIntColumn, connection);
                         await command.ExecuteNonQueryAsync();
                     }
                     foreach (var tank in (Tank[])facilities)
@@ -55,7 +55,7 @@ namespace MyMigration
                     using (var connection = new NpgsqlConnection(connectionString))
                     {
                         await connection.OpenAsync();
-                        var command = new NpgsqlCommand(alterIntTable, connection);
+                        var command = new NpgsqlCommand(alterIntColumn, connection);
                         await command.ExecuteNonQueryAsync();
                     }
                     foreach (var tank in (Tank[]) facilities)
