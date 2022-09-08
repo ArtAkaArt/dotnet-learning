@@ -13,11 +13,11 @@
             var isUnitsCreated =  await checker.ValidateOrCreateTable("Units");
             var isTanksCreated = await checker.ValidateOrCreateTable("Tanks");
             if (!isFactoriesCreated)
-                await checker.CheckColums("Factories", new string[] { "Id", "Name", "Description" });
+                await checker.CheckColumns("Factories", new string[] { "Id", "Name", "Description" });
             if (!isUnitsCreated)
-                await checker.CheckColums("Units", new string[] { "Id", "Name", "Description", "FactoryId" });
+                await checker.CheckColumns("Units", new string[] { "Id", "Name", "Description", "FactoryId" });
             if (!isTanksCreated)
-                await checker.CheckColums("Tanks", new string[] { "Id", "Name", "Description", "Volume", "Maxvolume", "UnitId" });
+                await checker.CheckColumns("Tanks", new string[] { "Id", "Name", "Description", "Volume", "Maxvolume", "UnitId" });
         }
     }
 }

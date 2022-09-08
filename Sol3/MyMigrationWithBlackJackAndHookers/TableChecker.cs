@@ -53,14 +53,13 @@ namespace MyMigration
                 await tableCreator.CreateTanks(tanks);
             return true;
         }
-        public async Task CheckColums(string tableName, string[] columnsExpected)
+        public async Task CheckColumns(string tableName, string[] columnsExpected)
         {
             DataTable table;
             using (var connection = new NpgsqlConnection(connectionString))
             {
                 await connection.OpenAsync();
                 table = await connection.GetSchemaAsync("Columns", new string[] { null, null, tableName }); // null, null ? требуется пояснительная бригада
-                await connection.CloseAsync();
             }
             var columnNames = table.AsEnumerable()
                                .Select(x => x.Field<string>("COLUMN_NAME"))
