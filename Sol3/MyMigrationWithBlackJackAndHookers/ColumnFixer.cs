@@ -97,6 +97,8 @@ namespace MyMigration
                         await UpdateIntValue(tableName, columnName, unit.Id, unit.FactoryId);
                     }
                     break;
+                default:
+                    break;
             }
         }
         internal async Task UpdateIntValue(string tableName, string columnName, int id, int value)
