@@ -7,14 +7,15 @@ namespace MyMigration
     internal class TableChecker
     {
         private readonly NpgsqlConnection connection;
+        private readonly ColumnFixer fixer;
         private readonly Factory[] factories;
         private readonly Unit[] units;
         private readonly Tank[] tanks;
-        private readonly ColumnFixer fixer;
 
         public TableChecker(NpgsqlConnection connection)
         {
             this.connection = connection;
+            fixer = new ColumnFixer(connection);
             var factory1 = new Factory { Id = 1, Name = "НПЗ№1", Description = "Первый нефтеперерабатывающий завод" };
             var factory2 = new Factory { Id = 2, Name = "НПЗ№2", Description = "Второй нефтеперерабатывающий завод" };
             factories = new Factory[] { factory1, factory2 };
@@ -29,7 +30,7 @@ namespace MyMigration
             var tank5 = new Tank { Id = 5, Name = "Резервуар 47", Description = "Подземный - двустенный", Volume = 4000, Maxvolume = 5000, UnitId = 2 };
             var tank6 = new Tank { Id = 6, Name = "Резервуар 256", Description = "Подводный", Volume = 500, Maxvolume = 500, UnitId = 3 };
             tanks = new Tank[] { tank1, tank2, tank3, tank4, tank5, tank6 };
-            fixer = new ColumnFixer(connection);
+            
         }
         public async Task<bool> ValidateOrCreateTable(string tableName)
         {
