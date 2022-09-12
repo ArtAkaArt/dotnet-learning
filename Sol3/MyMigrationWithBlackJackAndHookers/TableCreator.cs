@@ -6,8 +6,8 @@ namespace MyMigration
 {
     internal class TableCreator
     {
-        private readonly string connectionString;
-        public TableCreator(string connectionString) => this.connectionString = connectionString;
+        private readonly NpgsqlConnection connection;
+        public TableCreator(NpgsqlConnection connection) => this.connection = connection;
 
         internal async Task CreateFactories(Factory[] factories)
         {
@@ -16,12 +16,9 @@ namespace MyMigration
                             $"\"Name\" varchar(50)," +
                             $"\"Description\" varchar(50)," +
                             $"PRIMARY KEY(\"Id\"));";
-            using (var connection = new NpgsqlConnection(connectionString))
-            {
-                await connection.OpenAsync();
-                var command = new NpgsqlCommand(sqlString, connection);
-                await command.ExecuteNonQueryAsync();
-            }
+
+            var command = new NpgsqlCommand(sqlString, connection);
+            await command.ExecuteNonQueryAsync();
             await FillFactories(factories);
         }
         internal async Task CreateUnits(Unit[] units)
@@ -36,12 +33,8 @@ namespace MyMigration
                             "FOREIGN KEY(\"FactoryId\") " +
                             "REFERENCES \"Factories\"(\"Id\") ON DELETE CASCADE);";
 
-            using (var connection = new NpgsqlConnection(connectionString))
-            {
-                await connection.OpenAsync();
-                var command = new NpgsqlCommand(sqlString, connection);
-                await command.ExecuteNonQueryAsync();
-            }
+            var command = new NpgsqlCommand(sqlString, connection);
+            await command.ExecuteNonQueryAsync();
             await FillUnits(units);
         }
         internal async Task CreateTanks(Tank[] tanks)
@@ -58,12 +51,8 @@ namespace MyMigration
                             "FOREIGN KEY(\"UnitId\") " +
                             "REFERENCES \"Units\"(\"Id\") ON DELETE CASCADE);";
 
-            using (var connection = new NpgsqlConnection(connectionString))
-            {
-                await connection.OpenAsync();
-                var command = new NpgsqlCommand(sqlString, connection);
-                await command.ExecuteNonQueryAsync();
-            }
+            var command = new NpgsqlCommand(sqlString, connection);
+            await command.ExecuteNonQueryAsync();
             await FillTanks(tanks);
         }
         internal async Task FillFactories(Factory[] factories)
@@ -89,21 +78,18 @@ namespace MyMigration
         }
         internal async Task AddFactory(Factory factory)
         {
-            using var connection = new NpgsqlConnection(connectionString);
             var sqlQuery = $"INSERT INTO \"Factories\" (\"Name\", \"Description\") " +
                            $"VALUES('{factory.Name}', '{factory.Description}');";
             await connection.ExecuteAsync(sqlQuery, factory);
         }
         internal async Task AddUnit(Unit unit)
         {
-            using var connection = new NpgsqlConnection(connectionString);
             var sqlQuery = $"INSERT INTO \"Units\" (\"Name\", \"Description\", \"FactoryId\") " +
                            $"VALUES('{unit.Name}', '{unit.Description}', {unit.FactoryId});";
             await connection.ExecuteAsync(sqlQuery, unit);
         }
         internal async Task AddTank(Tank tank)
         {
-            using var connection = new NpgsqlConnection(connectionString);
             var sqlQuery = $"INSERT INTO \"Tanks\" (\"Name\", \"Description\", \"Volume\", \"Maxvolume\", \"UnitId\") " +
                            $"VALUES('{tank.Name}', '{tank.Description}', {tank.Volume}, {tank.Maxvolume}, {tank.UnitId});";
             await connection.ExecuteAsync(sqlQuery, tank);
