@@ -12,7 +12,10 @@ namespace MyORM
             var reader = await command.ExecuteReaderAsync();
             var tType = typeof(TItem);
             if (!reader.HasRows)
+            {
+                await reader.CloseAsync();
                 return list;
+            }
 
             var columnsCount = reader.FieldCount;
             while (await reader.ReadAsync())
