@@ -38,7 +38,7 @@ namespace MyORM
                     }
                     var memberWithAttr = tType.GetMembers()
                                    .Where(m => ((TableBindingNameAttribute?)m.GetCustomAttribute(typeof(TableBindingNameAttribute)))?
-                                                                        .GetName() == reader.GetName(i))
+                                                                             .GetTableName() == reader.GetName(i))
                                    .FirstOrDefault();
                     if (memberWithAttr is null )
                         throw new InvalidCastException($"Unable to bind data from Column - {reader.GetName(i)}");

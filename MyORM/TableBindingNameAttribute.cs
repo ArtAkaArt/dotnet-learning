@@ -5,6 +5,6 @@
     {
         string TableName { get; set; }
         public TableBindingNameAttribute(string name) => TableName = name;
-        public string GetName() => TableName;
+        public string GetTableName() => TableName;
     }
 }
