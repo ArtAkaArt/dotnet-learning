@@ -11,31 +11,35 @@ namespace MyORM
             var command = new NpgsqlCommand(sqlQuery, connection);
             var reader = await command.ExecuteReaderAsync();
             var tType = typeof(TItem);
-            if (reader.HasRows)
-            {
-                var rowNum = reader.FieldCount;
+            if (!reader.HasRows)
+                return list;
 
-                while (await reader.ReadAsync())
+            var columnsCount = reader.FieldCount;
+            while (await reader.ReadAsync())
+            {
+                var tItem = (TItem)Activator.CreateInstance(tType);
+                for (int i = 0; i < columnsCount; i++)
                 {
-                    var tItem = (TItem)Activator.CreateInstance(tType);
-                    for (int i = 0; i < rowNum; i++)
+                    var field = tType.GetField(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
+                                             | BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (field is not null)
                     {
-                        var field = tType.GetField(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
-                                                 | BindingFlags.Instance | BindingFlags.NonPublic);
-                        if (field is not null)
-                        {
-                            field.SetValue(tItem, reader.GetValue(i));
-                            continue;
-                        }
-                        var property = tType.GetProperty(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
-                                                 | BindingFlags.Instance | BindingFlags.NonPublic);
-                        if (property is not null)
-                            property.SetValue(tItem, reader.GetValue(i));
+                        field.SetValue(tItem, reader.GetValue(i));
+                        continue;
                     }
-                    list.Add(tItem);
+
+                    var property = tType.GetProperty(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
+                                             | BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (property is not null)
+                    {
+                        property.SetValue(tItem, reader.GetValue(i));
+                        continue;
+                    }
+                    throw new InvalidCastException($"Unable to bind data from Column - {reader.GetName(i)}");
                 }
-                await reader.CloseAsync();
+                list.Add(tItem);
             }
+            await reader.CloseAsync();
             return list;
         }
     }
