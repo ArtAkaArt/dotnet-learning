@@ -23,20 +23,18 @@ namespace MyORM
                 for (int i = 0; i < columnsCount; i++)
                 {
                     var value = reader.GetValue(i);
-                    if (value is DBNull)
-                        continue;
                     var field = tType.GetField(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
                                                                 | BindingFlags.Instance | BindingFlags.NonPublic);
                     if (field is not null)
                     {
-                        field.SetValue(tItem, value);
+                        field.SetValue(tItem, value is DBNull? null:value);
                         continue;
                     }
                     var property = tType.GetProperty(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
                                                                       | BindingFlags.Instance | BindingFlags.NonPublic);
                     if (property is not null)
                     {
-                        property.SetValue(tItem, value);
+                        property.SetValue(tItem, value is DBNull ? null : value);
                         continue;
                     }
                     var memberWithAttr = tType.GetMembers()
@@ -46,9 +44,9 @@ namespace MyORM
                     if (memberWithAttr is null)
                         throw new InvalidCastException($"Unable to bind data from Column - {reader.GetName(i)}");
                     if (memberWithAttr.MemberType is MemberTypes.Field)
-                        ((FieldInfo)memberWithAttr).SetValue(tItem, value);
+                        ((FieldInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value);
                     if (memberWithAttr.MemberType is MemberTypes.Property)
-                        ((PropertyInfo)memberWithAttr).SetValue(tItem, value);
+                        ((PropertyInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value);
                 }
                 list.Add(tItem);
             }
