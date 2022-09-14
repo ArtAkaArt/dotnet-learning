@@ -33,6 +33,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Attributes\CustomAttributes.csproj" />
     <ProjectReference Include="..\FacilityRepoEF\FacilityContextLib.csproj" />
+    <ProjectReference Include="..\MyORM\MyORM.csproj" />
     <ProjectReference Include="..\UserContextLib\UserContextLib.csproj" />
   </ItemGroup>
   <ItemGroup>
