@@ -19,7 +19,7 @@ namespace MyORM
             var columnsCount = reader.FieldCount;
             while (await reader.ReadAsync())
             {
-                var tItem = (TItem)Activator.CreateInstance(tType);
+                var tItem = (TItem)Activator.CreateInstance(tType)!;
                 for (int i = 0; i < columnsCount; i++)
                 {
                     var field = tType.GetField(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
