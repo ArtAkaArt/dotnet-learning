@@ -14,7 +14,11 @@ namespace Sol3.Controllers
         [HttpGet("Test/Test1")]
         public async Task<IReadOnlyCollection<UnitDTO>> Test20()
         {
-            return await catDbContext.Test<UnitDTO>("Select * From \"Units\"");
+            using (catDbContext)
+            {
+                await catDbContext.OpenAsync();
+                return await catDbContext.Test<UnitDTO>("Select * From \"Units\" where \"Id\" = 1");
+            }
         }
     }
 }

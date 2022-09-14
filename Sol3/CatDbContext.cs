@@ -8,11 +8,7 @@ namespace Sol3
         }
         public async Task<IReadOnlyCollection<TItem>> Test<TItem>(string sqlSttring)
         {
-            using (connection)
-            {
-                await connection.OpenAsync();
-                return await connection.QueryMultipleItems<TItem>(sqlSttring);
-            }
+            return await connection.QueryMultipleItems<TItem>(sqlSttring);
         }
     }
 }

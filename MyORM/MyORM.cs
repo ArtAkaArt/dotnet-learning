@@ -22,30 +22,33 @@ namespace MyORM
                 var tItem = (TItem)Activator.CreateInstance(tType)!;
                 for (int i = 0; i < columnsCount; i++)
                 {
+                    var value = reader.GetValue(i);
+                    if (value is DBNull)
+                        continue;
                     var field = tType.GetField(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
                                                                 | BindingFlags.Instance | BindingFlags.NonPublic);
                     if (field is not null)
                     {
-                        field.SetValue(tItem, reader.GetValue(i));
+                        field.SetValue(tItem, value);
                         continue;
                     }
                     var property = tType.GetProperty(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
                                                                       | BindingFlags.Instance | BindingFlags.NonPublic);
                     if (property is not null)
                     {
-                        property.SetValue(tItem, reader.GetValue(i));
+                        property.SetValue(tItem, value);
                         continue;
                     }
                     var memberWithAttr = tType.GetMembers()
                                    .Where(m => ((TableBindingNameAttribute?)m.GetCustomAttribute(typeof(TableBindingNameAttribute)))?
                                                                              .GetTableName() == reader.GetName(i))
                                    .FirstOrDefault();
-                    if (memberWithAttr is null )
+                    if (memberWithAttr is null)
                         throw new InvalidCastException($"Unable to bind data from Column - {reader.GetName(i)}");
                     if (memberWithAttr.MemberType is MemberTypes.Field)
-                        ((FieldInfo)memberWithAttr).SetValue(tItem, reader.GetValue(i));
+                        ((FieldInfo)memberWithAttr).SetValue(tItem, value);
                     if (memberWithAttr.MemberType is MemberTypes.Property)
-                        ((PropertyInfo)memberWithAttr).SetValue(tItem, reader.GetValue(i));
+                        ((PropertyInfo)memberWithAttr).SetValue(tItem, value);
                 }
                 list.Add(tItem);
             }
