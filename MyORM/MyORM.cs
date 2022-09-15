@@ -11,7 +11,7 @@ namespace MyORM
             var command = new NpgsqlCommand(sqlQuery, connection);
             var reader = await command.ExecuteReaderAsync();
             var tType = typeof(TItem);
-            var tst = new Dictionary<string, Action<TItem, object>>();
+            var bindingFuncCollection = new Dictionary<string, Action<TItem, object>>();
             if (!reader.HasRows)
             {
                 await reader.CloseAsync();
@@ -24,7 +24,7 @@ namespace MyORM
                 for (int i = 0; i < columnsCount; i++)
                 {
                     var value = reader.GetValue(i);
-                    if (tst.TryGetValue(reader.GetName(i), out Action<TItem, object> tst2))
+                    if (bindingFuncCollection.TryGetValue(reader.GetName(i), out Action<TItem, object> tst2))
                     {
                         tst2.Invoke(tItem, value);
                         continue;
@@ -34,7 +34,7 @@ namespace MyORM
                     if (field is not null)
                     {
                         field.SetValue(tItem, value is DBNull ? null : value);
-                        tst.Add(reader.GetName(i), (tItem, value) => field.SetValue(tItem, value is DBNull ? null : value));
+                        bindingFuncCollection.Add(reader.GetName(i), (tItem, value) => field.SetValue(tItem, value is DBNull ? null : value));
                         continue;
                     }
                     var property = tType.GetProperty(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
@@ -42,7 +42,7 @@ namespace MyORM
                     if (property is not null)
                     {
                         property.SetValue(tItem, value is DBNull ? null : value);
-                        tst.Add(reader.GetName(i), (tItem, value) => property.SetValue(tItem, value is DBNull ? null : value));
+                        bindingFuncCollection.Add(reader.GetName(i), (tItem, value) => property.SetValue(tItem, value is DBNull ? null : value));
                         continue;
                     }
                     var memberWithAttr = tType.GetMembers()
@@ -53,13 +53,13 @@ namespace MyORM
                         throw new InvalidCastException($"Unable to bind data from Column - {reader.GetName(i)}");
                     if (memberWithAttr.MemberType is MemberTypes.Field)
                     {
-                        tst.Add(reader.GetName(i), (tItem, value) => ((FieldInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value));
+                        bindingFuncCollection.Add(reader.GetName(i), (tItem, value) => ((FieldInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value));
                         ((FieldInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value);
                         continue;
                     }
                     if (memberWithAttr.MemberType is MemberTypes.Property)
                     {
-                        tst.Add(reader.GetName(i), (tItem, value) => ((PropertyInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value));
+                        bindingFuncCollection.Add(reader.GetName(i), (tItem, value) => ((PropertyInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value));
                         ((PropertyInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value);
                     }
                 }
