@@ -4,10 +4,10 @@ using Sol3.Profiles;
 
 namespace Sol3.Controllers
 {
-    public class HomeController : ControllerBase
+    public class ORMTestController : ControllerBase
     {
         CatDbContext catDbContext;
-        public HomeController(CatDbContext context)
+        public ORMTestController(CatDbContext context)
         {
             catDbContext = context;
         }
@@ -17,7 +17,7 @@ namespace Sol3.Controllers
             using (catDbContext)
             {
                 await catDbContext.OpenAsync();
-                return await catDbContext.Test<UnitDTO>("Select * From \"Units\" where \"Id\" = 1");
+                return await catDbContext.Test<UnitDTO>("Select * From \"Units\"");
             }
         }
     }

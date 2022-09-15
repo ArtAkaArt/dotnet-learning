@@ -68,7 +68,7 @@ builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configur
 builder.Services.AddDbContext<UserContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials2")));
 builder.Services.AddTransient<Sol3.FacilityRepo>();
 builder.Services.AddTransient<Sol3.UserDBRepo>();
-builder.Services.AddHostedService<VolumeUpdateHostedService>();
+//builder.Services.AddHostedService<VolumeUpdateHostedService>();
 
 var app = builder.Build();
 
