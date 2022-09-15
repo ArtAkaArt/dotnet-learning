@@ -24,9 +24,9 @@ namespace MyORM
                 for (int i = 0; i < columnsCount; i++)
                 {
                     var value = reader.GetValue(i);
-                    if (bindingFuncCollection.TryGetValue(reader.GetName(i), out Action<TItem, object> tst2))
+                    if (bindingFuncCollection.TryGetValue(reader.GetName(i), out Action<TItem, object> bind))
                     {
-                        tst2.Invoke(tItem, value);
+                        bind.Invoke(tItem, value);
                         continue;
                     }
                     var field = tType.GetField(reader.GetName(i), BindingFlags.IgnoreCase | BindingFlags.Public
