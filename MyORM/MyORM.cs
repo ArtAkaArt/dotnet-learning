@@ -53,14 +53,16 @@ namespace MyORM
                         throw new InvalidCastException($"Unable to bind data from Column - {reader.GetName(i)}");
                     if (memberWithAttr.MemberType is MemberTypes.Field)
                     {
-                        bindingFuncCollection.Add(reader.GetName(i), (tItem, value) => ((FieldInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value));
-                        ((FieldInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value);
+                        field = (FieldInfo)memberWithAttr;
+                        field.SetValue(tItem, value is DBNull ? null : value);
+                        bindingFuncCollection.Add(reader.GetName(i), (tItem, value) => field.SetValue(tItem, value is DBNull ? null : value));
                         continue;
                     }
                     if (memberWithAttr.MemberType is MemberTypes.Property)
                     {
-                        bindingFuncCollection.Add(reader.GetName(i), (tItem, value) => ((PropertyInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value));
-                        ((PropertyInfo)memberWithAttr).SetValue(tItem, value is DBNull ? null : value);
+                        property = (PropertyInfo)memberWithAttr;
+                        property.SetValue(tItem, value is DBNull ? null : value);
+                        bindingFuncCollection.Add(reader.GetName(i), (tItem, value) => property.SetValue(tItem, value is DBNull ? null : value));
                     }
                 }
                 list.Add(tItem);
