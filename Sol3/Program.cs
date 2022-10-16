@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var myMigration = new MyMigrationWithBlackJackAndHookers(builder.Configuration.GetConnectionString("Credentials"));
 await myMigration.CheckDB();
 var repoType = builder.Configuration.GetSection("RepoType").Value;
-builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
+builder.Services.AddSingleton(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
 builder.Services.AddTransient<IValidator<UnitDTO>, UnitDTOValidator>();
@@ -76,7 +76,7 @@ if (repoType == "EF")
 else builder.Services.AddTransient<IMyRepo, AdoFacilityRepo>(x =>
                                         new AdoFacilityRepo(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddTransient<UserDBRepo>();
-builder.Services.AddHostedService<VolumeUpdateHostedService>();
+//builder.Services.AddHostedService<VolumeUpdateHostedService>();
 
 var app = builder.Build();
 
