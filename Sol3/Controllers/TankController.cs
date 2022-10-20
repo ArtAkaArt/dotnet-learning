@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Sol3.Profiles;
+using Sol3.Repos;
 using FluentValidation;
 using System.Text;
 using FacilityContextLib;
@@ -10,11 +11,11 @@ namespace Sol3.Controllers
 {
     public class TankController : ControllerBase
     {
-        private FacilityRepo repo;
+        private readonly IMyRepo repo;
         private readonly IMapper mapper;
         private readonly IValidator<TankDTO> validator;
         private readonly ILogger<TankController> logger;
-        public TankController(FacilityRepo repo, IMapper mapper, IValidator<TankDTO> validator, ILogger<TankController> logger)
+        public TankController(IMyRepo repo, IMapper mapper, IValidator<TankDTO> validator, ILogger<TankController> logger)
         {
             this.repo = repo;
             this.mapper = mapper;

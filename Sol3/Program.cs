@@ -5,6 +5,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Sol3.Profiles;
+using Sol3.Repos;
 using Sol3;
 using UserContextLib;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,7 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using CustomAttributes;
+using MyMigration;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,7 +43,7 @@ builder.Services.AddSwaggerGen(options =>
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey
     });
-    options.OperationFilter<SecurityRequirementsOperationFilter>(); 
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 KeysConfiguration keyConfig = new();
 builder.Configuration.GetSection(KeysConfiguration.Configuration).Bind(keyConfig);
@@ -54,20 +56,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyConfig.Key1)),
-            ValidateIssuer  = false,
+            ValidateIssuer = false,
             ValidateAudience = false,
         };
     });
-
-builder.Services.AddSingleton<KeysConfiguration>(o => keyConfig);
+var myMigration = new MyMigrationWithBlackJackAndHookers(builder.Configuration.GetConnectionString("Credentials"));
+await myMigration.CheckDB();
+var repoType = builder.Configuration.GetSection("RepoType").Value;
+builder.Services.AddSingleton(o => keyConfig);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IValidator<TankDTO>, TankDTOValidator>();
 builder.Services.AddTransient<IValidator<UnitDTO>, UnitDTOValidator>();
-builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
 builder.Services.AddDbContext<UserContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials2")));
-builder.Services.AddTransient<Sol3.FacilityRepo>();
-builder.Services.AddTransient<Sol3.UserDBRepo>();
-builder.Services.AddHostedService<VolumeUpdateHostedService>();
+if (repoType == "EF")
+{
+    builder.Services.AddDbContext<FacilityContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Credentials")));
+    builder.Services.AddTransient<IMyRepo, FacilityRepo>();
+}
+else builder.Services.AddTransient<IMyRepo, AdoFacilityRepo>(x =>
+                                        new AdoFacilityRepo(builder.Configuration.GetConnectionString("Credentials")));
+builder.Services.AddTransient<UserDBRepo>();
+//builder.Services.AddHostedService<VolumeUpdateHostedService>();
 
 var app = builder.Build();
 

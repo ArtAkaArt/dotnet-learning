@@ -1,6 +1,6 @@
 ﻿namespace FacilityContextLib
 {
-    public class Tank
+    public class Tank : IFacility
     {
         public int Id { get; set; }
         public string? Name { get; set; }
